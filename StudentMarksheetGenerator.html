@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Marksheet Generator</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #ececec; /* Light grey background */
+      color: #333;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 2rem auto;
+      background: #ffffff; /* White background for the container */
+      border-radius: 10px;
+      padding: 2rem;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #2196F3; /* Blue color for the header */
+      margin-bottom: 1rem;
+    }
+
+    h2 {
+      color: #333;
+      margin-bottom: 1rem;
+      border-bottom: 2px solid #2196F3; /* Blue underline */
+      display: inline-block;
+    }
+
+    form {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    .entry-section, .total-section {
+      width: 48%;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .marks label, .marks input {
+      display: inline-block;
+      width: 48%;
+    }
+
+    .total-section {
+      text-align: center;
+    }
+
+    .total {
+      font-size: 2rem;
+      color: #2196F3; /* Blue color for total marks */
+    }
+
+    button {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 5px;
+      background: #2196F3; /* Blue background for buttons */
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+
+    button:hover {
+      background: #1976D2; /* Darker blue on hover */
+    }
+
+    .result-section {
+      margin-top: 2rem;
+      padding: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background: #f0f8ff; /* Light blue background for the result section */
+    }
+
+    .student-info, .marks-info {
+      margin-top: 1rem;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .student-info div, .marks-info div {
+      width: 48%;
+      padding: 1rem;
+      border: 1px solid #2196F3; /* Blue border for student and marks info */
+      border-radius: 5px;
+      background: #e3f2fd; /* Very light blue background for each section */
+    }
+
+    .marks-info {
+      text-align: center;
+    }
+
+    .marks-info p {
+      margin: 0.5rem 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Student Marksheet Generator</h1>
+    <form id="marksheetForm">
+      <div class="entry-section">
+        <h2>Entry Form</h2>
+        <label for="studentName">Student Name:</label>
+        <input type="text" id="studentName" placeholder="Enter student name" required>
+
+        <label for="regNumber">Registration No. (10 digits):</label>
+        <input type="text" id="regNumber" placeholder="Enter registration number" maxlength="10" pattern="\d{10}" title="Please enter exactly 10 digits" required>
+
+        <div class="marks">
+          <label for="maths">Maths:</label>
+          <input type="number" id="maths" max="99" min="0" value="" required>
+
+          <label for="science">Science:</label>
+          <input type="number" id="science" max="99" min="0" value="" required>
+
+          <label for="sst">S. Studies:</label>
+          <input type="number" id="sst" max="99" min="0" value="" required>
+
+          <label for="language1">1st Language:</label>
+          <input type="number" id="language1" max="99" min="0" value="" required>
+
+          <label for="language2">2nd Language:</label>
+          <input type="number" id="language2" max="99" min="0" value="" required>
+        </div>
+      </div>
+      <div class="total-section">
+        <h2>Total Marks</h2>
+        <div class="total">
+          <p id="obtainedMarks">0</p>
+          <span>/</span>
+          <p>500</p>
+        </div>
+      </div>
+      <button id="submitBtn">Submit</button>
+      <button type="reset" id="clearBtn">Clear</button>
+    </form>
+    <div class="result-section">
+      <h2>Result Preview</h2>
+      <div class="student-info">
+        <div><p id="studentNameDisplay"></p></div>
+        <div><p id="regNumberDisplay"></p></div>
+      </div>
+      <div class="marks-info">
+        <div><p id="percentageDisplay"></p></div>
+        <div><p id="gradeDisplay"></p></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const marksheetForm = document.getElementById('marksheetForm');
+    const obtainedMarks = document.getElementById('obtainedMarks');
+    const studentNameDisplay = document.getElementById('studentNameDisplay');
+    const regNumberDisplay = document.getElementById('regNumberDisplay');
+    const percentageDisplay = document.getElementById('percentageDisplay');
+    const gradeDisplay = document.getElementById('gradeDisplay');
+    const submitBtn = document.getElementById('submitBtn');
+
+    function calculateTotalMarks() {
+      const maths = parseInt(document.getElementById('maths').value) || 0;
+      const science = parseInt(document.getElementById('science').value) || 0;
+      const sst = parseInt(document.getElementById('sst').value) || 0;
+      const language1 = parseInt(document.getElementById('language1').value) || 0;
+      const language2 = parseInt(document.getElementById('language2').value) || 0;
+
+      const total = maths + science + sst + language1 + language2;
+      obtainedMarks.textContent = total;
+
+      const percentage = (total / 500) * 100;
+      percentageDisplay.textContent = `Percentage: ${percentage.toFixed(2)}%`;
+
+      let grade;
+      if (percentage >= 90) {
+        grade = 'A+';
+      } else if (percentage >= 80) {
+        grade = 'A';
+      } else if (percentage >= 70) {
+        grade = 'B';
+      } else if (percentage >= 60) {
+        grade = 'C';
+      } else if (percentage >= 50) {
+        grade = 'D';
+      } else {
+        grade = 'F';
+      }
+      gradeDisplay.textContent = `Grade: ${grade}`;
+    }
+
+    function displayStudentInfo() {
+      const studentName = document.getElementById('studentName').value;
+      const regNumber = document.getElementById('regNumber').value;
+      studentNameDisplay.textContent = `Name: ${studentName}`;
+      regNumberDisplay.textContent = `Reg. No: ${regNumber}`;
+    }
+
+    marksheetForm.addEventListener('input', calculateTotalMarks);
+
+    submitBtn.addEventListener('click', function(event) {
+      event.preventDefault(); // Prevent form submission
+      displayStudentInfo();
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', function() {
+      obtainedMarks.textContent = '0';
+      percentageDisplay.textContent = '';
+      gradeDisplay.textContent = '';
+      studentNameDisplay.textContent = '';
+      regNumberDisplay.textContent = '';
+    });
+  </script>
+</body>
+</html>
