@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My To-Do List</title>
+    <style>
+        /* Basic layout and background */
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #00AEEF, #48AEF0);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Styling for the to-do list container */
+        .todo-container {
+            background-color: #fff;
+            width: 380px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            padding: 30px;
+            text-align: center;
+        }
+
+        /* To-Do List Heading */
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #2d3b55;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        /* The input and button section */
+        .input-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 0 10px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s ease-in-out;
+        }
+
+        input[type="text"]:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        button {
+            padding: 12px 25px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s;
+        }
+
+        /* Task list and individual task styling */
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        li {
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        li:hover {
+            background-color: #e9ecef;
+        }
+
+        span {
+            font-size: 16px;
+            color: #333;
+        }
+
+        .completed {
+            text-decoration: line-through;
+            color: #888;
+        }
+
+        .delete-btn {
+            background-color: transparent;
+            color: #ff4d4d;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .delete-btn:hover {
+            transform: scale(1.1);
+        }
+
+        input[type="checkbox"] {
+            transform: scale(1.3);
+            margin-right: 15px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="todo-container">
+        <h1>My To-Do List</h1>
+        <div class="input-container">
+            <input type="text" id="taskInput" placeholder="Add a new task" />
+            <button id="addTaskBtn">Add Task</button>
+        </div>
+        <ul id="taskList"></ul>
+    </div>
+
+    <script>
+        // Cache the important DOM elements
+        const taskInput = document.getElementById("taskInput");
+        const addTaskBtn = document.getElementById("addTaskBtn");
+        const taskList = document.getElementById("taskList");
+
+        // Function to load tasks from localStorage
+        function loadTasks() {
+            const savedTasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            savedTasks.forEach(task => {
+                createTaskElement(task.text, task.completed);
+            });
+        }
+
+        // Function to save tasks to localStorage
+        function saveTasks() {
+            const tasks = [];
+            document.querySelectorAll("li").forEach(li => {
+                const taskText = li.querySelector("span").textContent;
+                const completed = li.querySelector("input[type='checkbox']").checked;
+                tasks.push({ text: taskText, completed });
+            });
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        // When 'Add Task' button is clicked
+        addTaskBtn.addEventListener("click", () => {
+            const taskText = taskInput.value.trim();
+            if (taskText) {
+                createTaskElement(taskText);
+                taskInput.value = ""; // Reset input field
+                saveTasks(); // Save tasks to localStorage
+            }
+        });
+
+        // Function to create a task element and add it to the list
+        function createTaskElement(taskText, completed = false) {
+            const li = document.createElement("li");
+            li.innerHTML = `
+                <label>
+                    <input type="checkbox" ${completed ? 'checked' : ''} />
+                    <span>${taskText}</span>
+                </label>
+                <button class="delete-btn">✖</button>
+            `;
+            taskList.appendChild(li);
+
+            // Toggle task completion when checkbox is changed
+            li.querySelector("input[type='checkbox']").addEventListener("change", (e) => {
+                const taskSpan = li.querySelector("span");
+                taskSpan.classList.toggle("completed", e.target.checked);
+                saveTasks(); // Update localStorage after completion change
+            });
+
+            // Remove task when delete button is clicked
+            li.querySelector(".delete-btn").addEventListener("click", () => {
+                taskList.removeChild(li);
+                saveTasks(); // Update localStorage after deletion
+            });
+        }
+
+        // Load tasks when the page loads
+        loadTasks();
+    </script>
+</body>
+
+</html>
