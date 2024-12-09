@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #1d2b38, #283e4e);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+            margin: 0;
+        }
+
+        .calculator {
+            background: #333;
+            border-radius: 20px;
+            padding: 40px;
+            width: 400px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.5s ease-out;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        input {
+            width: 100%;
+            height: 80px;
+            text-align: right;
+            font-size: 48px;
+            padding: 10px;
+            margin-bottom: 20px;
+            background: #1c2938;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            box-shadow: inset 0 5px 15px rgba(0, 0, 0, 0.3);
+            font-family: 'Roboto', sans-serif;
+            outline: none;
+            transition: box-shadow 0.3s ease;
+        }
+
+        input:focus {
+            box-shadow: inset 0 5px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            width: 100%;
+        }
+
+        .button {
+            background-color: #444;
+            border: none;
+            border-radius: 15px;
+            color: white;
+            font-size: 32px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            height: 70px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .button:hover {
+            background-color: #555;
+            transform: scale(1.05);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+        }
+
+        .button:active {
+            transform: translateY(3px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .button.operator {
+            background-color: #f39c12;
+        }
+
+        .button.operator:hover {
+            background-color: #e67e22;
+        }
+
+        .button.equal {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        .button.equal:hover {
+            background-color: #27ae60;
+        }
+
+        .button.clear,
+        .button.backspace {
+            background-color: #e74c3c;
+            color: white;
+            font-size: 34px;
+            padding: 22px 30px;
+        }
+
+        .button.clear:hover,
+        .button.backspace:hover {
+            background-color: #c0392b;
+        }
+
+        .button.backspace {
+            background-color: #8e44ad;
+        }
+
+        .button.backspace:hover {
+            background-color: #9b59b6;
+        }
+
+        .top-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        .button:focus {
+            outline: none;
+        }
+
+        @media (max-width: 480px) {
+            .calculator {
+                padding: 20px;
+                width: 90%;
+            }
+
+            input {
+                font-size: 36px;
+                height: 60px;
+            }
+
+            .button {
+                font-size: 28px;
+                padding: 18px;
+            }
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="calculator">
+        <input type="text" id="calculator-display" disabled placeholder="0">
+        <div class="top-buttons">
+            <button class="button clear" id="clear-button">C</button>
+            <button class="button backspace" id="backspace-button">←</button>
+        </div>
+        <div class="buttons">
+            <button class="button" data-value="7">7</button>
+            <button class="button" data-value="8">8</button>
+            <button class="button" data-value="9">9</button>
+            <button class="button operator" data-value="+">+</button>
+
+            <button class="button" data-value="4">4</button>
+            <button class="button" data-value="5">5</button>
+            <button class="button" data-value="6">6</button>
+            <button class="button operator" data-value="-">-</button>
+
+            <button class="button" data-value="1">1</button>
+            <button class="button" data-value="2">2</button>
+            <button class="button" data-value="3">3</button>
+            <button class="button operator" data-value="X">X</button>
+
+            <button class="button" data-value="0">0</button>
+            <button class="button" data-value=".">.</button>
+            <button class="button operator" data-value="÷">÷</button>
+            <button class="button equal" id="equals-button">=</button>
+        </div>
+    </div>
+
+    <script>
+        const displayElement = document.getElementById('calculator-display');
+        const clearButton = document.getElementById('clear-button');
+        const backspaceButton = document.getElementById('backspace-button');
+        const equalsButton = document.getElementById('equals-button');
+        const numberButtons = document.querySelectorAll('.button[data-value]');
+
+        // Event listeners for number buttons
+        numberButtons.forEach(button => {
+            button.addEventListener('click', () => appendToDisplay(button.getAttribute('data-value')));
+        });
+
+        clearButton.addEventListener('click', clearDisplay);
+        backspaceButton.addEventListener('click', backspace);
+        equalsButton.addEventListener('click', calculate);
+
+        function appendToDisplay(value) {
+            if (displayElement.value === 'Error') {
+                displayElement.value = ''; // Reset on error state
+            }
+            displayElement.value += value;
+        }
+
+        function clearDisplay() {
+            displayElement.value = '';
+        }
+
+        function backspace() {
+            displayElement.value = displayElement.value.slice(0, -1);
+        }
+
+        function calculate() {
+            try {
+                let expression = displayElement.value.replace('X', '*').replace('÷', '/');
+                const result = eval(expression);
+
+                if (result === Infinity || result === -Infinity || isNaN(result)) {
+                    throw new Error('Invalid Calculation');
+                }
+
+                displayElement.value = result;
+            } catch (error) {
+                displayElement.value = 'Error';
+            }
+        }
+    </script>
+</body>
+
+</html>
