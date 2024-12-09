@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intermediate Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #1d2b38, #283e4e);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #fff;
+        }
+
+        .calculator {
+            background-color: #333333;
+            border-radius: 15px;
+            width: 460px;
+            padding: 30px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            height: 650px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        input {
+            width: 100%;
+            height: 80px;
+            font-size: 48px;
+            padding: 10px;
+            margin-bottom: 20px;
+            background-color: #1c2938;
+            border: 1px solid #444;
+            border-radius: 10px;
+            color: #fff;
+            letter-spacing: 2px;
+            text-align: right;
+            /* Right-align text */
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            width: 100%;
+        }
+
+        .button {
+            background-color: #444;
+            border: 1px solid #555;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 32px;
+            padding: 18px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: #555;
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .button:active {
+            transform: translateY(3px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .button.operator {
+            background-color: #f39c12;
+        }
+
+        .button.operator:hover {
+            background-color: #e67e22;
+        }
+
+        .button.equal {
+            background-color: #2ecc71;
+        }
+
+        .button.equal:hover {
+            background-color: #27ae60;
+        }
+
+        .button.clear {
+            background-color: #e74c3c;
+        }
+
+        .button.clear:hover {
+            background-color: #c0392b;
+        }
+
+        .button.pi {
+            background-color: #9b59b6;
+        }
+
+        .button.pi:hover {
+            background-color: #8e44ad;
+        }
+
+        .button.e {
+            background-color: #f39c12;
+        }
+
+        .button.e:hover {
+            background-color: #f1c40f;
+        }
+
+        .button.sqrt {
+            background-color: #1abc9c;
+        }
+
+        .button.sqrt:hover {
+            background-color: #16a085;
+        }
+
+        .button.brackets {
+            background-color: #8e44ad;
+        }
+
+        .button.brackets:hover {
+            background-color: #9b59b6;
+        }
+
+        .button.backspace {
+            background-color: #bdc3c7;
+        }
+
+        .button.backspace:hover {
+            background-color: #95a5a6;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="calculator">
+        <input type="text" id="display" disabled placeholder="0">
+        <div class="buttons">
+            <button class="button clear" onclick="clearDisplay()">C</button>
+            <button class="button backspace" onclick="deleteLast()">←</button>
+            <button class="button exponent" onclick="appendToDisplay('**')">^</button>
+            <button class="button operator" onclick="appendToDisplay('+')">+</button>
+
+            <button class="button" onclick="appendToDisplay('7')">7</button>
+            <button class="button" onclick="appendToDisplay('8')">8</button>
+            <button class="button" onclick="appendToDisplay('9')">9</button>
+            <button class="button operator" onclick="appendToDisplay('-')">-</button>
+
+            <button class="button" onclick="appendToDisplay('4')">4</button>
+            <button class="button" onclick="appendToDisplay('5')">5</button>
+            <button class="button" onclick="appendToDisplay('6')">6</button>
+            <button class="button operator" onclick="appendToDisplay('*')">*</button>
+
+            <button class="button" onclick="appendToDisplay('1')">1</button>
+            <button class="button" onclick="appendToDisplay('2')">2</button>
+            <button class="button" onclick="appendToDisplay('3')">3</button>
+            <button class="button operator" onclick="appendToDisplay('/')">/</button>
+
+            <button class="button" onclick="appendToDisplay('0')">0</button>
+            <button class="button" onclick="appendToDisplay('.')">.</button>
+            <button class="button brackets" onclick="appendToDisplay('(')">(</button>
+            <button class="button brackets" onclick="appendToDisplay(')')">)</button>
+
+            <button class="button pi" onclick="appendToDisplay('Math.PI')">π</button>
+            <button class="button e" onclick="appendToDisplay('Math.E')">e</button>
+
+            <button class="button sqrt" onclick="appendToDisplay('Math.sqrt(')">√</button>
+
+            <button class="button equal" onclick="calculate()">=</button>
+        </div>
+    </div>
+
+    <script>
+        // Append the clicked button's value to the display input field
+        function appendToDisplay(value) {
+            const display = document.getElementById('display');
+            display.value += value;
+        }
+
+        // Clear the display
+        function clearDisplay() {
+            document.getElementById('display').value = '';
+        }
+
+        // Delete the last character from the display
+        function deleteLast() {
+            const display = document.getElementById('display');
+            display.value = display.value.slice(0, -1);
+        }
+
+        // Calculate the result of the expression
+        function calculate() {
+            const display = document.getElementById('display');
+            try {
+                // Replaces '^' with '**' for exponentiation support
+                let result = eval(display.value);
+
+                // Handle errors like Infinity or NaN
+                if (result === Infinity || result === -Infinity || isNaN(result)) {
+                    display.value = 'Error';
+                } else {
+                    display.value = result;
+                }
+            } catch (error) {
+                display.value = 'Error';
+            }
+        }
+
+        // Handle keyboard input for ease of use
+        document.addEventListener('keydown', function (event) {
+            const display = document.getElementById('display');
+            if (event.key >= '0' && event.key <= '9') {
+                appendToDisplay(event.key); // Number key pressed
+            } else if (event.key === '.') {
+                appendToDisplay('.'); // Decimal point
+            } else if (event.key === '+') {
+                appendToDisplay('+');
+            } else if (event.key === '-') {
+                appendToDisplay('-');
+            } else if (event.key === '*') {
+                appendToDisplay('*');
+            } else if (event.key === '/') {
+                appendToDisplay('/');
+            } else if (event.key === '^') {
+                appendToDisplay('**'); // Exponentiation
+            } else if (event.key === 'Enter') {
+                calculate(); // Calculate result
+            } else if (event.key === 'Backspace') {
+                deleteLast(); // Delete last character
+            } else if (event.key === 'Escape') {
+                clearDisplay(); // Clear display
+            } else if (event.key === '(') {
+                appendToDisplay('(');
+            } else if (event.key === ')') {
+                appendToDisplay(')');
+            }
+        });
+    </script>
+</body>
+
+</html>
