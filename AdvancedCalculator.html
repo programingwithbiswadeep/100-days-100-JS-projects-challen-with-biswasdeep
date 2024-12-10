@@ -1,1 +1,428 @@
-*This code grants you premium access.*
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #1d2b38, #283e4e);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #fff;
+            position: relative;
+        }
+
+        .calculator-container {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            position: relative;
+        }
+
+        .calculator {
+            background-color: #333333;
+            border-radius: 15px;
+            width: 360px;
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            height: 560px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        input {
+            width: 100%;
+            height: 60px;
+            text-align: right;
+            font-size: 36px;
+            padding: 8px;
+            margin-bottom: 15px;
+            background-color: #1c2938;
+            border: 1px solid #444;
+            border-radius: 10px;
+            color: #fff;
+            letter-spacing: 2px;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            width: 100%;
+        }
+
+        .button {
+            background-color: #444;
+            border: 1px solid #555;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 24px;
+            padding: 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: #555;
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .button:active {
+            transform: translateY(3px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .button.operator {
+            background-color: #f39c12;
+        }
+
+        .button.operator:hover {
+            background-color: #e67e22;
+        }
+
+        .button.equal {
+            background-color: #2ecc71;
+        }
+
+        .button.equal:hover {
+            background-color: #27ae60;
+        }
+
+        .button.clear {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .button.clear:hover {
+            background-color: #c0392b;
+        }
+
+        .button.pi {
+            background-color: #9b59b6;
+        }
+
+        .button.pi:hover {
+            background-color: #8e44ad;
+        }
+
+        .button.e {
+            background-color: #f39c12;
+        }
+
+        .button.e:hover {
+            background-color: #f1c40f;
+        }
+
+        .button.sqrt {
+            background-color: #1abc9c;
+        }
+
+        .button.sqrt:hover {
+            background-color: #16a085;
+        }
+
+        .button.brackets {
+            background-color: #8e44ad;
+        }
+
+        .button.brackets:hover {
+            background-color: #9b59b6;
+        }
+
+        .button.backspace {
+            background-color: #bdc3c7;
+        }
+
+        .button.backspace:hover {
+            background-color: #95a5a6;
+        }
+
+        .history-container {
+            display: none;
+            background-color: #333;
+            padding: 10px;
+            border-radius: 10px;
+            width: 250px;
+            height: 250px;
+            overflow-y: auto;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+            position: absolute;
+            top: 80px;
+            right: -270px;
+            margin-top: 10px;
+        }
+
+        .history-container h3 {
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .history-item {
+            color: #f1c40f;
+            padding: 5px 0;
+            border-bottom: 1px solid #444;
+        }
+
+        .history-btn {
+            background-color: #b0b0b0;
+            color: #fff;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+            position: absolute;
+            top: 20px;
+            right: -90px;
+            display: flex;
+            align-items: center;
+        }
+
+        .history-btn img {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+        }
+
+        .history-btn:hover {
+            background-color: #ffffff;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .clear-history-btn,
+        .close-history-btn {
+            background-color: #e74c3c;
+            color: white;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+            margin-top: 10px;
+            width: 45%;
+        }
+
+        .clear-history-btn:hover,
+        .close-history-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .coin-conversion-btn {
+            background-color: #2980b9;
+            color: white;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+        }
+
+        .coin-conversion-btn:hover {
+            background-color: #3498db;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="calculator-container">
+        <div class="calculator">
+            <input type="text" id="display" disabled placeholder="0">
+            <div class="buttons">
+                <!-- Clear Button -->
+                <button class="button clear" onclick="clearDisplay()">C</button>
+
+                <!-- Backspace Button -->
+                <button class="button backspace" onclick="backspace()">←</button>
+                <button class="button exponent" onclick="appendToDisplay('**')">^</button>
+                <button class="button operator" onclick="appendToDisplay('+')">+</button>
+
+                <!-- Number Buttons -->
+                <button class="button" onclick="appendToDisplay('7')">7</button>
+                <button class="button" onclick="appendToDisplay('8')">8</button>
+                <button class="button" onclick="appendToDisplay('9')">9</button>
+                <button class="button operator" onclick="appendToDisplay('-')">-</button>
+
+                <button class="button" onclick="appendToDisplay('4')">4</button>
+                <button class="button" onclick="appendToDisplay('5')">5</button>
+                <button class="button" onclick="appendToDisplay('6')">6</button>
+                <button class="button operator" onclick="appendToDisplay('*')">*</button>
+
+                <button class="button" onclick="appendToDisplay('1')">1</button>
+                <button class="button" onclick="appendToDisplay('2')">2</button>
+                <button class="button" onclick="appendToDisplay('3')">3</button>
+                <button class="button operator" onclick="appendToDisplay('/')">/</button>
+
+                <button class="button" onclick="appendToDisplay('0')">0</button>
+                <button class="button" onclick="appendToDisplay('.')">.</button>
+                <button class="button brackets" onclick="appendToDisplay('(')">(</button>
+                <button class="button brackets" onclick="appendToDisplay(')')">)</button>
+
+                <!-- Special Mathematical Functions -->
+                <button class="button pi" onclick="appendToDisplay('Math.PI')">π</button>
+                <button class="button e" onclick="appendToDisplay('Math.E')">e</button>
+
+                <!-- Backspace Button -->
+                <button class="button sqrt" onclick="appendToDisplay('Math.sqrt(')">√</button>
+
+                <!-- Equal Button -->
+                <button class="button equal" onclick="calculate()">=</button>
+            </div>
+
+            <!-- History Button with Icon -->
+            <button class="button history-btn" onclick="toggleHistory()">
+                <img src="Images/history-btn.png" alt="History Icon">
+
+            </button>
+
+            <!-- Coin Conversion Button -->
+            <button class="coin-conversion-btn" onclick="convertCurrency()">Convert 100 INR to USD</button>
+        </div>
+
+        <!-- History Container -->
+        <div class="history-container" id="historyContainer">
+            <h3>History</h3>
+            <div id="historyList"></div>
+
+            <!-- Buttons for clearing and closing history, aligned in one row -->
+            <div class="button-container">
+                <button class="clear-history-btn" onclick="clearHistory()">Clear</button>
+                <button class="close-history-btn" onclick="closeHistory()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let history = []; // Array to store the history
+
+        // Conversion rate from INR to USD (static example)
+        const INR_TO_USD = 0.012;
+
+        // Function to append value to the display
+        function appendToDisplay(value) {
+            const display = document.getElementById('display');
+            display.value += value;
+        }
+
+        // Function to clear the display
+        function clearDisplay() {
+            document.getElementById('display').value = '';
+        }
+
+        // Function to delete the last character from the display (backspace)
+        function backspace() {
+            const display = document.getElementById('display');
+            display.value = display.value.slice(0, -1);  // Remove the last character
+        }
+
+        // Function to calculate the result of the expression
+        function calculate() {
+            const display = document.getElementById('display');
+            try {
+                let result = eval(display.value);
+                result = result === Infinity || result === -Infinity || isNaN(result) ? 'Error' : result;
+                history.push(display.value + ' = ' + result);
+                if (history.length > 5) history.shift(); // Keep only last 5 calculations
+                display.value = result;
+                updateHistory();
+            } catch (e) {
+                display.value = 'Error';
+            }
+        }
+
+        // Function to convert INR to USD
+        function convertCurrency() {
+            const display = document.getElementById('display');
+            const amountInINR = parseFloat(display.value);
+
+            if (isNaN(amountInINR)) {
+                display.value = 'Invalid input';
+                return;
+            }
+
+            const amountInUSD = amountInINR * INR_TO_USD;
+            display.value = `${amountInINR} INR = ${amountInUSD.toFixed(2)} USD`;
+        }
+
+        // Function to toggle history visibility
+        function toggleHistory() {
+            const historyContainer = document.getElementById('historyContainer');
+            historyContainer.style.display = historyContainer.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // Function to close the history box
+        function closeHistory() {
+            document.getElementById('historyContainer').style.display = 'none';
+        }
+
+        // Function to update history display
+        function updateHistory() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = ''; // Clear the existing history list
+            history.forEach((item, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.classList.add('history-item');
+                historyItem.textContent = item;
+                historyList.appendChild(historyItem);
+            });
+        }
+
+        // Function to clear history
+        function clearHistory() {
+            history = [];
+            updateHistory();
+        }
+
+        // Function to handle keyboard input
+        document.addEventListener('keydown', function (event) {
+            const display = document.getElementById('display');
+            if (event.key >= '0' && event.key <= '9') {
+                appendToDisplay(event.key);
+            } else if (event.key === '.') {
+                appendToDisplay('.');
+            } else if (event.key === '+') {
+                appendToDisplay('+');
+            } else if (event.key === '-') {
+                appendToDisplay('-');
+            } else if (event.key === '*') {
+                appendToDisplay('*');
+            } else if (event.key === '/') {
+                appendToDisplay('/');
+            } else if (event.key === '^') {
+                appendToDisplay('**');
+            } else if (event.key === 'Enter') {
+                calculate();
+            } else if (event.key === 'Backspace') {
+                backspace();
+            } else if (event.key === 'Escape') {
+                clearDisplay();
+            } else if (event.key === '(') {
+                appendToDisplay('(');
+            } else if (event.key === ')') {
+                appendToDisplay(')');
+            }
+        });
+    </script>
+</body>
+
+</html>
