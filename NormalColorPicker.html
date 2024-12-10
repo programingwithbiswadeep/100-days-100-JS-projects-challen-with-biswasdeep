@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Picker</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        .container {
+            background-color: #fff;
+            border-radius: 20px;
+            padding: 40px;
+            display: flex;
+            width: 760px;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.3s ease;
+        }
+
+        h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: center;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Color box styling */
+        #colorBox {
+            width: 300px;
+            height: 300px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease;
+        }
+
+        /* Content section */
+        .content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            margin-left: 40px;
+            flex: 1;
+        }
+
+        .range-container {
+            margin-bottom: 30px;
+        }
+
+        label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            display: block;
+            font-size: 18px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 12px;
+            background: #ddd;
+            border-radius: 8px;
+            outline: none;
+            transition: background 0.3s ease;
+        }
+
+        input[type="range"]:hover {
+            background: #bbb;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #3498db;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: #2980b9;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #3498db;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="range"]::-moz-range-thumb:hover {
+            background: #2980b9;
+        }
+
+        /* RGB, RGBA, and Hex Code Display */
+        .color-code {
+            font-size: 18px;
+            font-weight: 500;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .color-code div {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .color-code span {
+            background-color: #ecf0f1;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            font-size: 16px;
+            flex-grow: 1;
+            margin-right: 10px;
+            text-align: left;
+            transition: background-color 0.3s ease;
+        }
+
+        .color-code span:hover {
+            background-color: #dfe6e9;
+        }
+
+        .copy-btn {
+            padding: 12px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+            text-transform: uppercase;
+            width: 100px;
+        }
+
+        .copy-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .clear-btn {
+            padding: 12px 20px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+            text-transform: uppercase;
+            width: 100px;
+            margin-top: 20px;
+        }
+
+        .clear-btn:hover {
+            background-color: #c0392b;
+        }
+
+        /* Responsive design for smaller screens */
+        @media (max-width: 800px) {
+            .container {
+                width: 90%;
+                padding: 20px;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            h1 {
+                font-size: 32px;
+            }
+
+            #colorBox {
+                margin-bottom: 20px;
+            }
+
+            .content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div id="colorBox"></div>
+
+        <div class="content">
+            <h1>Color Picker</h1>
+
+            <!-- Sliders for RGB -->
+            <div class="range-container">
+                <label for="redSlider">Red</label>
+                <input type="range" id="redSlider" min="0" max="255" value="0">
+            </div>
+
+            <div class="range-container">
+                <label for="greenSlider">Green</label>
+                <input type="range" id="greenSlider" min="0" max="255" value="0">
+            </div>
+
+            <div class="range-container">
+                <label for="blueSlider">Blue</label>
+                <input type="range" id="blueSlider" min="0" max="255" value="0">
+            </div>
+
+            <!-- Display Hex, RGB, RGBA, and Copy Buttons -->
+            <div class="color-code">
+                <div>
+                    <span id="hexCode">Hex: #000000</span>
+                    <button class="copy-btn" id="copyHexBtn">Copy</button>
+                </div>
+                <div>
+                    <span id="rgbCode">RGB: rgb(0, 0, 0)</span>
+                    <button class="copy-btn" id="copyRgbBtn">Copy</button>
+                </div>
+                <div>
+                    <span id="rgbaCode">RGBA: rgba(0, 0, 0, 1)</span>
+                    <button class="copy-btn" id="copyRgbaBtn">Copy</button>
+                </div>
+            </div>
+
+            <!-- Clear Button -->
+            <button class="clear-btn" id="clearBtn">Clear</button>
+        </div>
+    </div>
+
+    <script>
+        const redSlider = document.getElementById("redSlider");
+        const greenSlider = document.getElementById("greenSlider");
+        const blueSlider = document.getElementById("blueSlider");
+
+        const colorBox = document.getElementById("colorBox");
+        const rgbCode = document.getElementById("rgbCode");
+        const rgbaCode = document.getElementById("rgbaCode");
+        const hexCode = document.getElementById("hexCode");
+
+        const copyRgbBtn = document.getElementById("copyRgbBtn");
+        const copyRgbaBtn = document.getElementById("copyRgbaBtn");
+        const copyHexBtn = document.getElementById("copyHexBtn");
+
+        const clearBtn = document.getElementById("clearBtn");
+
+        // Function to convert RGB to 6-character Hex (without alpha)
+        function rgbToHex(r, g, b) {
+            const toHex = (x) => x.toString(16).padStart(2, '0');
+            return "#" + toHex(r) + toHex(g) + toHex(b).toUpperCase();
+        }
+
+        // Function to update the color display and code
+        function updateColor() {
+            const r = redSlider.value;
+            const g = greenSlider.value;
+            const b = blueSlider.value;
+
+            // RGB Color
+            const rgb = `rgb(${r}, ${g}, ${b})`;
+
+            // RGBA Color
+            const rgba = `rgba(${r}, ${g}, ${b}, 1)`;
+
+            // Hex Color (without alpha)
+            const hex = rgbToHex(r, g, b);
+
+            // Update the color box and color codes
+            colorBox.style.backgroundColor = rgb;
+            rgbCode.textContent = `RGB: ${rgb}`;
+            rgbaCode.textContent = `RGBA: ${rgba}`;
+            hexCode.textContent = `Hex: ${hex}`;
+        }
+
+        // Event listeners for sliders
+        redSlider.addEventListener("input", updateColor);
+        greenSlider.addEventListener("input", updateColor);
+        blueSlider.addEventListener("input", updateColor);
+
+        // Initialize color on page load
+        updateColor();
+
+        // Copy RGB value to clipboard
+        copyRgbBtn.addEventListener("click", () => {
+            const rgbValue = rgbCode.textContent.replace("RGB: ", "");
+            navigator.clipboard.writeText(rgbValue).then(() => {
+                alert("RGB value copied to clipboard!");
+            }).catch(err => {
+                alert("Failed to copy: " + err);
+            });
+        });
+
+        // Copy RGBA value to clipboard
+        copyRgbaBtn.addEventListener("click", () => {
+            const rgbaValue = rgbaCode.textContent.replace("RGBA: ", "");
+            navigator.clipboard.writeText(rgbaValue).then(() => {
+                alert("RGBA value copied to clipboard!");
+            }).catch(err => {
+                alert("Failed to copy: " + err);
+            });
+        });
+
+        // Copy Hex value to clipboard
+        copyHexBtn.addEventListener("click", () => {
+            const hexValue = hexCode.textContent.replace("Hex: ", "");
+            navigator.clipboard.writeText(hexValue).then(() => {
+                alert("Hex value copied to clipboard!");
+            }).catch(err => {
+                alert("Failed to copy: " + err);
+            });
+        });
+
+        // Clear button functionality
+        clearBtn.addEventListener("click", () => {
+            redSlider.value = 0;
+            greenSlider.value = 0;
+            blueSlider.value = 0;
+            updateColor();
+        });
+    </script>
+
+</body>
+
+</html>
