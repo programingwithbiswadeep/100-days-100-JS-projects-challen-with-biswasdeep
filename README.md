@@ -1,4 +1,4 @@
-# akashsinghcoder-100-days-100-JS-projects-challenge-by-Akash
+# akashsinghcoder-100-days-100-JS-projects-challenge
 
 Day 1 -> User Information Form<br>
 Day 2 -> Student Marksheet Generator<br>
