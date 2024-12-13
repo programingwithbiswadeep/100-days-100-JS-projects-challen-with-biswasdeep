@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Countdown Timer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(45deg, #1c1c1c, #4CAF50);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #f1f1f1;
+            overflow: hidden;
+            transition: background-color 0.5s ease;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(28, 28, 28, 0.8);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.7);
+            width: 400px;
+            height: 650px;
+            position: relative;
+        }
+
+        .title {
+            font-size: 30px;
+            color: #fff;
+            font-weight: 500;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        .time-set {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        input[type="number"] {
+            width: 80px;
+            padding: 12px;
+            font-size: 18px;
+            border-radius: 10px;
+            border: 2px solid #333;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #4CAF50;
+            background-color: #444;
+        }
+
+        .countdown-display {
+            font-size: 60px;
+            font-weight: 700;
+            letter-spacing: 5px;
+            color: #fff;
+            margin: 30px 0;
+            background: #2b2b2b;
+            padding: 15px 35px;
+            border-radius: 15px;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.5);
+            font-family: 'Roboto', sans-serif;
+            text-align: center;
+        }
+
+        #progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: #444;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        #progress-bar-inner {
+            height: 100%;
+            background-color: #4CAF50;
+            border-radius: 5px;
+            width: 0%;
+            transition: width 1s ease-out;
+        }
+
+        .icon-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 40px;
+        }
+
+        .icon-container i {
+            font-size: 40px;
+            padding: 15px;
+            background-color: #4CAF50;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            width: 70px;
+            height: 70px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .icon-container i:hover {
+            background-color: #45a049;
+            transform: scale(1.1);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+        }
+
+        .icon-container i:active {
+            transform: scale(1.05);
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .countdown-display.glow {
+            animation: glowAnimation 1.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes glowAnimation {
+            0% {
+                text-shadow: 0 0 10px rgba(255, 255, 255, 0.6), 0 0 20px rgba(255, 255, 255, 0.6);
+            }
+
+            100% {
+                text-shadow: 0 0 30px rgba(255, 255, 255, 1), 0 0 50px rgba(255, 255, 255, 1);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                width: 90%;
+                padding: 20px;
+            }
+
+            .countdown-display {
+                font-size: 50px;
+                padding: 10px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="title">Countdown Timer</div>
+        <div class="time-set">
+            <input type="number" id="hours" min="0" max="99" value="0">
+            <input type="number" id="minutes" min="0" max="59" value="0">
+            <input type="number" id="seconds" min="0" max="59" value="0">
+        </div>
+
+        <div class="countdown-display" id="countdown-display">00:00:00</div>
+
+        <div id="progress-bar">
+            <div id="progress-bar-inner"></div>
+        </div>
+
+        <div class="icon-container">
+            <i id="start" class="fas fa-play" onclick="startTimer()"></i>
+            <i id="pause" class="fas fa-pause" onclick="pauseTimer()"></i>
+            <i id="reset" class="fas fa-undo" onclick="resetTimer()"></i>
+        </div>
+    </div>
+
+    <script>
+        let timerInterval;
+        let isTimerRunning = false;
+        let totalTime = 0;
+        let startTime = 0;
+
+        function startTimer() {
+            const hours = parseInt(document.getElementById("hours").value);
+            const minutes = parseInt(document.getElementById("minutes").value);
+            const seconds = parseInt(document.getElementById("seconds").value);
+
+            // Validate inputs
+            if (hours < 0 || minutes < 0 || seconds < 0) {
+                alert('Please enter valid values!');
+                return;
+            }
+
+            if (isTimerRunning) return;
+
+            totalTime = hours * 3600 + minutes * 60 + seconds;
+            startTime = totalTime;
+            isTimerRunning = true;
+
+            document.getElementById("countdown-display").classList.add("glow");
+
+            timerInterval = setInterval(() => {
+                if (totalTime <= 0) {
+                    clearInterval(timerInterval);
+                    isTimerRunning = false;
+                    notifyEnd();
+                } else {
+                    totalTime--;
+                    updateCountdownDisplay(totalTime);
+                    updateProgressBar();
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+        }
+
+        function resetTimer() {
+            // Reset the timer and all fields
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            totalTime = 0;
+            startTime = 0;
+
+            // Reset the input fields
+            document.getElementById("hours").value = 0;
+            document.getElementById("minutes").value = 0;
+            document.getElementById("seconds").value = 0;
+
+            // Reset the countdown display
+            updateCountdownDisplay(totalTime);
+            document.getElementById("countdown-display").classList.remove("glow");
+
+            // Reset the progress bar width to 0% immediately
+            document.getElementById("progress-bar-inner").style.width = "0%";
+        }
+
+        function updateCountdownDisplay(timeInSeconds) {
+            const hours = Math.floor(timeInSeconds / 3600);
+            const minutes = Math.floor((timeInSeconds % 3600) / 60);
+            const seconds = timeInSeconds % 60;
+
+            const formattedTime = `${padNumber(hours)}:${padNumber(minutes)}:${padNumber(seconds)}`;
+            document.getElementById("countdown-display").textContent = formattedTime;
+        }
+
+        function padNumber(num) {
+            return num < 10 ? `0${num}` : num;
+        }
+
+        function updateProgressBar() {
+            const progress = (startTime - totalTime) / startTime * 100;
+            document.getElementById("progress-bar-inner").style.width = progress + "%";
+        }
+
+        function notifyEnd() {
+            alert("Time's up!");
+            let audio = new Audio('https://www.soundjay.com/button/beep-07.wav');
+            audio.play();
+        }
+    </script>
+</body>
+
+</html>
