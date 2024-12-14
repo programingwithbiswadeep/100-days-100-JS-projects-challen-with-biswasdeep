@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Bill Generator</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #2575fc;
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        label {
+            font-size: 0.85rem;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        input {
+            padding: 8px;
+            font-size: 14px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            outline: none;
+            box-sizing: border-box;
+            width: 48%;
+        }
+
+        input:focus {
+            border-color: #2575fc;
+        }
+
+        button {
+            background-color: #2575fc;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        button:hover {
+            background-color: #1e61c4;
+            transform: scale(1.05);
+        }
+
+        .result {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+        }
+
+        .result p {
+            font-size: 14px;
+            margin-top: 10px;
+            color: #333;
+        }
+
+        .error {
+            color: red;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+
+        .clear-btn {
+            background-color: #f44336;
+            margin-top: 15px;
+        }
+
+        .button-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .button-row button {
+            width: 48%;
+        }
+
+        .item-list {
+            margin-top: 10px;
+            text-align: left;
+            font-size: 12px;
+        }
+
+        .item-list li {
+            padding: 4px 0;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .item-list li button {
+            background-color: red;
+            color: white;
+            font-size: 12px;
+            /* Smaller font size */
+            border: none;
+            border-radius: 50%;
+            /* Make it circular */
+            padding: 4px 6px;
+            /* Smaller padding */
+            cursor: pointer;
+            width: 20px;
+            /* Adjust width */
+            height: 20px;
+            /* Adjust height */
+            display: flex;
+            /* Make the button a flex container */
+            justify-content: center;
+            /* Center the "X" inside the button */
+            align-items: center;
+            /* Center the "X" vertically */
+        }
+
+        .input-group {
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .input-group div {
+            width: 48%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Simple Bill Generator</h1>
+
+        <div>
+            <div>
+                <label for="itemName">Item Name:</label>
+                <input type="text" id="itemName" placeholder="Item name" style="width: 78%;">
+            </div>
+        </div>
+        <div class="input-group">
+            <div>
+                <label for="itemPrice">Item Price ($):</label>
+                <input type="number" id="itemPrice" placeholder="Price" step="0.01">
+            </div>
+            <div>
+                <label for="itemQuantity">Quantity:</label>
+                <input type="number" id="itemQuantity" value="1" min="1">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <div style="position: relative; left: -22px;">
+                <label for="tipPercentage">Tip %:</label>
+                <input type="number" id="tipPercentage" value="10" min="0">
+            </div>
+            <div style="position: relative; left: -12px;">
+                <label for="numPeople">Split:</label>
+                <input type="number" id="numPeople" value="1" min="1">
+            </div>
+        </div>
+
+        <div class="button-row">
+            <button onclick="generateBill()">Generate Bill</button>
+            <button class="clear-btn" onclick="clearAll()">Clear</button>
+        </div>
+
+        <div class="result">
+            <p><strong>Total Before Tip:</strong> $<span id="totalBeforeTip">0.00</span></p>
+            <p><strong>Tip Amount:</strong> $<span id="tipAmount">0.00</span></p>
+            <p><strong>Total Bill:</strong> $<span id="totalBill">0.00</span></p>
+            <p><strong>Amount Per Person:</strong> $<span id="amountPerPerson">0.00</span></p>
+            <ul id="itemList" class="item-list"></ul>
+        </div>
+
+        <div id="error-message" class="error"></div>
+    </div>
+
+    <script>
+        let items = [];
+
+        function generateBill() {
+            const itemName = document.getElementById("itemName").value;
+            const itemPrice = parseFloat(document.getElementById("itemPrice").value);
+            const itemQuantity = parseInt(document.getElementById("itemQuantity").value);
+            const numPeople = parseInt(document.getElementById("numPeople").value);
+            const tipPercentage = parseFloat(document.getElementById("tipPercentage").value);
+
+            // Validation for Item Details
+            if (itemName === "" || isNaN(itemPrice) || itemPrice <= 0 || isNaN(itemQuantity) || itemQuantity <= 0) {
+                alert("Please enter valid item details.");
+                return;
+            }
+
+            // Add item to the list
+            const item = {
+                name: itemName,
+                price: itemPrice,
+                quantity: itemQuantity,
+                total: itemPrice * itemQuantity
+            };
+
+            items.push(item);
+            updateItemList();
+
+            // Validation for Split and Tip
+            if (items.length === 0) {
+                document.getElementById("error-message").textContent = "Please add at least one item.";
+                return;
+            }
+
+            if (isNaN(numPeople) || numPeople <= 0) {
+                document.getElementById("error-message").textContent = "Please enter a valid number of people.";
+                return;
+            }
+
+            const subtotal = items.reduce((acc, item) => acc + item.total, 0);
+            const tipAmount = (subtotal * tipPercentage) / 100;
+            const totalBill = subtotal + tipAmount;
+            const amountPerPerson = totalBill / numPeople;
+
+            document.getElementById("totalBeforeTip").textContent = subtotal.toFixed(2);
+            document.getElementById("tipAmount").textContent = tipAmount.toFixed(2);
+            document.getElementById("totalBill").textContent = totalBill.toFixed(2);
+            document.getElementById("amountPerPerson").textContent = amountPerPerson.toFixed(2);
+
+            document.getElementById("error-message").textContent = "";
+        }
+
+        function updateItemList() {
+            const itemList = document.getElementById("itemList");
+            itemList.innerHTML = "";
+            items.forEach((item, index) => {
+                const listItem = document.createElement("li");
+                listItem.innerHTML = `${item.name} x ${item.quantity} - $${item.total.toFixed(2)} 
+                                      <button onclick="removeItem(${index})">X</button>`;
+                itemList.appendChild(listItem);
+            });
+        }
+
+        function removeItem(index) {
+            items.splice(index, 1);
+            updateItemList();
+        }
+
+        function clearAll() {
+            document.getElementById("itemName").value = "";
+            document.getElementById("itemPrice").value = "";
+            document.getElementById("itemQuantity").value = 1;
+            document.getElementById("tipPercentage").value = 10;
+            document.getElementById("numPeople").value = 1;
+
+            document.getElementById("totalBeforeTip").textContent = "0.00";
+            document.getElementById("tipAmount").textContent = "0.00";
+            document.getElementById("totalBill").textContent = "0.00";
+            document.getElementById("amountPerPerson").textContent = "0.00";
+
+            document.getElementById("error-message").textContent = "";
+
+            items = [];
+            updateItemList();
+        }
+    </script>
+</body>
+
+</html>
