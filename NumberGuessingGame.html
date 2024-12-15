@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Guessing Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        /* Global Reset and Body Styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #0f0f0f;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        /* Game Container Styling */
+        .container {
+            background: #232323;
+            border-radius: 20px;
+            padding: 25px 40px;
+            width: 380px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .container:hover {
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+        }
+
+        h1 {
+            font-size: 30px;
+            color: #00ff99;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        p {
+            font-size: 16px;
+            color: #ecf0f1;
+            margin: 8px 0;
+        }
+
+        /* Input and Button Styling */
+        input,
+        select,
+        button {
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 15px;
+            margin: 10px 0;
+            border: none;
+            outline: none;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        input,
+        select {
+            background-color: #2f2f2f;
+            color: #fff;
+            font-size: 16px;
+        }
+
+        input:focus,
+        select:focus {
+            background-color: #1a1a1a;
+            border: 2px solid #00ff99;
+            box-shadow: 0 0 10px rgba(0, 255, 153, 0.8);
+        }
+
+        button {
+            background: linear-gradient(135deg, #00ff99, #00bfae);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #00bfae, #00ff99);
+            transform: scale(1.05);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        /* Result and Timer Styling */
+        #result {
+            font-size: 18px;
+            font-weight: 500;
+            margin-top: 12px;
+        }
+
+        .result-success {
+            color: #2ecc71;
+        }
+
+        .result-failure {
+            color: #e74c3c;
+        }
+
+        #attempts {
+            margin-top: 10px;
+            font-size: 16px;
+        }
+
+        .timer {
+            margin-top: 15px;
+            font-size: 32px;
+            /* Increased font size for timer */
+            font-weight: 600;
+            color: #f39c12;
+        }
+
+        /* Start Button and Check Guess Button Flexbox Styling */
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .start-button,
+        .check-button {
+            width: 48%;
+            /* Make buttons fit side by side */
+        }
+
+        .start-button {
+            background-color: #9b59b6;
+            color: white;
+            font-weight: bold;
+        }
+
+        .start-button:hover {
+            background-color: #8e44ad;
+        }
+
+        .start-button:active {
+            transform: scale(0.98);
+        }
+
+        .check-button {
+            background: linear-gradient(135deg, #00ff99, #00bfae);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .check-button:hover {
+            background: linear-gradient(135deg, #00bfae, #00ff99);
+            transform: scale(1.05);
+        }
+
+        .check-button:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Number Guessing Game</h1>
+        <p>Select Difficulty Level:</p>
+        <select id="difficulty">
+            <option value="100">Easy (1-100) - 60s</option>
+            <option value="500">Medium (1-500) - 90s</option>
+            <option value="1000">Hard (1-1000) - 120s</option>
+        </select>
+
+        <p>Guess the number:</p>
+        <input type="number" id="guess" min="1" placeholder="Enter your guess">
+
+        <!-- Buttons Container -->
+        <div class="button-container">
+            <button class="check-button" onclick="checkGuess()">Check Guess</button>
+            <button class="start-button" onclick="startGame()">Start Game</button>
+        </div>
+
+        <p id="result"></p>
+        <p id="attempts">Attempts: 0</p>
+        <p id="timer" class="timer">Time: 0s</p>
+
+    </div>
+
+    <script>
+        let randomNumber;
+        let attempts = 0;
+        let startTime;
+        let gameTimer;
+        let maxAttempts;
+        let gameStarted = false;
+        let timeLimit;
+
+        function startGame() {
+            const difficulty = document.getElementById('difficulty').value;
+            randomNumber = Math.floor(Math.random() * difficulty) + 1;
+            attempts = 0;
+            document.getElementById('result').innerText = '';
+            document.getElementById('result').classList.remove('result-success', 'result-failure');
+            document.getElementById('attempts').innerText = 'Attempts: 0';
+            document.getElementById('guess').value = ''; // Clear input field
+            document.getElementById('timer').innerText = 'Time: ' + timeLimit + 's';
+
+            // Set max attempts and timer based on difficulty
+            if (difficulty === "100") {
+                maxAttempts = 10;
+                timeLimit = 60;
+            } else if (difficulty === "500") {
+                maxAttempts = 15;
+                timeLimit = 90;
+            } else {
+                maxAttempts = 20;
+                timeLimit = 120;
+            }
+
+            gameStarted = true;
+
+            startTime = Date.now();
+            clearInterval(gameTimer);
+            gameTimer = setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            if (!gameStarted) {
+                return;
+            }
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const remainingTime = timeLimit - elapsed;
+            document.getElementById('timer').innerText = 'Time: ' + remainingTime + 's';
+
+            // End game if time runs out
+            if (remainingTime <= 0) {
+                document.getElementById('result').innerText = 'Time is up! You ran out of time.';
+                document.getElementById('result').classList.add('result-failure');
+                clearInterval(gameTimer);
+                gameStarted = false;
+            }
+        }
+
+        function checkGuess() {
+            if (!gameStarted) {
+                alert('Please start a new game first!');
+                return;
+            }
+
+            const userGuess = parseInt(document.getElementById('guess').value);
+
+            if (isNaN(userGuess) || userGuess < 1 || userGuess > parseInt(document.getElementById('difficulty').value)) {
+                document.getElementById('result').innerText = 'Please enter a valid number between 1 and ' + document.getElementById('difficulty').value + '.';
+                document.getElementById('result').classList.add('result-failure');
+                return;
+            }
+
+            attempts++;
+            document.getElementById('attempts').innerText = 'Attempts: ' + attempts;
+
+            if (attempts >= maxAttempts) {
+                document.getElementById('result').innerText = 'Game Over! You have exceeded the maximum attempts.';
+                document.getElementById('result').classList.add('result-failure');
+                clearInterval(gameTimer);
+                gameStarted = false;
+                return;
+            }
+
+            if (userGuess === randomNumber) {
+                document.getElementById('result').innerText = 'Congratulations! You guessed it right!';
+                document.getElementById('result').classList.add('result-success');
+                clearInterval(gameTimer);
+                gameStarted = false;
+            } else if (userGuess > randomNumber) {
+                document.getElementById('result').innerText = 'Too high! Try again.';
+                document.getElementById('result').classList.add('result-failure');
+            } else {
+                document.getElementById('result').innerText = 'Too low! Try again.';
+                document.getElementById('result').classList.add('result-failure');
+            }
+        }
+
+        // Add event listener for Enter key press to trigger the checkGuess function
+        document.getElementById('guess').addEventListener('keypress', function (event) {
+            if (event.key === 'Enter') {
+                checkGuess();
+            }
+        });
+    </script>
+</body>
+
+</html>
