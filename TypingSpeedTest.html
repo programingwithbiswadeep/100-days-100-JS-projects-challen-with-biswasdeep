@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Speed Test</title>
+    <style>
+        /* General Styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom right, #a8e6cf, #dcedc1);
+            color: #333;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 700px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #34495e;
+        }
+
+        .section {
+            display: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        label {
+            display: block;
+            margin: 15px 0 5px;
+            font-size: 1.1rem;
+            color: #34495e;
+        }
+
+        select {
+            padding: 10px;
+            width: 100%;
+            font-size: 1rem;
+            border-radius: 5px;
+            border: 1px solid #bdc3c7;
+            background: #ecf0f1;
+            color: #34495e;
+        }
+
+        textarea {
+            width: 96%;
+            height: 120px;
+            margin-top: 15px;
+            padding: 15px;
+            font-size: 1rem;
+            border-radius: 10px;
+            border: 1px solid #bdc3c7;
+            background: #f8f9fa;
+            color: #2c3e50;
+            user-select: none; /* Prevent text selection */
+        }
+
+        .progress-bar {
+            height: 10px;
+            width: 0%;
+            background: #1abc9c;
+            border-radius: 5px;
+            margin-top: 15px;
+            transition: width 0.5s;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            font-size: 1.2rem;
+            color: #34495e;
+        }
+
+        .btn {
+            background: #1abc9c;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #16a085;
+        }
+
+        .result-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .result-value {
+            font-weight: bold;
+            color: #27ae60;
+            font-size: 2rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* New styling for text display with borders */
+        #textDisplay {
+            display: inline-block;
+            padding: 20px;
+            border: 2px solid #34495e;
+            border-radius: 10px;
+            margin-top: 20px;
+            background: #ecf0f1;
+            width: 90%;
+            max-width: 600px;
+            box-sizing: border-box;
+            font-size: 1.2rem;
+            color: #2c3e50;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="title">Typing Speed Test</h1>
+
+        <!-- Settings Section -->
+        <div id="settings" class="section active">
+            <label for="difficulty">Difficulty Level:</label>
+            <select id="difficulty">
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+            </select>
+
+            <label for="duration">Test Duration:</label>
+            <select id="duration">
+                <option value="15">15 seconds</option>
+                <option value="30">30 seconds</option>
+                <option value="60">60 seconds</option>
+            </select>
+
+            <button id="startButton" class="btn">Start Test</button>
+        </div>
+
+        <!-- Test Section -->
+        <div id="test" class="section hidden">
+            <p id="textDisplay"></p>
+            <textarea id="textInput" placeholder="Start typing here..." disabled></textarea>
+            <div id="progressBar" class="progress-bar"></div>
+
+            <div class="stats">
+                <p>Time Left: <span id="timer">0</span>s</p>
+                <p>WPM: <span id="wpm">0</span></p>
+                <p>Accuracy: <span id="accuracy">0</span>%</p>
+            </div>
+        </div>
+
+        <!-- Result Section -->
+        <div id="result" class="section hidden">
+            <h2 class="result-title">Test Results</h2>
+            <p>Your Typing Speed: <span id="finalWPM" class="result-value">0</span> WPM</p>
+            <p>Your Accuracy: <span id="finalAccuracy" class="result-value">0</span>%</p>
+            <button id="restartButton" class="btn">Restart Test</button>
+        </div>
+    </div>
+
+    <script>
+        const sampleTexts = {
+            easy: ["The quick brown fox jumps over the lazy dog. Oh sure, he did it in order to fulfil usage of all the letters of the alphabet."],
+            medium: ["Frontend development includes HTML, CSS, and JavaScript.HTML Stands for HYPERTEXT MARKUP LANGUAGE,CSS Stands for Cascading Style Sheets."],
+            hard: ["Advanced JavaScript concepts include closures, promises, and async-await.Advanced JavaScript concepts include closures, promises, and async-await.,Advanced JavaScript concepts include closures, promises, and async-await."]
+        };
+
+        const settings = document.getElementById("settings");
+        const test = document.getElementById("test");
+        const result = document.getElementById("result");
+
+        const startButton = document.getElementById("startButton");
+        const restartButton = document.getElementById("restartButton");
+
+        const textDisplay = document.getElementById("textDisplay");
+        const textInput = document.getElementById("textInput");
+        const progressBar = document.getElementById("progressBar");
+        const timerDisplay = document.getElementById("timer");
+        const wpmDisplay = document.getElementById("wpm");
+        const accuracyDisplay = document.getElementById("accuracy");
+
+        const finalWPM = document.getElementById("finalWPM");
+        const finalAccuracy = document.getElementById("finalAccuracy");
+
+        const difficultySelect = document.getElementById("difficulty");
+        const durationSelect = document.getElementById("duration");
+
+        let timer = 0;
+        let duration = 0;
+        let interval = null;
+        let currentText = "";
+        let correctCharacters = 0;
+        let typedCharacters = 0;
+
+        function startTest() {
+            timer = 0;
+            correctCharacters = 0;
+            typedCharacters = 0;
+
+            duration = parseInt(durationSelect.value);
+            currentText = sampleTexts[difficultySelect.value][0];
+
+            textDisplay.textContent = currentText;
+            textInput.value = "";
+            textInput.disabled = false;
+            textInput.focus();
+
+            progressBar.style.width = "0%";
+            timerDisplay.textContent = duration;
+
+            settings.classList.remove("active");
+            test.classList.add("active");
+
+            interval = setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            timer++;
+            progressBar.style.width = `${(timer / duration) * 100}%`;
+            timerDisplay.textContent = duration - timer;
+
+            if (timer >= duration) {
+                stopTest();
+            }
+        }
+
+        function stopTest() {
+            clearInterval(interval);
+            textInput.disabled = true;
+
+            const wordsTyped = textInput.value.trim().split(" ").length;
+            const wpm = Math.round((wordsTyped / duration) * 60);
+            const accuracy = ((correctCharacters / typedCharacters) * 100).toFixed(2);
+
+            finalWPM.textContent = wpm;
+            finalAccuracy.textContent = isNaN(accuracy) ? "0" : accuracy;
+
+            test.classList.remove("active");
+            result.classList.add("active");
+        }
+
+        startButton.addEventListener("click", startTest);
+
+        restartButton.addEventListener("click", () => {
+            result.classList.remove("active");
+            settings.classList.add("active");
+        });
+
+        textInput.addEventListener("input", () => {
+            typedCharacters = textInput.value.length;
+            correctCharacters = 0;
+
+            for (let i = 0; i < textInput.value.length; i++) {
+                if (textInput.value[i] === currentText[i]) {
+                    correctCharacters++;
+                }
+            }
+
+            accuracyDisplay.textContent = ((correctCharacters / typedCharacters) * 100).toFixed(2);
+            wpmDisplay.textContent = Math.round((textInput.value.split(" ").length / timer) * 60);
+        });
+
+        // Prevent copy and paste events
+        textInput.addEventListener('copy', function (e) {
+            e.preventDefault();
+        });
+
+        textInput.addEventListener('paste', function (e) {
+            e.preventDefault();
+        });
+    </script>
+</body>
+
+</html>
