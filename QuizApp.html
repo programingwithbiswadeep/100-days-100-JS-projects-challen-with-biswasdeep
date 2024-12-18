@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz App</title>
+    <style>
+        /* Reset default margin and padding */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #74ebd5, #acb6e5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+
+        .quiz-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            width: 450px;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: #4CAF50;
+        }
+
+        #choices {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #choices li {
+            background-color: #f0f4f8;
+            margin: 10px 0;
+            padding: 14px;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        #choices li:hover {
+            background-color: #e0e8f0;
+            transform: scale(1.05);
+        }
+
+        button {
+            padding: 12px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 1.2em;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        #timer {
+            font-size: 1.2em;
+            color: #f44336;
+            margin-top: 10px;
+        }
+
+        .result-container h3 {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: #333;
+        }
+
+        .correct-answer {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .incorrect-answer {
+            color: #f44336;
+            font-weight: bold;
+        }
+
+        #start-btn {
+            background-color: #008CBA;
+            font-size: 1.3em;
+        }
+
+        #start-btn:hover {
+            background-color: #007B9E;
+        }
+
+        #start-screen {
+            display: block;
+        }
+
+        #quiz {
+            display: none;
+        }
+
+        #result {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="quiz-container">
+        <!-- Start Screen -->
+        <div id="start-screen">
+            <h2>Welcome to the Quiz!</h2>
+            <button id="start-btn">Start Quiz</button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz">
+            <h2>Quiz Time!</h2>
+            <div id="question-container">
+                <p id="question"></p>
+                <ul id="choices"></ul>
+            </div>
+            <div id="timer">Time Remaining: <span id="time-left">30</span> seconds</div>
+            <button id="next-btn" disabled>Next</button>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result">
+            <h2>Your Score: <span id="score"></span></h2>
+            <h3>Correct Answers: <span id="correct-answers"></span></h3>
+            <h3>Incorrect Answers: <span id="incorrect-answers"></span></h3>
+            <div id="correct-answers-list"></div>
+            <button id="restart-btn">Restart</button>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                question: "Which company developed the first computer mouse?",
+                choices: ["Apple", "Microsoft", "Xerox", "IBM"],
+                answer: "Xerox"
+            },
+            {
+                question: "Which chemical element has the symbol 'O'?",
+                choices: ["Oxygen", "Osmium", "Ozone", "Oganesson"],
+                answer: "Oxygen"
+            },
+            {
+                question: "What is the longest river in the world?",
+                choices: ["Amazon", "Nile", "Yangtze", "Mississippi"],
+                answer: "Nile"
+            },
+            {
+                question: "Which animal is known for its black and white stripes?",
+                choices: ["Zebra", "Tiger", "Lion", "Panda"],
+                answer: "Zebra"
+            },
+            {
+                question: "Who is known as the 'Father of Computers'?",
+                choices: ["Charles Babbage", "Alan Turing", "Bill Gates", "Steve Jobs"],
+                answer: "Charles Babbage"
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let correctAnswers = 0;
+        let incorrectAnswers = 0;
+        let timeLeft = 30;
+        let timer;
+        let isTimerRunning = false;
+        const correctAnswerList = [];
+
+        const questionElement = document.getElementById("question");
+        const choicesElement = document.getElementById("choices");
+        const nextButton = document.getElementById("next-btn");
+        const timerElement = document.getElementById("time-left");
+        const resultElement = document.getElementById("result");
+        const scoreElement = document.getElementById("score");
+        const correctAnswersElement = document.getElementById("correct-answers");
+        const incorrectAnswersElement = document.getElementById("incorrect-answers");
+        const restartButton = document.getElementById("restart-btn");
+        const startButton = document.getElementById("start-btn");
+        const startScreen = document.getElementById("start-screen");
+        const quizScreen = document.getElementById("quiz");
+        const correctAnswerListElement = document.getElementById("correct-answers-list");
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function loadQuestion() {
+            const currentQuestion = quizData[currentQuestionIndex];
+            questionElement.textContent = currentQuestion.question;
+            choicesElement.innerHTML = "";
+
+            shuffleArray(currentQuestion.choices);
+
+            currentQuestion.choices.forEach(choice => {
+                const li = document.createElement("li");
+                li.textContent = choice;
+                li.addEventListener("click", () => checkAnswer(choice, li));
+                choicesElement.appendChild(li);
+            });
+
+            nextButton.disabled = true;
+            startTimer();
+        }
+
+        function checkAnswer(selectedAnswer, choiceElement) {
+            const correctAnswer = quizData[currentQuestionIndex].answer;
+            if (selectedAnswer === correctAnswer) {
+                score++;
+                correctAnswers++;
+                choiceElement.style.backgroundColor = "#4CAF50"; // Green for correct answer
+                correctAnswerList.push(`${quizData[currentQuestionIndex].question} - Correct Answer: ${correctAnswer}`);
+            } else {
+                incorrectAnswers++;
+                choiceElement.style.backgroundColor = "#f44336"; // Red for incorrect answer
+                correctAnswerList.push(`${quizData[currentQuestionIndex].question} - Correct Answer: ${correctAnswer}`);
+            }
+
+            // Disable choices after answering
+            const choices = choicesElement.querySelectorAll("li");
+            choices.forEach(choice => choice.style.pointerEvents = "none");
+
+            nextButton.disabled = false;
+        }
+
+        function startTimer() {
+            if (isTimerRunning) return;
+            isTimerRunning = true;
+
+            timer = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    timerElement.textContent = `Time Remaining: ${timeLeft} seconds`;
+                } else {
+                    clearInterval(timer);
+                    nextButton.disabled = false;
+                    const choices = choicesElement.querySelectorAll("li");
+                    choices.forEach(choice => choice.style.pointerEvents = "none");
+                    isTimerRunning = false;
+                }
+            }, 1000);
+        }
+
+        nextButton.addEventListener("click", () => {
+            clearInterval(timer);
+            isTimerRunning = false;
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+                timeLeft = 30;  // Reset time for the next question
+            } else {
+                showResult();
+            }
+        });
+
+        function showResult() {
+            resultElement.style.display = "block";
+            scoreElement.textContent = score;
+            correctAnswersElement.textContent = correctAnswers;
+            incorrectAnswersElement.textContent = incorrectAnswers;
+            quizScreen.style.display = "none";
+
+            correctAnswerListElement.innerHTML = `<h3>Correct Answers for Each Question:</h3><ul style="margin: 10px;">${correctAnswerList.map(answer => `<li  style="margin: 10px;">${answer}</li>`).join('')}</ul>`;
+        }
+
+        restartButton.addEventListener("click", () => {
+            currentQuestionIndex = 0;
+            score = 0;
+            correctAnswers = 0;
+            incorrectAnswers = 0;
+            timeLeft = 30;
+            isTimerRunning = false;
+            correctAnswerList.length = 0; // Clear previous correct answers
+
+            resultElement.style.display = "none";
+            quizScreen.style.display = "none";
+            startScreen.style.display = "block"; // Show the start screen again
+        });
+
+        startButton.addEventListener("click", () => {
+            startScreen.style.display = "none";
+            quizScreen.style.display = "block";
+            loadQuestion();  // Start the quiz
+        });
+    </script>
+</body>
+
+</html>
