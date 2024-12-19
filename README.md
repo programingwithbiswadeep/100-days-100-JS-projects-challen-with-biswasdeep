@@ -13,3 +13,6 @@ Day 10 -> Countdown Timer<br>
 Day 11 -> Simple Bill Generator<br>
 Day 12 -> Number Guessing Game<br>
 Day 13 -> Password Generator<br>
+Day 14 -> Typing Speed Test<br>
+Day 15 -> Quiz App<br>
+Day 16 -> Advanced Bookmark Manager<br>
