@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Color Picker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #fff;
+        }
+
+        .container {
+            background: #fff;
+            border-radius: 20px;
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 90%;
+            max-width: 1100px;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .left-box {
+            width: 45%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .color-box {
+            width: 100%;
+            height: 300px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid #3498db;
+            background-color: #ecf0f1;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .color-box p {
+            font-size: 16px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .color-code-wrapper {
+            width: 100%;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .color-code {
+            width: 100%;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .color-code div {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            width: 80%;
+        }
+
+        .color-code span {
+            background-color: #ecf0f1;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            width: 70%;
+            text-align: left;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .copy-btn {
+            padding: 10px 18px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            text-transform: uppercase;
+            width: 100px;
+            text-align: center;
+        }
+
+        .copy-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .right-box {
+            width: 45%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .image-box {
+            width: 100%;
+            height: 300px;
+            border: 2px solid #3498db;
+            border-radius: 15px;
+            background-color: #ecf0f1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            margin-bottom: 20px;
+            cursor: crosshair;
+        }
+
+        .image-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-box p {
+            font-size: 18px;
+            color: #333;
+        }
+
+        .button-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        #uploadBtn,
+        #clear {
+            padding: 12px 20px;
+            font-size: 16px;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        #uploadBtn {
+            background-color: #3498db;
+        }
+
+        #uploadBtn:hover {
+            background-color: #2980b9;
+        }
+
+        #clear {
+            background-color: #e74c3c;
+        }
+
+        #clear:hover {
+            background-color: #c0392b;
+        }
+
+        .range-slider-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .range-slider {
+            width: 80%;
+            margin-top: 10px;
+        }
+
+        .slider-label {
+            font-size: 16px;
+            margin-top: 10px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        @media screen and (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+                width: 90%;
+            }
+
+            .left-box,
+            .right-box {
+                width: 100%;
+            }
+
+            .color-code-wrapper {
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="left-box">
+            <h1 style="color: black;">Image Color Picker</h1>
+            <div class="color-box">
+                <p id="colorBoxText">No Color</p>
+            </div>
+
+            <div class="color-code-wrapper">
+                <div class="color-code">
+                    <div>
+                        <span id="hexCode">Hex: #000000</span>
+                        <button class="copy-btn" id="copyHexBtn">Copy</button>
+                    </div>
+                    <div>
+                        <span id="rgbCode">RGB: rgb(0, 0, 0)</span>
+                        <button class="copy-btn" id="copyRgbBtn">Copy</button>
+                    </div>
+                    <div>
+                        <span id="rgbaCode">RGBA: rgba(0, 0, 0, 1)</span>
+                        <button class="copy-btn" id="copyRgbaBtn">Copy</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-box">
+            <div class="image-box" id="imageBox">
+                <canvas id="canvas" style="display: none;"></canvas>
+                <img id="uploadedImage" src="" alt="Uploaded Image" style="display: none;">
+                <p id="noImageText">No Image</p>
+            </div>
+
+            <div class="button-wrapper">
+                <input type="file" id="imageInput" accept="image/*" style="display: none;">
+                <button id="uploadBtn">Upload Image</button>
+                <button id="clear">Clear Image</button>
+            </div>
+
+            <div class="range-slider-wrapper">
+                <div class="slider-label">Red</div>
+                <input type="range" id="rangeRed" class="range-slider" min="0" max="255" value="0">
+                <div class="slider-label">Green</div>
+                <input type="range" id="rangeGreen" class="range-slider" min="0" max="255" value="0">
+                <div class="slider-label">Blue</div>
+                <input type="range" id="rangeBlue" class="range-slider" min="0" max="255" value="0">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const imageInput = document.getElementById("imageInput");
+        const uploadBtn = document.getElementById("uploadBtn");
+        const clear = document.getElementById("clear");
+        const imageBox = document.getElementById("imageBox");
+        const uploadedImage = document.getElementById("uploadedImage");
+        const noImageText = document.getElementById("noImageText");
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+        const colorBox = document.querySelector(".color-box");
+        const colorBoxText = document.getElementById("colorBoxText");
+        const hexCode = document.getElementById("hexCode");
+        const rgbCode = document.getElementById("rgbCode");
+        const rgbaCode = document.getElementById("rgbaCode");
+        const copyHexBtn = document.getElementById("copyHexBtn");
+        const copyRgbBtn = document.getElementById("copyRgbBtn");
+        const copyRgbaBtn = document.getElementById("copyRgbaBtn");
+        const rangeRed = document.getElementById("rangeRed");
+        const rangeGreen = document.getElementById("rangeGreen");
+        const rangeBlue = document.getElementById("rangeBlue");
+
+        let r = 0, g = 0, b = 0;
+        let locked = false;
+
+        function rgbToHex(r, g, b) {
+            const toHex = (x) => x.toString(16).padStart(2, '0');
+            return "#" + toHex(r) + toHex(g) + toHex(b).toUpperCase();
+        }
+
+        function updateColorCodes(r, g, b) {
+            const rgb = `rgb(${r}, ${g}, ${b})`;
+            const rgba = `rgba(${r}, ${g}, ${b}, 1)`;
+            const hex = rgbToHex(r, g, b);
+            hexCode.textContent = `Hex: ${hex}`;
+            rgbCode.textContent = `RGB: ${rgb}`;
+            rgbaCode.textContent = `RGBA: ${rgba}`;
+            colorBox.style.backgroundColor = rgb;
+            colorBoxText.textContent = rgb;
+
+            rangeRed.value = r;
+            rangeGreen.value = g;
+            rangeBlue.value = b;
+        }
+
+        // Copy color codes to clipboard
+        copyHexBtn.addEventListener("click", () => {
+            navigator.clipboard.writeText(hexCode.textContent.replace('Hex: ', '')).then(() => {
+                alert('Hex code copied to clipboard!');
+            });
+        });
+        copyRgbBtn.addEventListener("click", () => {
+            navigator.clipboard.writeText(rgbCode.textContent.replace('RGB: ', '')).then(() => {
+                alert('RGB code copied to clipboard!');
+            });
+        });
+        copyRgbaBtn.addEventListener("click", () => {
+            navigator.clipboard.writeText(rgbaCode.textContent.replace('RGBA: ', '')).then(() => {
+                alert('RGBA code copied to clipboard!');
+            });
+        });
+
+        // Handle image upload
+        uploadBtn.addEventListener('click', () => {
+            imageInput.click();
+        });
+
+        imageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                uploadedImage.src = e.target.result;
+                uploadedImage.style.display = 'block';
+                noImageText.style.display = 'none';
+                imageBox.style.height = "300px";
+                uploadedImage.onload = () => {
+                    // Reset canvas dimensions and context
+                    canvas.width = uploadedImage.width;
+                    canvas.height = uploadedImage.height;
+                    ctx.drawImage(uploadedImage, 0, 0, uploadedImage.width, uploadedImage.height);
+                };
+            };
+
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Handle clear image
+        clear.addEventListener('click', () => {
+            uploadedImage.style.display = 'none';
+            noImageText.style.display = 'block';
+            updateColorCodes(0, 0, 0);
+            rangeRed.value = 0;
+            rangeGreen.value = 0;
+            rangeBlue.value = 0;
+            canvas.width = 0;
+            canvas.height = 0;
+        });
+
+        // Handle mouse move on image
+        imageBox.addEventListener('mousemove', (e) => {
+            if (!uploadedImage.src || locked) return;
+
+            const rect = imageBox.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            const pixel = ctx.getImageData(x, y, 1, 1).data;
+            r = pixel[0];
+            g = pixel[1];
+            b = pixel[2];
+
+            updateColorCodes(r, g, b);
+        });
+
+        // Toggle locking mechanism for color picking
+        imageBox.addEventListener('click', () => {
+            locked = !locked;
+            imageBox.style.cursor = locked ? 'default' : 'crosshair';
+        });
+
+        // Handle slider input changes
+        rangeRed.addEventListener('input', () => {
+            r = rangeRed.value;
+            updateColorCodes(r, g, b);
+        });
+
+        rangeGreen.addEventListener('input', () => {
+            g = rangeGreen.value;
+            updateColorCodes(r, g, b);
+        });
+
+        rangeBlue.addEventListener('input', () => {
+            b = rangeBlue.value;
+            updateColorCodes(r, g, b);
+        });
+    </script>
+</body>
+
+</html>
