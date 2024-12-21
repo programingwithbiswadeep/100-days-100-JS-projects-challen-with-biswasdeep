@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f1f4f8;
+            /* Light greyish blue */
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            border-top: 5px solid #8e44ad;
+            /* Purple border */
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            /* Dark blue-grey */
+            font-size: 2rem;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        input,
+        select,
+        button {
+            padding: 12px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #8e44ad;
+            /* Purple border on focus */
+            outline: none;
+            box-shadow: 0 0 5px rgba(142, 68, 173, 0.3);
+        }
+
+        button {
+            background-color: #8e44ad;
+            /* Purple background */
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #9b59b6;
+            /* Lighter purple on hover */
+        }
+
+        .expenses-list {
+            margin-top: 30px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .expense-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #ecf0f1;
+            /* Light grey background */
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+        }
+
+        .remove-btn {
+            background: transparent;
+            border: none;
+            color: #e74c3c;
+            /* Red for remove button */
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .remove-btn:hover {
+            color: #c0392b;
+            /* Darker red on hover */
+        }
+
+        .total {
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: right;
+            color: #2c3e50;
+            /* Dark blue-grey */
+            margin-top: 20px;
+        }
+
+        .clear-btn {
+            background-color: #e74c3c;
+            /* Red background for clear button */
+            color: #fff;
+            padding: 12px;
+            width: 100%;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .clear-btn:hover {
+            background-color: #c0392b;
+            /* Darker red on hover */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Expense Tracker</h1>
+        <form id="expense-form">
+            <input type="date" id="expense-date" required />
+            <input type="text" id="expense-name" placeholder="Expense Name" required />
+            <input type="number" id="expense-amount" placeholder="Amount" required min="0" />
+            <select id="expense-category">
+                <option value="Food">Food</option>
+                <option value="Transport">Transport</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="Utilities">Utilities</option>
+            </select>
+            <button type="submit">Add Expense</button>
+        </form>
+
+        <div id="expenses-list" class="expenses-list"></div>
+
+        <div id="total-expenses" class="total">Total: $0.00</div>
+
+        <button id="clear-btn" class="clear-btn">Clear All Expenses</button>
+    </div>
+
+    <script>
+        const expenseForm = document.getElementById('expense-form');
+        const expenseDateInput = document.getElementById('expense-date');
+        const expenseNameInput = document.getElementById('expense-name');
+        const expenseAmountInput = document.getElementById('expense-amount');
+        const expenseCategoryInput = document.getElementById('expense-category');
+        const expensesList = document.getElementById('expenses-list');
+        const totalExpenses = document.getElementById('total-expenses');
+        const clearBtn = document.getElementById('clear-btn');
+
+        let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+
+        expenseForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const expenseDate = expenseDateInput.value;
+            const expenseName = expenseNameInput.value;
+            const expenseAmount = parseFloat(expenseAmountInput.value);
+            const expenseCategory = expenseCategoryInput.value;
+
+            if (!expenseDate || !expenseName || expenseAmount <= 0) {
+                alert('Please enter valid expense details.');
+                return;
+            }
+
+            const expense = {
+                date: expenseDate,
+                name: expenseName,
+                amount: expenseAmount,
+                category: expenseCategory,
+            };
+
+            expenses.push(expense);
+            saveToLocalStorage();
+            renderExpenses();
+            expenseForm.reset();
+        });
+
+        clearBtn.addEventListener('click', function () {
+            expenses = [];
+            saveToLocalStorage();
+            renderExpenses();
+        });
+
+        function renderExpenses() {
+            expensesList.innerHTML = '';
+            let total = 0;
+
+            expenses.forEach((expense, index) => {
+                const expenseDiv = document.createElement('div');
+                expenseDiv.className = 'expense-item';
+                expenseDiv.innerHTML = `
+                    <span>${expense.name} (${expense.category})</span>
+                    <span>$${expense.amount.toFixed(2)}</span>
+                    <button class="remove-btn" data-id="${index}">X</button>
+                `;
+                expensesList.appendChild(expenseDiv);
+                total += expense.amount;
+            });
+
+            totalExpenses.textContent = `Total: $${total.toFixed(2)}`;
+
+            document.querySelectorAll('.remove-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    const expenseIndex = button.getAttribute('data-id');
+                    expenses.splice(expenseIndex, 1);
+                    saveToLocalStorage();
+                    renderExpenses();
+                });
+            });
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('expenses', JSON.stringify(expenses));
+        }
+
+        renderExpenses();
+    </script>
+</body>
+
+</html>
