@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore Our Courses</title>
+    <style>
+        /* Reset some styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f1f6fb;
+            color: #333;
+            padding: 3rem;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: #2c3e50;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+        }
+
+        .card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-bottom: 2px solid #eeeeee;
+        }
+
+        .card-content {
+            padding: 1.5rem;
+        }
+
+        .card-content h3 {
+            font-size: 1.4rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .card-content p {
+            font-size: 1rem;
+            color: #555555;
+            line-height: 1.6;
+        }
+
+        .card-content a {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .card-content a:hover {
+            background-color: #2980b9;
+        }
+
+        .pagination {
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .pagination a {
+            color: #3498db;
+            padding: 12px 20px;
+            text-decoration: none;
+            border: 1px solid #3498db;
+            margin: 0 5px;
+            border-radius: 50px;
+            transition: background-color 0.3s ease;
+        }
+
+        .pagination a:hover {
+            background-color: #3498db;
+            color: #ffffff;
+        }
+
+        .pagination .active {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .pagination a:disabled {
+            color: #ccc;
+            border-color: #ccc;
+        }
+
+        #page-numbers {
+            font-size: 1rem;
+            margin-top: 15px;
+            color: #555;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Explore Our Latest Courses</h1>
+
+        <div class="card-container" id="card-container">
+            <!-- Cards will be injected here dynamically -->
+        </div>
+
+        <div class="pagination" id="pagination">
+            <a href="#" id="prev">Previous</a>
+            <a href="#" class="page-link" data-page="1">1</a>
+            <a href="#" class="page-link" data-page="2">2</a>
+            <a href="#" class="page-link" data-page="3">3</a>
+            <a href="#" id="next">Next</a>
+            <p id="page-numbers"> </p>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript to handle pagination and card content dynamically
+        const cardsPerPage = 4; // Number of cards per page
+        const cardData = [
+            {
+                title: 'HTML, HTML5',
+                image: 'images/html.png', // replace with your image file or URL
+                description: 'Learn the fundamentals of HTML and HTML5 to build the structure of web pages.',
+                link: 'https://www.w3schools.com/html/' 
+            },
+            {
+                title: 'CSS, CSS3',
+                image: 'images/css.png', // replace with your image file or URL
+                description: 'Master the art of styling web pages with CSS and CSS3 for modern web design.',
+                link: 'https://www.w3schools.com/css/' 
+            },
+            {
+                title: 'JavaScript Basics',
+                image: 'images/javascript.png', // replace with your image file or URL
+                description: 'Understand the basics of JavaScript and its role in creating dynamic web pages.',
+                link: 'https://www.w3schools.com/js/' 
+            },
+            {
+                title: 'React JS',
+                image: 'images/reactjs.png', // replace with your image file or URL
+                description: 'Learn React, one of the most popular JavaScript libraries for building user interfaces.',
+                link: 'https://www.w3schools.com/react/' 
+            },
+            {
+                title: 'Node JS',
+                image: 'images/nodejs.png', // replace with your image file or URL
+                description: 'Explore Node.js and build fast, scalable network applications.',
+                link: 'https://www.w3schools.com/nodejs/' 
+            },
+            {
+                title: 'Web Development with MongoDB',
+                image: 'images/mongodb.png', // replace with your image file or URL
+                description: 'Store and manage data efficiently using MongoDB, a popular NoSQL database.',
+                link: 'https://www.w3schools.com/mongodb/' 
+            },
+            {
+                title: 'Angular Development',
+                image: 'images/angular.png', // replace with your image file or URL
+                description: 'Become an expert in building dynamic, single-page applications with Angular.',
+                link: 'https://www.w3schools.com/angular/' 
+            },
+            {
+                title: 'Web Development with Django',
+                image: 'images/django.png', // replace with your image file or URL
+                description: 'Build powerful web applications using Django, a popular Python web framework.',
+                link: 'https://www.w3schools.com/django/' 
+            },
+            {
+                title: 'PHP & MySQL',
+                image: 'images/php-mysql.png', // replace with your image file or URL
+                description: 'Learn how to build dynamic websites and applications using PHP and MySQL.',
+                link: 'https://www.w3schools.com/php/' 
+            },
+            {
+                title: 'Laravel Development',
+                image: 'images/laravel.png', // replace with your image file or URL
+                description: 'Master the art of web application development with Laravel, a powerful PHP framework.',
+                link: 'https://laravel.com/docs/11.x' 
+            }
+        ];
+
+        const cardContainer = document.getElementById('card-container');
+        const pagination = document.getElementById('pagination');
+        const prevButton = document.getElementById('prev');
+        const nextButton = document.getElementById('next');
+        const pageLinks = document.querySelectorAll('.page-link');
+        const pageNumbers = document.getElementById('page-numbers');
+
+        let currentPage = 1;
+        const totalPages = Math.ceil(cardData.length / cardsPerPage);
+
+        // Function to create and display cards
+        function displayCards(page) {
+            const startIndex = (page - 1) * cardsPerPage;
+            const endIndex = startIndex + cardsPerPage;
+
+            cardContainer.innerHTML = ''; // Clear the existing cards
+            cardData.slice(startIndex, endIndex).forEach(course => {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.innerHTML = `
+                    <img src="${course.image}" alt="${course.title}">
+                    <div class="card-content">
+                        <h3>${course.title}</h3>
+                        <p>${course.description}</p>
+                        <a href="${course.link}" target="_blank">Learn More</a>
+                    </div>
+                `;
+                cardContainer.appendChild(card);
+            });
+
+            updatePagination(page);
+        }
+
+        // Function to update pagination buttons
+        function updatePagination(page) {
+            pageLinks.forEach(link => {
+                if (parseInt(link.dataset.page) === page) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+
+            pageNumbers.textContent = `Page ${page} of ${totalPages}`;
+            prevButton.disabled = page === 1;
+            nextButton.disabled = page === totalPages;
+        }
+
+        // Event listeners for pagination
+        prevButton.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                displayCards(currentPage);
+            }
+        });
+
+        nextButton.addEventListener('click', () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                displayCards(currentPage);
+            }
+        });
+
+        pageLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                currentPage = parseInt(link.dataset.page);
+                displayCards(currentPage);
+            });
+        });
+
+        // Initial display of cards
+        displayCards(currentPage);
+    </script>
+</body>
+
+</html>
