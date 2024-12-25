@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Card Game</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+        }
+
+        .game-board {
+            display: grid;
+            grid-gap: 10px;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            grid-template-columns: repeat(5, 100px);
+            grid-template-rows: repeat(2, 100px);
+        }
+
+        .card {
+            width: 100px;
+            height: 100px;
+            background-color: #f1f3f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+            font-size: 24px;
+            color: transparent;
+            cursor: pointer;
+            transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card.flipped {
+            background-color: #e0f7fa;
+            color: #00796b;
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .card.matched {
+            background-color: #80deea;
+            color: #004d40;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .button-container {
+            display: flex;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .button-container button {
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            background-color: #00796b;
+            color: white;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .button-container button:hover {
+            background-color: #004d40;
+            transform: translateY(-2px);
+        }
+
+        #timer {
+            margin-top: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #00796b;
+        }
+
+        #winMessage {
+            display: none;
+            font-size: 28px;
+            font-weight: bold;
+            color: #004d40;
+            background-color: #a5d6a7;
+            padding: 30px;
+            border-radius: 12px;
+            margin-top: 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        #restartButton {
+            background-color: #f44336;
+            margin-top: 20px;
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        #restartButton:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="button-container">
+        <button onclick="startGame('easy')">Easy</button>
+        <button onclick="startGame('medium')">Medium</button>
+        <button onclick="startGame('hard')">Hard</button>
+    </div>
+
+    <div id="timer">Time: 0s</div>
+    <div class="game-board" id="gameBoard"></div>
+
+    <div id="winMessage">You Win! Congratulations! 🎉</div>
+    <button id="restartButton" onclick="restartGame()" style="display: none;">Restart Game</button>
+
+    <script>
+        let cardValues = [];
+        let cards = [];
+        let flippedCards = [];
+        let matchedCards = 0;
+        let timer;
+        let time = 0;
+        let gameStarted = false;
+        let gameTimeLimit = 0;
+
+        function shuffle(cards) {
+            return cards.sort(() => Math.random() - 0.5);
+        }
+
+        function createCard(value) {
+            const card = document.createElement('div');
+            card.classList.add('card');
+            card.dataset.value = value;
+            card.addEventListener('click', flipCard);
+            return card;
+        }
+
+        function flipCard() {
+            if (flippedCards.length === 2 || this.classList.contains('flipped')) return;
+
+            const card = this;
+            card.classList.add('flipped');
+            card.textContent = card.dataset.value;
+            flippedCards.push(card);
+
+            if (flippedCards.length === 2) {
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            const [card1, card2] = flippedCards;
+            if (card1.dataset.value === card2.dataset.value) {
+                card1.classList.add('matched');
+                card2.classList.add('matched');
+                matchedCards += 2;
+                flippedCards = [];
+
+                if (matchedCards === cards.length) {
+                    clearInterval(timer);
+                    showWinMessage();
+                }
+            } else {
+                setTimeout(() => {
+                    card1.classList.remove('flipped');
+                    card2.classList.remove('flipped');
+                    flippedCards = [];
+                }, 1000);
+            }
+        }
+
+        function startGame(mode) {
+            // Clear previous game and reset the board
+            clearInterval(timer);
+            time = 0;
+            matchedCards = 0;
+            gameStarted = true;
+            document.getElementById('gameBoard').innerHTML = '';
+            document.getElementById('winMessage').style.display = 'none';
+            document.getElementById('restartButton').style.display = 'none';
+
+            // Set difficulty based on mode
+            if (mode === 'easy') {
+                cardValues = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+                gameTimeLimit = 60;
+                document.querySelector('.game-board').style.gridTemplateColumns = 'repeat(5, 100px)';
+                document.querySelector('.game-board').style.gridTemplateRows = 'repeat(2, 100px)';
+            } else if (mode === 'medium') {
+                cardValues = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N'];
+                gameTimeLimit = 90;
+                document.querySelector('.game-board').style.gridTemplateColumns = 'repeat(7, 100px)';
+                document.querySelector('.game-board').style.gridTemplateRows = 'repeat(4, 100px)';
+            } else if (mode === 'hard') {
+                cardValues = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R'];
+                gameTimeLimit = 120;
+                document.querySelector('.game-board').style.gridTemplateColumns = 'repeat(9, 100px)';
+                document.querySelector('.game-board').style.gridTemplateRows = 'repeat(4, 100px)';
+            }
+
+            cards = shuffle(cardValues.concat(cardValues));
+            cards.forEach(value => {
+                const card = createCard(value);
+                document.getElementById('gameBoard').appendChild(card);
+            });
+
+            startTimer();
+        }
+
+        function startTimer() {
+            if (!gameStarted) return;
+            let remainingTime = gameTimeLimit;
+            document.getElementById('timer').textContent = 'Time: ' + remainingTime + 's';
+
+            timer = setInterval(() => {
+                time++;
+                remainingTime--;
+                document.getElementById('timer').textContent = 'Time: ' + remainingTime + 's';
+
+                if (remainingTime <= 0) {
+                    clearInterval(timer);
+                    showLossMessage();
+                }
+            }, 1000);
+        }
+
+        function showWinMessage() {
+            const winMessage = document.getElementById('winMessage');
+            const restartButton = document.getElementById('restartButton');
+
+            winMessage.style.display = 'block';
+            restartButton.style.display = 'inline-block';
+
+            setTimeout(() => {
+                winMessage.style.opacity = '1';
+                winMessage.style.transform = 'translate(-50%, -50%) scale(1)';
+            }, 100);
+        }
+
+        function showLossMessage() {
+            const winMessage = document.getElementById('winMessage');
+            winMessage.textContent = "Time's up! You lost! 😞";
+            showWinMessage();
+        }
+
+        function restartGame() {
+            startGame('easy');
+        }
+    </script>
+</body>
+
+</html>
