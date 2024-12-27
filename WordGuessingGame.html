@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Guessing Game</title>
+    <style>
+        /* General Body Styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a, #333333);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #ffffff;
+        }
+
+        /* Container Styling */
+        .container {
+            background-color: rgba(0, 0, 0, 0.75);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 480px;
+            text-align: center;
+        }
+
+        /* Title Styling */
+        h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: #ff4b5c;
+            text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Hint and Word Display */
+        .card {
+            font-size: 30px;
+            letter-spacing: 8px;
+            font-weight: bold;
+            color: #ecf0f1;
+            margin: 20px 0;
+            text-transform: uppercase;
+            background-color: #16a085;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .message {
+            font-size: 22px;
+            margin-top: 20px;
+            color: #2ecc71;
+        }
+
+        .wrong-guesses {
+            color: #e74c3c;
+            font-size: 18px;
+            margin-top: 15px;
+        }
+
+        .attempts {
+            font-size: 18px;
+            color: #3498db;
+        }
+
+        /* Button Styling */
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 18px 40px;
+            background: linear-gradient(145deg, #f39c12, #e67e22);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        button:disabled {
+            background: #BDC3C7;
+            cursor: not-allowed;
+        }
+
+        button:hover {
+            background: linear-gradient(145deg, #e67e22, #f39c12);
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Responsive Design */
+        @media screen and (max-width: 500px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 36px;
+            }
+
+            .card {
+                font-size: 28px;
+                /* Smaller font size on small screens */
+            }
+
+            button {
+                padding: 14px 30px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Guess the Word</h1>
+        <p><strong>Hint:</strong> <span id="hint-text"></span></p>
+        <p id="displayWord" class="card">_ _ _ _</p>
+        <p id="attempts" class="attempts">Attempts Left: 3</p>
+        <p class="wrong-guesses"><strong>Incorrect Guesses:</strong> <span id="incorrect-guesses"></span></p>
+        <p id="message" class="message"></p>
+        <div class="button-group">
+            <button id="next-btn" onclick="nextQuestion()">Next Question</button>
+            <button id="restart-btn" onclick="resetGame()">Restart Game</button>
+        </div>
+    </div>
+
+    <script>
+        const words = [
+            { word: "elephant", hint: "A large animal with a trunk" },
+            { word: "piano", hint: "A musical instrument" },
+            { word: "sunflower", hint: "A tall plant with yellow flowers" },
+            { word: "mountain", hint: "A large natural elevation of the Earth's surface" },
+            { word: "guitar", hint: "A string instrument" },
+            { word: "butterfly", hint: "An insect with colorful wings" },
+            { word: "rainbow", hint: "A meteorological phenomenon with different colors" },
+            { word: "vampire", hint: "A mythical creature that drinks blood" },
+            { word: "robot", hint: "A machine that can be programmed to perform tasks" },
+            { word: "chocolate", hint: "A sweet treat made from cacao" }
+        ];
+
+        let selectedWord;
+        let guessedList = [];
+        let incorrectGuesses = [];
+        let attemptsLeft;
+        let gameActive = true;
+
+        // Function to get a random word
+        function getRandomWord() {
+            const randomIndex = Math.floor(Math.random() * words.length);
+            return words[randomIndex];
+        }
+
+        // Initialize the game
+        function startGame() {
+            const selected = getRandomWord();
+            selectedWord = selected.word;
+            guessedList = [];
+            incorrectGuesses = [];
+            attemptsLeft = 3; // 3 attempts per question
+
+            // Update hint only once
+            document.getElementById("hint-text").textContent = selected.hint;
+
+            // Generate display word with underscores
+            let displayWord = "";
+            for (let i = 0; i < selectedWord.length; i++) {
+                displayWord += "_ ";
+            }
+            document.getElementById("displayWord").textContent = displayWord;
+            document.getElementById("incorrect-guesses").textContent = "";
+            document.getElementById("attempts").textContent = `Attempts Left: ${attemptsLeft}`;
+            document.getElementById("message").textContent = "";
+            gameActive = true;
+            document.getElementById("next-btn").style.display = "none";
+        }
+
+        // Function to handle letter guessing
+        function guessLetter(letter) {
+            if (!gameActive || attemptsLeft <= 0) return;
+
+            letter = letter.toLowerCase();
+
+            if (!letter || letter.length !== 1) {
+                alert("Please enter a single letter.");
+                return;
+            }
+
+            if (guessedList.includes(letter)) {
+                alert("You already guessed that letter.");
+                return;
+            }
+
+            guessedList.push(letter);
+
+            // Check if the guessed letter is in the word
+            if (selectedWord.includes(letter)) {
+                let updatedDisplay = "";
+                let allLettersGuessed = true;
+                for (let i = 0; i < selectedWord.length; i++) {
+                    if (guessedList.includes(selectedWord[i])) {
+                        updatedDisplay += selectedWord[i] + " ";
+                    } else {
+                        updatedDisplay += "_ ";
+                        allLettersGuessed = false;
+                    }
+                }
+                document.getElementById("displayWord").textContent = updatedDisplay;
+
+                if (allLettersGuessed) {
+                    document.getElementById("message").textContent = "Congratulations! You guessed the word!";
+                    gameActive = false;
+                    document.getElementById("next-btn").style.display = "block";
+                }
+            } else {
+                incorrectGuesses.push(letter);
+                document.getElementById("incorrect-guesses").textContent = incorrectGuesses.join(", ");
+                attemptsLeft--;
+                document.getElementById("attempts").textContent = `Attempts Left: ${attemptsLeft}`;
+
+                if (attemptsLeft <= 0) {
+                    document.getElementById("message").textContent = `Sorry! You ran out of attempts. The word was ${selectedWord}`;
+                    gameActive = false;
+                    document.getElementById("next-btn").style.display = "block";
+                }
+            }
+        }
+
+        // Reset the game
+        function resetGame() {
+            startGame();
+        }
+
+        // Move to the next question
+        function nextQuestion() {
+            startGame();
+        }
+
+        // Start the game when the page loads
+        startGame();
+
+        // Add an event listener for keyboard input (A-Z)
+        window.addEventListener('keydown', function (event) {
+            if (gameActive && event.key.match(/[a-zA-Z]/)) {
+                guessLetter(event.key);
+            }
+        });
+    </script>
+</body>
+
+</html>
