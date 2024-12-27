@@ -21,3 +21,6 @@ Day 18 -> Expense Tracker<br>
 Day 19 -> Image Gallery<br>
 Day 20 -> Interactive Course Catalog with Dynamic Pagination<br>
 Day 21 -> Image generator<br>
+Day 22 -> Memory Card Game<br>
+Day 23 -> OTP Authentication<br>
+Day 24 -> Word Guessing Game<br>
