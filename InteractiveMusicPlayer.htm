@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Music Player</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #fff;
+      overflow: hidden;
+      background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
+      background-size: 200% 200%;
+      animation: gradientAnimation 5s ease infinite;
+    }
+
+    @keyframes gradientAnimation {
+      0% {
+        background-position: 0% 50%;
+      }
+
+      50% {
+        background-position: 100% 50%;
+      }
+
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    .music-player {
+      background-color: rgba(0, 0, 0, 0.75);
+      width: 400px;
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0px 15px 30px rgba(0, 0, 0, 0.3);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s ease;
+    }
+
+    .album-art {
+      width: 250px;
+      height: 250px;
+      border-radius: 50%;
+      object-fit: cover;
+      transition: transform 0.4s ease, opacity 0.5s ease;
+      margin-bottom: 20px;
+    }
+
+    .song-title {
+      margin-top: 10px;
+      font-size: 26px;
+      font-weight: bold;
+      color: #fff;
+      opacity: 0;
+      transition: opacity 0.8s ease-in-out;
+    }
+
+    .time-info {
+      margin-top: 10px;
+      font-size: 18px;
+      color: #ccc;
+    }
+
+    .player-controls {
+      display: flex;
+      justify-content: space-evenly;
+      margin-top: 20px;
+    }
+
+    .player-controls button {
+      background-color: #6200ea;
+      color: white;
+      border: none;
+      padding: 20px;
+      font-size: 30px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+      width: 80px;
+      height: 80px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .player-controls button:hover {
+      background-color: #3700b3;
+      transform: scale(1.1);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .player-controls button:active {
+      transform: scale(0.95);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .progress-container {
+      margin: 20px 0;
+      width: 100%;
+    }
+
+    #progress-bar {
+      width: 100%;
+      height: 5px;
+      background: linear-gradient(to right, #6200ea, #bb86fc);
+      border-radius: 20px;
+      outline: none;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+      cursor: pointer;
+    }
+
+    #progress-bar::-webkit-slider-runnable-track {
+      background: linear-gradient(to right, #6200ea, #bb86fc);
+      border-radius: 20px;
+    }
+
+    #progress-bar::-webkit-slider-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background-color: #fff;
+      border: 2px solid #6200ea;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.2s ease;
+    }
+
+    #progress-bar::-webkit-slider-thumb:hover {
+      background-color: #3700b3;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    #progress-bar::-webkit-slider-thumb:active {
+      transform: scale(1.2);
+    }
+
+    #progress-bar:focus {
+      background-color: #bb86fc;
+    }
+
+    .volume-container {
+      margin-top: 20px;
+    }
+
+    #volume {
+      width: 100%;
+      background-color: #6200ea;
+    }
+
+    .player-controls button.active {
+      background-color: #bb86fc;
+    }
+
+    .player-controls button:disabled {
+      background-color: #ddd;
+      cursor: not-allowed;
+    }
+
+    @media (max-width: 480px) {
+      .music-player {
+        width: 90%;
+        padding: 20px;
+      }
+
+      .album-art {
+        width: 200px;
+        height: 200px;
+      }
+
+      .song-title {
+        font-size: 22px;
+      }
+
+      .player-controls button {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="music-player">
+    <img id="album-art" class="album-art" src="Images/images.gif" alt="Album Art">
+    <audio id="audio" src="Audio/song1.mp3"></audio>
+
+    <div id="song-title" class="song-title">Song 1</div>
+    <div class="time-info">
+      <span id="current-time">00:00</span> / <span id="duration">00:00</span>
+    </div>
+
+    <div class="player-controls">
+      <button id="prev-btn"><i class="fas fa-step-backward"></i></button>
+      <button id="play-pause-btn"><i class="fas fa-pause"></i></button> <!-- Default pause icon -->
+      <button id="next-btn"><i class="fas fa-step-forward"></i></button>
+    </div>
+
+    <div class="progress-container">
+      <input type="range" id="progress-bar" value="0" max="100" step="1">
+    </div>
+
+    <div class="volume-container">
+      <label for="volume">Volume: </label>
+      <input type="range" id="volume" value="100" max="100" step="1">
+    </div>
+  </div>
+
+  <script>
+    const audio = document.getElementById("audio");
+    const playPauseBtn = document.getElementById("play-pause-btn");
+    const prevBtn = document.getElementById("prev-btn");
+    const nextBtn = document.getElementById("next-btn");
+    const progressBar = document.getElementById("progress-bar");
+    const volumeControl = document.getElementById("volume");
+    const songTitle = document.getElementById("song-title");
+    const currentTimeDisplay = document.getElementById("current-time");
+    const durationDisplay = document.getElementById("duration");
+    const albumArt = document.getElementById("album-art");
+
+    const songs = [
+      { title: "Song 1", src: "Audio/song1.mp3", albumArt: "Images/images.gif" },
+      { title: "Song 2", src: "Audio/song2.mp3", albumArt: "Images/images.gif" },
+      { title: "Song 3", src: "Audio/song3.mp3", albumArt: "Images/images.gif" }
+    ];
+
+    let currentSongIndex = 0;
+
+    loadSong(currentSongIndex);
+
+    audio.addEventListener("loadedmetadata", () => {
+      durationDisplay.innerText = formatTime(audio.duration);
+      progressBar.value = 0;
+    });
+
+    audio.addEventListener("timeupdate", () => {
+      const progress = (audio.currentTime / audio.duration) * 100;
+      progressBar.value = progress;
+      currentTimeDisplay.innerText = formatTime(audio.currentTime);
+    });
+
+    playPauseBtn.addEventListener("click", () => {
+      if (audio.paused) {
+        audio.play();
+        playPauseBtn.innerHTML = "<i class='fas fa-pause'></i>"; // Change to pause icon
+      } else {
+        audio.pause();
+        playPauseBtn.innerHTML = "<i class='fas fa-play'></i>"; // Change to play icon
+      }
+    });
+
+    prevBtn.addEventListener("click", () => {
+      currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+      loadSong(currentSongIndex);
+    });
+
+    nextBtn.addEventListener("click", () => {
+      currentSongIndex = (currentSongIndex + 1) % songs.length;
+      loadSong(currentSongIndex);
+    });
+
+    progressBar.addEventListener("input", () => {
+      const seekTo = (progressBar.value / 100) * audio.duration;
+      audio.currentTime = seekTo;
+    });
+
+    volumeControl.addEventListener("input", () => {
+      audio.volume = volumeControl.value / 100;
+    });
+
+    function loadSong(index) {
+      audio.src = songs[index].src;
+      songTitle.innerText = songs[index].title;  // Update the song title dynamically
+      albumArt.style.opacity = 0;
+      albumArt.style.transform = "scale(0.9)";
+      setTimeout(() => {
+        albumArt.src = songs[index].albumArt;
+        albumArt.style.opacity = 1;
+        albumArt.style.transform = "scale(1)";
+      }, 1000);
+      audio.pause(); // Ensure the audio is paused when the song is loaded
+      playPauseBtn.innerHTML = "<i class='fas fa-pause'></i>"; // Default pause icon
+      progressBar.value = 0;
+    }
+
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+
+    audio.addEventListener("ended", () => {
+      currentSongIndex = (currentSongIndex + 1) % songs.length;
+      loadSong(currentSongIndex);
+    });
+  </script>
+</body>
+
+</html>
