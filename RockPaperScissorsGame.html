@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rock, Paper, Scissors Game</title>
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ff7e5f, #feb47b);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        #game-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+            width: 85%;
+            max-width: 700px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 30px;
+            color: #ff7e5f;
+            font-weight: 700;
+        }
+
+        #choices {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .choice {
+            font-size: 1.8rem;
+            padding: 15px 30px;
+            margin: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 50px;
+            background-color: #fff;
+            color: #333;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .choice:hover {
+            transform: scale(1.1);
+            background-color: #feb47b;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .choice:active {
+            transform: scale(0.95);
+        }
+
+        #hands-display {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 30px;
+            font-size: 4.5rem;
+        }
+
+        .hand-display {
+            padding: 20px;
+            border-radius: 15px;
+            background-color: #fff;
+            color: #333;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        #result {
+            font-size: 2rem;
+            margin-top: 20px;
+            color: #ff7e5f;
+            font-weight: bold;
+        }
+
+        #score {
+            margin-top: 20px;
+            font-size: 1.25rem;
+            color: #333;
+            font-weight: 700;
+        }
+
+        #score span {
+            font-weight: 900;
+            color: #ff7e5f;
+        }
+
+        #reset-btn {
+            padding: 10px 30px;
+            background-color: #ff7e5f;
+            color: white;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            margin-top: 30px;
+            display: none;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        #reset-btn:hover {
+            background-color: #feb47b;
+            transform: scale(1.05);
+        }
+
+        /* Animation for hands */
+        .animate-hand {
+            animation: hand-animation 0.5s ease-in-out;
+        }
+
+        @keyframes hand-animation {
+            0% {
+                transform: scale(0.7);
+                opacity: 0.3;
+            }
+
+            50% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 600px) {
+            #game-container {
+                width: 90%;
+            }
+
+            .choice {
+                font-size: 1.5rem;
+                padding: 12px 25px;
+            }
+
+            #hands-display {
+                font-size: 4rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="game-container">
+        <h1>Rock, Paper, Scissors</h1>
+        <div id="choices">
+            <button id="rock" class="choice">✊ Rock</button>
+            <button id="paper" class="choice">✋ Paper</button>
+            <button id="scissors" class="choice">✌️ Scissors</button>
+        </div>
+        <div id="hands-display">
+            <div id="player-hand" class="hand-display">✊</div>
+            <div id="computer-hand" class="hand-display">✊</div>
+        </div>
+        <div id="result"></div>
+        <div id="score">
+            Player: <span id="player-score">0</span> | Computer: <span id="computer-score">0</span>
+        </div>
+        <button id="reset-btn">Reset Game</button>
+    </div>
+
+    <script>
+        let playerScore = 0;
+        let computerScore = 0;
+
+        const playerScoreDisplay = document.getElementById("player-score");
+        const computerScoreDisplay = document.getElementById("computer-score");
+        const resultDisplay = document.getElementById("result");
+        const resetBtn = document.getElementById("reset-btn");
+
+        const choices = ["rock", "paper", "scissors"];
+
+        document.getElementById("rock").addEventListener("click", () => playGame("rock"));
+        document.getElementById("paper").addEventListener("click", () => playGame("paper"));
+        document.getElementById("scissors").addEventListener("click", () => playGame("scissors"));
+
+        resetBtn.addEventListener("click", resetGame);
+
+        function playGame(playerChoice) {
+            const computerChoice = getComputerChoice();
+            const result = determineWinner(playerChoice, computerChoice);
+
+            // Show hands immediately
+            document.getElementById("player-hand").textContent = getHandEmoji(playerChoice);
+            document.getElementById("computer-hand").textContent = getHandEmoji(computerChoice);
+
+            // Add animation to hands
+            document.getElementById("player-hand").classList.add("animate-hand");
+            document.getElementById("computer-hand").classList.add("animate-hand");
+
+            // Display results quickly
+            setTimeout(() => {
+                resultDisplay.textContent = result.message;
+                if (result.winner === "player") {
+                    playerScore++;
+                } else if (result.winner === "computer") {
+                    computerScore++;
+                }
+
+                playerScoreDisplay.textContent = playerScore;
+                computerScoreDisplay.textContent = computerScore;
+
+                // Show reset button when game ends
+                if (playerScore >= 5 || computerScore >= 5) {
+                    resetBtn.style.display = "block";
+                    resultDisplay.textContent += " Game Over!";
+                }
+            }, 500); // Faster result display
+        }
+
+        function getHandEmoji(choice) {
+            if (choice === "rock") return "✊";
+            if (choice === "paper") return "✋";
+            if (choice === "scissors") return "✌️";
+            return "";
+        }
+
+        function getComputerChoice() {
+            // Add a slight bias to computer's choice, while making it unpredictable
+            const randomIndex = Math.floor(Math.random() * 3);
+            return choices[randomIndex];
+        }
+
+        function determineWinner(playerChoice, computerChoice) {
+            if (playerChoice === computerChoice) {
+                return { winner: "tie", message: "It's a tie!" };
+            }
+
+            if (
+                (playerChoice === "rock" && computerChoice === "scissors") ||
+                (playerChoice === "paper" && computerChoice === "rock") ||
+                (playerChoice === "scissors" && computerChoice === "paper")
+            ) {
+                return { winner: "player", message: "You win!" };
+            } else {
+                return { winner: "computer", message: "Computer wins!" };
+            }
+        }
+
+        function resetGame() {
+            playerScore = 0;
+            computerScore = 0;
+            playerScoreDisplay.textContent = playerScore;
+            computerScoreDisplay.textContent = computerScore;
+            resultDisplay.textContent = "";
+            resetBtn.style.display = "none";
+            document.getElementById("player-hand").textContent = "✊";
+            document.getElementById("computer-hand").textContent = "✊";
+        }
+    </script>
+</body>
+
+</html>
