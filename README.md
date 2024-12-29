@@ -24,3 +24,6 @@ Day 21 -> Image generator<br>
 Day 22 -> Memory Card Game<br>
 Day 23 -> OTP Authentication<br>
 Day 24 -> Word Guessing Game<br>
+Day 25 -> Interactive Music Player<br>
+Day 26 -> Snake Game<br>
+Day 27 -> Rock, Paper, Scissors Game<br>
