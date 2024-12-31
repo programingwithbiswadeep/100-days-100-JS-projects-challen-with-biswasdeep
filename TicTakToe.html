@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tic-Tac-Toe Game</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Roboto", sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: linear-gradient(
+          135deg,
+          #6dd5ed,
+          #2193b0
+        ); /* Softer Blue Gradient */
+        color: #fff;
+        overflow: hidden;
+      }
+
+      .game-container {
+        background: #34495e;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        width: 400px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        animation: fadeIn 1s ease-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      h1 {
+        font-size: 1.8rem;
+        color: #fff;
+        margin-bottom: 20px;
+        font-weight: bold;
+      }
+
+      .btn-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .btn {
+        background-color: #3498db;
+        border: none;
+        padding: 10px 20px;
+        font-size: 1rem;
+        cursor: pointer;
+        border-radius: 10px;
+        width: 100%;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        margin: 5px;
+      }
+
+      .btn:hover {
+        background-color: #2980b9;
+        transform: scale(1.05);
+      }
+
+      .board {
+        display: grid;
+        grid-template-columns: repeat(3, 100px);
+        grid-template-rows: repeat(3, 100px);
+        gap: 10px;
+        margin-top: 20px;
+        justify-content: center;
+      }
+
+      .cell {
+        width: 100px;
+        height: 100px;
+        background-color: #ecf0f1;
+        border: 3px solid #2980b9;
+        border-radius: 10px;
+        font-size: 2rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .cell:hover {
+        background-color: #bdc3c7;
+        transform: scale(1.1);
+      }
+
+      .cell.x {
+        color: #e74c3c; /* Red */
+      }
+
+      .cell.o {
+        color: #3498db; /* Blue */
+      }
+
+      .restart-btn {
+        background-color: #e67e22;
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        font-size: 1.1rem;
+        cursor: pointer;
+        border-radius: 10px;
+        margin-top: 20px;
+        width: 90%;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+      }
+
+      .restart-btn:hover {
+        background-color: #d35400;
+        transform: scale(1.05);
+      }
+
+      #gameStatus {
+        font-size: 1.2rem;
+        margin-top: 15px;
+        font-weight: bold;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 600px) {
+        .board {
+          grid-template-columns: repeat(3, 80px);
+          grid-template-rows: repeat(3, 80px);
+        }
+
+        .game-container {
+          width: 80%;
+          padding: 25px;
+        }
+
+        h1 {
+          font-size: 1.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="game-container">
+      <h1>Advanced Tic-Tac-Toe</h1>
+      <div class="btn-container" id="modeSelection">
+        <button class="btn" id="twoPlayerBtn">Two-Player Mode</button>
+        <button class="btn" id="computerBtn">Play Against Computer</button>
+      </div>
+
+      <div
+        id="modeLabel"
+        style="display: none; color: #fff; margin-top: 20px; font-size: 1.2rem"
+      ></div>
+      <!-- Display Mode -->
+
+      <div class="board" id="board" style="display: none">
+        <div class="cell" data-cell="0"></div>
+        <div class="cell" data-cell="1"></div>
+        <div class="cell" data-cell="2"></div>
+        <div class="cell" data-cell="3"></div>
+        <div class="cell" data-cell="4"></div>
+        <div class="cell" data-cell="5"></div>
+        <div class="cell" data-cell="6"></div>
+        <div class="cell" data-cell="7"></div>
+        <div class="cell" data-cell="8"></div>
+      </div>
+
+      <button id="restart" class="restart-btn" style="display: none">
+        Restart Game
+      </button>
+      <p id="gameStatus"></p>
+    </div>
+
+    <script>
+      const board = document.getElementById("board");
+      const cells = document.querySelectorAll(".cell");
+      const gameStatus = document.getElementById("gameStatus");
+      const restartButton = document.getElementById("restart");
+      const twoPlayerBtn = document.getElementById("twoPlayerBtn");
+      const computerBtn = document.getElementById("computerBtn");
+      const modeLabel = document.getElementById("modeLabel");
+      const modeSelection = document.getElementById("modeSelection");
+
+      let currentPlayer = "X"; // Player X starts
+      let boardState = ["", "", "", "", "", "", "", "", ""];
+      let gameActive = true;
+      let isComputerMode = false;
+
+      const winningCombinations = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6],
+      ];
+
+      // Function to check for winner
+      function checkWinner() {
+        for (let combo of winningCombinations) {
+          const [a, b, c] = combo;
+          if (
+            boardState[a] &&
+            boardState[a] === boardState[b] &&
+            boardState[a] === boardState[c]
+          ) {
+            gameActive = false;
+            gameStatus.textContent = `Player ${currentPlayer} Wins!`;
+            showModeSelectionButtons(); // Show mode selection buttons after the game ends
+            return;
+          }
+        }
+
+        if (!boardState.includes("")) {
+          gameActive = false;
+          gameStatus.textContent = "It's a tie!";
+          showModeSelectionButtons(); // Show mode selection buttons after the game ends
+        }
+      }
+
+      // Handle cell click
+      function handleCellClick(event) {
+        const clickedCellIndex = event.target.getAttribute("data-cell");
+
+        if (boardState[clickedCellIndex] !== "" || !gameActive) return;
+
+        boardState[clickedCellIndex] = currentPlayer;
+        event.target.textContent = currentPlayer;
+        event.target.classList.add(currentPlayer.toLowerCase());
+
+        checkWinner();
+
+        if (gameActive) {
+          currentPlayer = currentPlayer === "X" ? "O" : "X"; // Switch turns
+
+          if (isComputerMode && currentPlayer === "O") {
+            setTimeout(computerMove, 500); // Wait a moment before the computer plays
+          }
+        }
+      }
+
+      // Minimax Algorithm
+      function minimax(boardState, depth, isMaximizing) {
+        const scores = { X: -10, O: 10, tie: 0 };
+        const winner = checkWinnerInBoard(boardState);
+
+        if (winner === "O") return scores["O"];
+        if (winner === "X") return scores["X"];
+        if (winner === "tie") return scores["tie"];
+
+        if (isMaximizing) {
+          let maxEval = -Infinity;
+          for (let i = 0; i < boardState.length; i++) {
+            if (boardState[i] === "") {
+              boardState[i] = "O";
+              let eval = minimax(boardState, depth + 1, false);
+              boardState[i] = "";
+              maxEval = Math.max(maxEval, eval);
+            }
+          }
+          return maxEval;
+        } else {
+          let minEval = Infinity;
+          for (let i = 0; i < boardState.length; i++) {
+            if (boardState[i] === "") {
+              boardState[i] = "X";
+              let eval = minimax(boardState, depth + 1, true);
+              boardState[i] = "";
+              minEval = Math.min(minEval, eval);
+            }
+          }
+          return minEval;
+        }
+      }
+
+      function checkWinnerInBoard(boardState) {
+        for (let combo of winningCombinations) {
+          const [a, b, c] = combo;
+          if (
+            boardState[a] &&
+            boardState[a] === boardState[b] &&
+            boardState[a] === boardState[c]
+          ) {
+            return boardState[a];
+          }
+        }
+        if (!boardState.includes("")) {
+          return "tie";
+        }
+        return null;
+      }
+
+      // Computer Move
+      function computerMove() {
+        let bestMove = -1;
+        let bestValue = -Infinity;
+
+        for (let i = 0; i < boardState.length; i++) {
+          if (boardState[i] === "") {
+            boardState[i] = "O";
+            let moveValue = minimax(boardState, 0, false);
+            boardState[i] = "";
+
+            if (moveValue > bestValue) {
+              bestMove = i;
+              bestValue = moveValue;
+            }
+          }
+        }
+
+        boardState[bestMove] = "O";
+        cells[bestMove].textContent = "O";
+        cells[bestMove].classList.add("o");
+        checkWinner();
+        if (gameActive) {
+          currentPlayer = "X";
+        }
+      }
+
+      // Restart the game
+      function restartGame() {
+        gameActive = true;
+        currentPlayer = "X";
+        boardState = ["", "", "", "", "", "", "", "", ""];
+        cells.forEach((cell) => {
+          cell.textContent = "";
+          cell.classList.remove("x", "o");
+        });
+        gameStatus.textContent = "";
+        modeSelection.style.display = "none"; // Hide the mode selection buttons again
+        restartButton.style.display = "none"; // Hide restart button
+      }
+
+      // Show mode selection buttons after game ends
+      function showModeSelectionButtons() {
+        modeSelection.style.display = "block"; // Show the mode selection buttons
+        restartButton.style.display = "inline-block"; // Show the restart button
+      }
+
+      // Game Mode Selection
+      twoPlayerBtn.addEventListener("click", () => {
+        isComputerMode = false;
+        gameActive = true;
+        gameStatus.textContent = "Player X's Turn";
+        modeLabel.textContent = "Two-Player Mode";
+        modeLabel.style.display = "block";
+        board.style.display = "grid";
+        modeSelection.style.display = "none"; // Hide the mode selection buttons
+        restartButton.style.display = "inline-block";
+      });
+
+      computerBtn.addEventListener("click", () => {
+        isComputerMode = true;
+        gameActive = true;
+        gameStatus.textContent = "Player X's Turn";
+        modeLabel.textContent = "Play Against Computer";
+        modeLabel.style.display = "block";
+        board.style.display = "grid";
+        modeSelection.style.display = "none"; // Hide the mode selection buttons
+        restartButton.style.display = "inline-block";
+      });
+
+      // Event listeners
+      cells.forEach((cell) => cell.addEventListener("click", handleCellClick));
+      restartButton.addEventListener("click", restartGame);
+    </script>
+  </body>
+</html>
