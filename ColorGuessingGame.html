@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Color Guessing Game</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Arial", sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: linear-gradient(135deg, #ff9f43, #ffbc2e);
+        background-size: 400% 400%;
+        animation: gradientAnimation 10s ease infinite;
+      }
+
+      @keyframes gradientAnimation {
+        0% {
+          background-position: 100% 0%;
+        }
+        50% {
+          background-position: 0% 100%;
+        }
+        100% {
+          background-position: 100% 0%;
+        }
+      }
+
+      .container {
+        background-color: rgba(255, 255, 255, 0.9);
+        width: 380px;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+
+      h1 {
+        font-size: 26px;
+        color: #333;
+        margin-bottom: 20px;
+        font-weight: 600;
+        letter-spacing: 1px;
+      }
+
+      .color-box {
+        width: 100%;
+        height: 200px;
+        margin-bottom: 30px;
+        border-radius: 8px;
+        border: 2px solid #ddd;
+        transition: background-color 0.3s ease;
+      }
+
+      .hex-codes {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        margin-bottom: 30px;
+      }
+
+      .hex-btn {
+        width: 100%;
+        height: 50px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        color: white;
+        cursor: pointer;
+        background-color: #ff6b6b;
+        transition: all 0.3s ease;
+      }
+
+      .hex-btn:hover {
+        transform: scale(1.1);
+        background-color: #ff4e4e;
+      }
+
+      button {
+        padding: 12px 28px;
+        font-size: 16px;
+        cursor: pointer;
+        border: none;
+        border-radius: 8px;
+        background-color: #2b6cb0;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      button:hover {
+        background-color: #3182ce;
+        transform: scale(1.05);
+      }
+
+      #result {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        letter-spacing: 0.5px;
+        color: #2b6cb0;
+      }
+
+      .result-correct {
+        color: #38a169;
+        animation: fadeIn 1s ease;
+      }
+
+      .result-wrong {
+        color: #e53e3e;
+        animation: fadeIn 1s ease;
+      }
+
+      @keyframes fadeIn {
+        0% {
+          opacity: 0;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+
+      #newGame {
+        margin-top: 15px;
+        width: 100%;
+      }
+
+      #score {
+        font-size: 16px;
+        margin-bottom: 10px;
+        color: #333;
+      }
+
+      #round {
+        font-size: 18px;
+        color: #888;
+        margin-bottom: 10px;
+      }
+
+      #timer {
+        font-size: 18px;
+        margin-top: 10px;
+        font-weight: bold;
+        color: #ff7b7b;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Guess the Color Hex Code!</h1>
+      <div class="color-box" id="colorBox"></div>
+      <div class="hex-codes">
+        <button class="hex-btn" id="hex1"></button>
+        <button class="hex-btn" id="hex2"></button>
+        <button class="hex-btn" id="hex3"></button>
+        <button class="hex-btn" id="hex4"></button>
+      </div>
+      <p id="result"></p>
+      <p id="score"></p>
+      <p id="round">Round 1 of 10</p>
+      <p id="timer">Time Left: 10s</p>
+      <button id="newGame">Start New Game</button>
+    </div>
+
+    <script>
+      const colorBox = document.getElementById("colorBox");
+      const hexBtns = document.querySelectorAll(".hex-btn");
+      const resultDisplay = document.getElementById("result");
+      const scoreDisplay = document.getElementById("score");
+      const roundDisplay = document.getElementById("round");
+      const timerDisplay = document.getElementById("timer");
+      const newGameButton = document.getElementById("newGame");
+
+      let correctHex;
+      let correctCount = 0;
+      let currentRound = 1;
+      const totalRounds = 10;
+      let timer;
+      let timeLeft = 10;
+
+      // Function to generate a random hex color
+      function generateRandomHexColor() {
+        const r = Math.floor(Math.random() * 256);
+        const g = Math.floor(Math.random() * 256);
+        const b = Math.floor(Math.random() * 256);
+        return `#${r.toString(16).padStart(2, "0")}${g
+          .toString(16)
+          .padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
+      }
+
+      // Function to set the game up (color box and hex buttons)
+      function setColors() {
+        // Generate a random color for the color box
+        correctHex = generateRandomHexColor();
+        colorBox.style.backgroundColor = correctHex;
+
+        // Set up the hex codes for the buttons
+        const hexCodes = [
+          correctHex,
+          generateRandomHexColor(),
+          generateRandomHexColor(),
+          generateRandomHexColor(),
+        ];
+
+        // Shuffle the hex codes array to randomize button positions
+        hexCodes.sort(() => Math.random() - 0.5);
+
+        // Assign the hex codes to the buttons
+        hexBtns.forEach((button, index) => {
+          button.textContent = hexCodes[index];
+        });
+
+        // Reset the timer
+        resetTimer();
+      }
+
+      // Function to start the countdown timer
+      function startTimer() {
+        timeLeft = 10;
+        timerDisplay.textContent = `Time Left: ${timeLeft}s`;
+        timer = setInterval(() => {
+          timeLeft--;
+          timerDisplay.textContent = `Time Left: ${timeLeft}s`;
+
+          if (timeLeft === 0) {
+            clearInterval(timer);
+            handleRoundEnd();
+          }
+        }, 1000);
+      }
+
+      // Function to reset the timer
+      function resetTimer() {
+        clearInterval(timer);
+        startTimer();
+      }
+
+      // Function to handle hex button clicks
+      function handleHexClick(event) {
+        const selectedHex = event.target.textContent;
+
+        if (selectedHex === correctHex) {
+          resultDisplay.textContent = `Correct! You guessed the color! Total correct guesses: ${
+            correctCount + 1
+          } out of 10`;
+          resultDisplay.classList.add("result-correct");
+          resultDisplay.classList.remove("result-wrong");
+          correctCount++;
+        }
+
+        clearInterval(timer);
+        currentRound++;
+
+        if (currentRound <= totalRounds) {
+          setColors();
+          roundDisplay.textContent = `Round ${currentRound} of ${totalRounds}`;
+          resultDisplay.textContent = "";
+        } else {
+          scoreDisplay.textContent = `Game Over! You guessed the color correctly ${correctCount} times.`;
+          newGameButton.disabled = false;
+          hexBtns.forEach((button) => {
+            button.disabled = true; // Disable all hex buttons after game over
+          });
+        }
+      }
+
+      // Function to handle the end of the round if time is up
+      function handleRoundEnd() {
+        resultDisplay.textContent = "Time's up! Moving to the next round...";
+        resultDisplay.classList.remove("result-correct", "result-wrong");
+        currentRound++;
+
+        if (currentRound <= totalRounds) {
+          setColors();
+          roundDisplay.textContent = `Round ${currentRound} of ${totalRounds}`;
+        } else {
+          scoreDisplay.textContent = `Game Over! You guessed the color correctly ${correctCount} times.`;
+          newGameButton.disabled = false;
+          hexBtns.forEach((button) => {
+            button.disabled = true; // Disable all hex buttons after game over
+          });
+        }
+      }
+
+      // Event listeners for hex code buttons
+      hexBtns.forEach((button) => {
+        button.addEventListener("click", handleHexClick);
+      });
+
+      // Event listener for starting a new game
+      newGameButton.addEventListener("click", () => {
+        correctCount = 0;
+        currentRound = 1;
+        setColors();
+        resultDisplay.textContent = "";
+        resultDisplay.classList.remove("result-correct", "result-wrong");
+        scoreDisplay.textContent = "";
+        roundDisplay.textContent = `Round 1 of ${totalRounds}`;
+        newGameButton.disabled = true;
+        hexBtns.forEach((button) => {
+          button.disabled = false; // Enable hex buttons at the start of a new game
+        });
+      });
+
+      // Start the first game
+      setColors();
+      newGameButton.disabled = true;
+    </script>
+  </body>
+</html>
