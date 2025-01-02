@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Age Calculator</title>
+    <style>
+      /* Global Styles */
+      body {
+        font-family: "Montserrat", sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        color: #fff;
+        text-align: center;
+      }
+
+      /* Card Styles */
+      .card {
+        background: #fff; /* White Card */
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 4px 25px rgba(0, 0, 0, 0.1);
+        width: 90%;
+        max-width: 400px;
+        box-sizing: border-box;
+        transition: transform 0.3s ease-in-out;
+      }
+
+      .card:hover {
+        transform: translateY(-8px);
+      }
+
+      /* Header */
+      header h1 {
+        font-size: 2.5rem;
+        color: #6a1b9a; /* Dark Purple for the Header */
+        margin-bottom: 25px;
+        letter-spacing: 1px;
+      }
+
+      /* Label and Input Styles */
+      label {
+        font-size: 1.1rem;
+        color: #6a1b9a;
+        margin-bottom: 8px;
+        text-align: left;
+        display: block;
+      }
+
+      input[type="date"] {
+        width: 100%;
+        padding: 12px;
+        margin: 8px 0;
+        border-radius: 8px;
+        border: 1px solid #6a1b9a;
+        font-size: 1rem;
+        transition: border 0.3s ease-in-out;
+        box-sizing: border-box;
+      }
+
+      input[type="date"]:focus {
+        border-color: #9c27b0; /* Light Purple on Focus */
+        outline: none;
+      }
+
+      button {
+        background: #9c27b0; /* Light Purple Button */
+        border: none;
+        padding: 12px 20px;
+        color: #fff;
+        font-size: 1.2rem;
+        border-radius: 8px;
+        cursor: pointer;
+        width: 100%;
+        transition: background-color 0.3s ease;
+        margin-top: 10px;
+      }
+
+      button:hover {
+        background: #7b1fa2; /* Darker Purple on Hover */
+      }
+
+      /* Result Styles */
+      #currentAge {
+        margin-top: 20px;
+        font-size: 1.4rem;
+        font-weight: bold;
+        color: #6a1b9a;
+      }
+
+      #errorMessage {
+        color: #e57373; /* Soft Red for Error */
+        font-size: 1rem;
+        margin-top: 15px;
+      }
+
+      small {
+        font-size: 0.9rem;
+        color: #666; /* Light Gray for Notes */
+      }
+
+      /* Reset Button Styles */
+      .reset-button {
+        background: #e57373; /* Red for Reset */
+        margin-top: 10px;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 600px) {
+        .card {
+          width: 90%;
+          padding: 25px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="card">
+      <header>
+        <h1>Age Calculator</h1>
+      </header>
+
+      <div>
+        <label for="inputDob">Enter your Date of Birth</label>
+        <input id="inputDob" type="date" max="2023-12-31" />
+        <small>Note: Please enter a valid date of birth.</small>
+      </div>
+
+      <br />
+
+      <div>
+        <label for="cdate">Enter Current Date</label>
+        <input id="cdate" type="date" value="" />
+        <small>Note: Please enter today's date or a valid date.</small>
+      </div>
+
+      <br />
+
+      <button type="button" onclick="getDOB()">Calculate Age</button>
+
+      <button type="button" class="reset-button" onclick="resetForm()">
+        Reset
+      </button>
+
+      <div id="errorMessage"></div>
+
+      <div id="currentAge"></div>
+    </div>
+
+    <script>
+      function getDOB() {
+        // Clear previous error or result
+        document.getElementById("errorMessage").textContent = "";
+        document.getElementById("currentAge").textContent = "";
+
+        // Get the values from the input fields
+        const dobInput = document.getElementById("inputDob").value;
+        const currentDateInput = document.getElementById("cdate").value;
+
+        // Validate if both dates are provided
+        if (!dobInput || !currentDateInput) {
+          document.getElementById("errorMessage").textContent =
+            "Please enter both Date of Birth and Current Date.";
+          return;
+        }
+
+        // Convert input values to Date objects
+        const dob = new Date(dobInput);
+        const currentDate = new Date(currentDateInput);
+
+        // Check if the dates are valid
+        if (dob > currentDate) {
+          document.getElementById("errorMessage").textContent =
+            "Date of Birth cannot be in the future.";
+          return;
+        }
+
+        if (currentDate > new Date()) {
+          document.getElementById("errorMessage").textContent =
+            "Current Date cannot be in the future.";
+          return;
+        }
+
+        // Calculate age in years, months, and days
+        let ageInYears = currentDate.getFullYear() - dob.getFullYear();
+        let ageInMonths = currentDate.getMonth() - dob.getMonth();
+        let ageInDays = currentDate.getDate() - dob.getDate();
+
+        // Adjust age if the birthday hasn't occurred yet this year
+        if (ageInMonths < 0 || (ageInMonths === 0 && ageInDays < 0)) {
+          ageInYears--;
+          ageInMonths += 12;
+        }
+
+        if (ageInDays < 0) {
+          const daysInPreviousMonth = new Date(
+            currentDate.getFullYear(),
+            currentDate.getMonth(),
+            0
+          ).getDate();
+          ageInDays += daysInPreviousMonth;
+          ageInMonths--;
+        }
+
+        // Display the result in detailed format
+        document.getElementById(
+          "currentAge"
+        ).textContent = `You are ${ageInYears} years, ${ageInMonths} months, and ${ageInDays} days old.`;
+      }
+
+      function resetForm() {
+        // Reset the input fields and result message
+        document.getElementById("inputDob").value = "";
+        document.getElementById("cdate").value = "";
+        document.getElementById("errorMessage").textContent = "";
+        document.getElementById("currentAge").textContent = "";
+      }
+
+      // Set the max current date to today's date dynamically
+      document.getElementById("cdate").max = new Date()
+        .toISOString()
+        .split("T")[0];
+    </script>
+  </body>
+</html>
