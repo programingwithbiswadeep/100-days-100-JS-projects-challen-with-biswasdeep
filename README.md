@@ -27,3 +27,9 @@ Day 24 -> Word Guessing Game<br>
 Day 25 -> Interactive Music Player<br>
 Day 26 -> Snake Game<br>
 Day 27 -> Rock, Paper, Scissors Game<br>
+Day 28 -> Tic-Tac-Toe Game<br>
+Day 29 -> Color Guessing Game<br>
+Day 30 -> Age Calculator<br>
+Day 31 -> Weather App with Alerts<br>
+Day 32 -> Movie Search App<br>
+Day 33 -> News App<br>
