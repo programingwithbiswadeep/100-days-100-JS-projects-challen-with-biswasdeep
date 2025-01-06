@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2048 Game</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #faf8ef;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .game-container {
+            background-color: #f4f4f9;
+            border-radius: 10px;
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        #score-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        #score {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        button {
+            font-size: 1.2rem;
+            background-color: #76c7c0;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 40%;
+        }
+
+        button:hover {
+            background-color: #63a59f;
+        }
+
+        #grid-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-gap: 10px;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        .grid-cell {
+            background-color: #ccc0b3;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            height: 90px;
+            width: 90px;
+            transition: all 0.3s ease;
+        }
+
+        .grid-cell:empty {
+            background-color: #e6e1e1;
+        }
+
+        /* Tile colors */
+        .tile-2 {
+            background-color: #f2b179;
+        }
+
+        .tile-4 {
+            background-color: #f59563;
+        }
+
+        .tile-8 {
+            background-color: #f57c5f;
+        }
+
+        .tile-16 {
+            background-color: #f65e3b;
+        }
+
+        .tile-32 {
+            background-color: #ed4c1c;
+        }
+
+        .tile-64 {
+            background-color: #ed3c15;
+        }
+
+        .tile-128 {
+            background-color: #f5b900;
+        }
+
+        .tile-256 {
+            background-color: #ffbc00;
+        }
+
+        .tile-512 {
+            background-color: #ff9f00;
+        }
+
+        .tile-1024 {
+            background-color: #ff7f00;
+        }
+
+        .tile-2048 {
+            background-color: #ff5e00;
+        }
+
+        /* Responsive for smaller screens */
+        @media (max-width: 480px) {
+            .game-container {
+                width: 90%;
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2.2rem;
+            }
+
+            #score {
+                font-size: 1.2rem;
+            }
+
+            .grid-cell {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="game-container">
+        <h1>2048 Game</h1>
+        <div id="score-container">
+            <span id="score">Score: 0</span>
+            <button onclick="startGame()">Restart</button>
+        </div>
+        <div id="grid-container">
+            <!-- 4x4 grid will be dynamically generated -->
+            <div class="grid-cell"></div>
+            <div class="grid-cell"></div>
+            <div class="grid-cell"></div>
+            <div class="grid-cell"></div>
+            <div class="grid-cell"></div>
+            <div class="grid-cell"></div>
+            <div class="grid-cell"></div>
+            <div class="grid-cell"></div>
+            <div class="grid-cell"></div>
+            <div class="grid-cell"></div>
+            <div class="grid-cell"></div>
+            <div class="grid-cell"></div>
+            <div class="grid-cell"></div>
+            <div class="grid-cell"></div>
+            <div class="grid-cell"></div>
+            <div class="grid-cell"></div>
+        </div>
+    </div>
+
+    <script>
+        let board = [
+            [null, null, null, null],
+            [null, null, null, null],
+            [null, null, null, null],
+            [null, null, null, null]
+        ];
+
+        let score = 0;
+        const gridSize = 4;
+
+        function updateScore() {
+            document.getElementById("score").textContent = "Score: " + score;
+        }
+
+        function generateRandomTile() {
+            const emptyCells = [];
+            for (let r = 0; r < gridSize; r++) {
+                for (let c = 0; c < gridSize; c++) {
+                    if (board[r][c] === null) {
+                        emptyCells.push([r, c]);
+                    }
+                }
+            }
+
+            if (emptyCells.length === 0) return;
+
+            const [r, c] = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+            board[r][c] = Math.random() < 0.9 ? 2 : 4;
+        }
+
+        function updateGrid() {
+            const cells = document.querySelectorAll('.grid-cell');
+            let idx = 0;
+            for (let r = 0; r < gridSize; r++) {
+                for (let c = 0; c < gridSize; c++) {
+                    const cell = cells[idx++];
+                    const value = board[r][c];
+                    cell.textContent = value ? value : '';
+                    cell.className = 'grid-cell'; // Reset class
+                    if (value) {
+                        cell.classList.add('tile-' + value);
+                    }
+                }
+            }
+
+            // Check if the game is over and display a message
+            if (checkGameOver()) {
+                setTimeout(() => {
+                    alert("Game Over! No moves left.");
+                }, 100);
+            }
+        }
+
+        function checkGameOver() {
+            // Check if there's any empty cell
+            for (let r = 0; r < gridSize; r++) {
+                for (let c = 0; c < gridSize; c++) {
+                    if (board[r][c] === null) {
+                        return false;
+                    }
+                }
+            }
+
+            // Check if there are any adjacent cells with the same value (merge possible)
+            for (let r = 0; r < gridSize; r++) {
+                for (let c = 0; c < gridSize; c++) {
+                    if (r < gridSize - 1 && board[r][c] === board[r + 1][c]) return false; // Check down
+                    if (c < gridSize - 1 && board[r][c] === board[r][c + 1]) return false; // Check right
+                }
+            }
+
+            // If no empty cells and no adjacent merges possible, game is over
+            return true;
+        }
+
+        function moveAndMerge(direction) {
+            let moved = false;
+
+            function moveLine(line) {
+                let newLine = line.filter(value => value);
+                for (let i = 0; i < newLine.length - 1; i++) {
+                    if (newLine[i] === newLine[i + 1]) {
+                        newLine[i] *= 2;
+                        score += newLine[i];
+                        newLine[i + 1] = null;
+                    }
+                }
+                newLine = newLine.filter(value => value);
+                while (newLine.length < gridSize) {
+                    newLine.push(null);
+                }
+                return newLine;
+            }
+
+            if (direction === 'left' || direction === 'right') {
+                for (let r = 0; r < gridSize; r++) {
+                    const line = board[r];
+                    const newLine = direction === 'left' ? moveLine(line) : moveLine(line.reverse()).reverse();
+                    if (newLine.toString() !== line.toString()) {
+                        board[r] = newLine;
+                        moved = true;
+                    }
+                }
+            } else if (direction === 'up' || direction === 'down') {
+                for (let c = 0; c < gridSize; c++) {
+                    const column = board.map(row => row[c]);
+                    const newColumn = direction === 'up' ? moveLine(column) : moveLine(column.reverse()).reverse();
+                    if (newColumn.toString() !== column.toString()) {
+                        for (let r = 0; r < gridSize; r++) {
+                            board[r][c] = newColumn[r];
+                        }
+                        moved = true;
+                    }
+                }
+            }
+
+            if (moved) {
+                generateRandomTile();
+                updateGrid();
+                updateScore();
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') moveAndMerge('left');
+            if (e.key === 'ArrowRight') moveAndMerge('right');
+            if (e.key === 'ArrowUp') moveAndMerge('up');
+            if (e.key === 'ArrowDown') moveAndMerge('down');
+        });
+
+        function startGame() {
+            board = [
+                [null, null, null, null],
+                [null, null, null, null],
+                [null, null, null, null],
+                [null, null, null, null]
+            ];
+            score = 0;
+            generateRandomTile();
+            generateRandomTile();
+            updateGrid();
+            updateScore();
+        }
+
+        startGame();
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+</body>
+
+</html>
