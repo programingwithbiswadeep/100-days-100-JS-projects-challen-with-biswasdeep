@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Finder</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            max-width: 600px;
+        }
+
+        .card {
+            margin-top: 20px;
+        }
+
+        .loading {
+            text-align: center;
+            font-size: 20px;
+        }
+
+        .recipe-image {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .clear-btn {
+            position: absolute;
+            top: 72%;
+            right: 10px;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #888;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container my-5">
+        <h1 class="text-center mb-4">Recipe Finder</h1>
+
+        <!-- Search Form -->
+        <form id="recipeForm" class="mb-4">
+            <div class="mb-3 input-wrapper">
+                <label for="dishName" class="form-label">Dish Name</label>
+                <input type="text" id="dishName" class="form-control" placeholder="e.g. Chicken Alfredo">
+                <button type="button" id="clearButton" class="clear-btn" style="display: none;">&times;</button>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Find Recipe</button>
+        </form>
+
+        <!-- Loading Message -->
+        <div id="loadingMessage" class="loading" style="display: none;">
+            <p>Loading...</p>
+        </div>
+
+        <!-- Result Section -->
+        <div id="recipeResults" class="mt-4">
+            <!-- Recipe results will be displayed here -->
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom JS -->
+    <script>
+        const recipeForm = document.getElementById('recipeForm');
+        const dishNameInput = document.getElementById('dishName');
+        const recipeResults = document.getElementById('recipeResults');
+        const loadingMessage = document.getElementById('loadingMessage');
+        const clearButton = document.getElementById('clearButton');
+
+        // API URL and headers
+        const url = 'https://ai-food-recipe-generator-api-custom-diet-quick-meals.p.rapidapi.com/generate?noqueue=1';
+        const headers = {
+            'x-rapidapi-key': '5abf6b8165mshff41c857ad49628p14130bjsn27547c3b91e9', // Replace with your own API key
+            'x-rapidapi-host': 'ai-food-recipe-generator-api-custom-diet-quick-meals.p.rapidapi.com',
+            'Content-Type': 'application/json'
+        };
+
+        // Show/hide clear button
+        dishNameInput.addEventListener('input', () => {
+            if (dishNameInput.value.trim() !== '') {
+                clearButton.style.display = 'block'; // Show the clear button
+            } else {
+                clearButton.style.display = 'none'; // Hide the clear button
+            }
+        });
+
+        // Clear input field when clear button is clicked
+        clearButton.addEventListener('click', () => {
+            dishNameInput.value = '';
+            clearButton.style.display = 'none'; // Hide the clear button after clearing input
+        });
+
+        // Submit event listener for the form
+        recipeForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const dishName = dishNameInput.value.trim();
+
+            // Display the loading message
+            loadingMessage.style.display = 'block';
+            recipeResults.innerHTML = '';
+
+            // Make API request with the specified ingredients
+            const requestBody = {
+                ingredients: ['chicken', 'rice', 'pepper'], // Use the ingredients you want to search for
+                dietary_restrictions: ['gluten_free'], // Optional dietary restrictions
+                cuisine: 'Italian', // Optional cuisine type
+                meal_type: 'dinner', // Optional meal type
+                servings: 4, // Default servings
+                lang: 'en' // Language in English
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(requestBody) // JSON.stringify the body data
+                });
+
+                // Check if the response is okay (status 200)
+                if (!response.ok) {
+                    throw new Error('Failed to fetch recipe data. Response code: ' + response.status);
+                }
+
+                const result = await response.json();
+
+                // Clear previous results
+                recipeResults.innerHTML = '';
+                loadingMessage.style.display = 'none'; // Hide loading message
+
+                // Log result for debugging
+                console.log(result);
+
+                // Check if the recipe exists and has necessary information
+                if (result && result.result && result.result.title) {
+                    const recipe = result.result;
+
+                    // Extract only the ingredient names
+                    const ingredientList = recipe.ingredients ? recipe.ingredients.map(ingredient => ingredient.name || ingredient) : [];
+
+                    // Display Recipe HTML
+                    const recipeHTML = `
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">${recipe.title}</h5>
+                                <p class="card-text"><strong>Ingredients:</strong> ${ingredientList.join(', ')}</p>
+                                <p class="card-text"><strong>Instructions:</strong> ${recipe.instructions.join(' ')}</p>
+                                ${recipe.nutrition_info ? ` 
+                                    <p class="card-text"><strong>Nutrition:</strong> 
+                                        Calories: ${recipe.nutrition_info.calories}, 
+                                        Fat: ${recipe.nutrition_info.fat}g, 
+                                        Protein: ${recipe.nutrition_info.protein}g
+                                    </p>` : ''}
+                            </div>
+                        </div>
+                    `;
+                    recipeResults.innerHTML = recipeHTML;
+                } else {
+                    recipeResults.innerHTML = '<p class="text-danger">Recipe information is incomplete.</p>';
+                }
+
+            } catch (error) {
+                console.error(error);
+                recipeResults.innerHTML = '<p class="text-danger">An error occurred while fetching the recipe. Please try again later.</p>';
+            }
+        });
+    </script>
+</body>
+
+</html>
