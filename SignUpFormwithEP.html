@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up Form with Encrypted Passwords</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f7f8f9;
+            font-family: 'Arial', sans-serif;
+            padding-top: 50px;
+        }
+
+        .container {
+            max-width: 600px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-control {
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25);
+        }
+
+        .form-control.invalid {
+            border-color: red;
+        }
+
+        .form-control.valid {
+            border-color: green;
+        }
+
+        .password-strength {
+            height: 5px;
+            width: 100%;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .weak {
+            background-color: red;
+        }
+
+        .medium {
+            background-color: yellow;
+        }
+
+        .strong {
+            background-color: green;
+        }
+
+        .password-hint {
+            font-size: 0.875rem;
+            color: #6c757d;
+        }
+
+        .error-message {
+            font-size: 0.875rem;
+            margin-top: 5px;
+        }
+
+        .valid-feedback {
+            font-size: 0.875rem;
+            color: green;
+            margin-top: 5px;
+        }
+
+        .eye-icon {
+            position: absolute;
+            right: 15px;
+            top: 64%;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            border-radius: 8px;
+            font-size: 16px;
+            padding: 12px 20px;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+        /* Success Message */
+        .success-message {
+            display: none;
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 600px;
+            padding: 15px;
+            background-color: #28a745;
+            color: white;
+            border-radius: 5px;
+            text-align: center;
+            z-index: 1000;
+        }
+
+        .success-message .close-btn {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .success-message {
+            display: none;
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 600px;
+            padding: 15px;
+            background-color: #28a745;
+            color: white;
+            border-radius: 5px;
+            text-align: center;
+            z-index: 1000;
+        }
+
+        .success-message .close-btn {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>Sign Up Form</h2>
+        <form id="signupForm" onsubmit="return validateForm(event)">
+            <!-- Username -->
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+
+            <!-- Password -->
+            <div class="form-group position-relative">
+                <label for="password">Password:</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+                <span id="togglePassword" class="eye-icon">&#128065;</span>
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="form-group position-relative">
+                <label for="confirmPassword">Confirm Password:</label>
+                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                <span id="toggleConfirmPassword" class="eye-icon">&#128065;</span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+
+    <!-- Success message -->
+    <div id="successMessage" class="success-message">
+        Form submitted successfully!
+        <span class="close-btn" id="closeSuccessMessage">&times;</span>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/core.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/md5.js"></script>
+
+    <script>
+        function validateForm(event) {
+            event.preventDefault();  // Prevent form submission
+
+            let valid = true;
+
+            // Clear previous error messages
+            clearErrors();
+
+            // Get form values
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            // Validate username and email (can be extended further)
+            if (username === "" || email === "") {
+                valid = false;
+                alert("Please fill in all fields.");
+            }
+
+            // Check if passwords match
+            if (password !== confirmPassword) {
+                valid = false;
+                alert("Passwords do not match.");
+            }
+
+            if (valid) {
+                // Encrypt passwords using MD5
+                const encryptedPassword = CryptoJS.MD5(password).toString();
+                const encryptedConfirmPassword = CryptoJS.MD5(confirmPassword).toString();
+
+                // Log only the required info
+                console.log("Username: " + username);
+                console.log("Email: " + email);
+                console.log("Encrypted Password (MD5): " + encryptedPassword);
+                console.log("Encrypted Confirm Password (MD5): " + encryptedConfirmPassword);
+
+                // Show success message
+                document.getElementById('successMessage').style.display = 'block';
+
+                // Optionally, hide the form
+                document.getElementById('signupForm').reset();
+            }
+
+            return valid;
+        }
+
+        function clearErrors() {
+            // This function clears any error messages (you can add additional functionality if needed)
+        }
+
+        // Close success message when 'x' is clicked
+        document.getElementById('closeSuccessMessage').addEventListener('click', function () {
+            document.getElementById('successMessage').style.display = 'none';
+        });
+    </script>
+</body>
+
+</html>
