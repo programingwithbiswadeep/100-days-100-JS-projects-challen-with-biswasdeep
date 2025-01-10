@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Cards</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome CSS for icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Custom Styles for Advanced Hover Effects */
+        .product-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            background: #fff;
+        }
+
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .product-card .product-image {
+            position: relative;
+            overflow: hidden;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .product-card .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease-in-out;
+            cursor: pointer;
+        }
+
+        .product-card:hover .product-image img {
+            transform: scale(1.1);
+        }
+
+        /* Overlay for hover effect */
+        .product-card .product-image::after {
+            content: 'Quick View';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .product-card:hover .product-image::after {
+            opacity: 1;
+        }
+
+        .product-card .product-info {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .product-info h5 {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .product-info p {
+            font-size: 1rem;
+            color: #555;
+        }
+
+        .price {
+            font-size: 1.3rem;
+            color: #ff5722;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        /* Rating stars */
+        .rating {
+            color: gold;
+            font-size: 1.2rem;
+        }
+
+        /* Cart Button */
+        #cart-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #28a745;
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        #cart-btn:hover {
+            background-color: #218838;
+        }
+
+        /* Image Preview */
+        #image-preview {
+            width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* Add New Product Button */
+        .add-product-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 1.5rem;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: width 0.3s, background-color 0.3s;
+            width: 50px;
+            height: 50px;
+        }
+
+        /* On hover, expand the width to 300px and show the text */
+        .add-product-btn:hover {
+            background-color: #0056b3;
+            width: 250px;
+            justify-content: space-between;
+            border-radius: 20px;
+        }
+
+        /* Hide the text by default */
+        .add-product-btn span {
+            display: none;
+            padding-right: 10px;
+        }
+
+        /* Show the text on hover */
+        .add-product-btn:hover span {
+            display: inline-block;
+        }
+
+        /* Hover effect for the icon */
+        .add-product-btn:hover i {
+            font-size: 1.2rem;
+        }
+
+        /* Icon size */
+        .add-product-btn i {
+            font-size: 2rem;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="row" id="product-container">
+        </div>
+    </div>
+
+    <!-- Add New Product Button -->
+    <button class="add-product-btn" data-bs-toggle="modal" data-bs-target="#addProductModal">
+        <i class="fas fa-plus"></i>
+        <span>Add New Product</span>
+    </button>
+
+    <!-- Add Product Form Modal -->
+    <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addProductModalLabel">Add New Product</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-product-form">
+                        <div class="mb-3">
+                            <label for="product-name" class="form-label">Product Name</label>
+                            <input type="text" class="form-control" id="product-name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="product-price" class="form-label">Product Price</label>
+                            <input type="number" class="form-control" id="product-price" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="product-image" class="form-label">Upload Product Image</label>
+                            <input type="file" class="form-control" id="product-image" accept="image/*"
+                                onchange="previewImage(event)" required>
+                            <img id="image-preview" src="" alt="Image Preview">
+                        </div>
+                        <div class="mb-3">
+                            <label for="product-description" class="form-label">Product Description</label>
+                            <textarea class="form-control" id="product-description" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="product-rating" class="form-label">Product Rating (1-5)</label>
+                            <input type="number" class="form-control" id="product-rating" min="1" max="5" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Product</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Bootstrap JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+
+    <script>
+        // Sample product data
+        const products = [
+            { id: 1, name: "Product 1", price: 199.99, image: "iphone14.jpg", description: "This is a great product with amazing features.", rating: 4 },
+            { id: 2, name: "Product 2", price: 149.99, image: "iphone15.jpg", description: "This is another great product with exceptional quality and value.", rating: 5 },
+            { id: 3, name: "Product 3", price: 249.99, image: "iphone16.jpg", description: "A fantastic product that is designed to meet all your expectations.", rating: 4 },
+        ];
+
+
+        // Create product cards dynamically
+        function createProductCards() {
+            const productContainer = document.getElementById('product-container');
+            productContainer.innerHTML = '';
+            products.forEach(product => {
+                const card = document.createElement('div');
+                card.classList.add('col-md-4', 'mb-4');
+                card.innerHTML = `
+                    <div class="card product-card" data-id="${product.id}">
+                        <div class="product-image position-relative">
+                            <img src="${product.image}" alt="${product.name}" onclick="openLightbox('${product.image}')">
+                        </div>
+                        <div class="product-info">
+                            <h5 class="card-title">${product.name}</h5>
+                            <p class="card-text">${product.description}</p>
+                            <div class="rating">
+                                ${'★'.repeat(product.rating)}${'☆'.repeat(5 - product.rating)}
+                            </div>
+                            <p class="price">$${product.price}</p>
+                        </div>
+                    </div>
+                `;
+                productContainer.appendChild(card);
+            });
+        }
+
+        // Open lightbox for product image
+        function openLightbox(imageSrc) {
+            window.open(imageSrc, '_blank');
+        }
+
+        // Preview image for the product upload
+        function previewImage(event) {
+            const preview = document.getElementById('image-preview');
+            const file = event.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            };
+
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Add new product
+        document.getElementById('add-product-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const name = document.getElementById('product-name').value;
+            const price = parseFloat(document.getElementById('product-price').value);
+            const image = document.getElementById('image-preview').src;
+            const description = document.getElementById('product-description').value;
+            const rating = parseInt(document.getElementById('product-rating').value);
+
+            const newProduct = {
+                id: products.length + 1,
+                name,
+                price,
+                image,
+                description,
+                rating
+            };
+
+            products.push(newProduct);
+            createProductCards();
+
+            // Clear the form fields by resetting the form
+            document.getElementById('add-product-form').reset();
+
+            // Hide the image preview
+            document.getElementById('image-preview').style.display = 'none';
+
+            // Close the modal programmatically
+            const modalElement = document.getElementById('addProductModal');
+            const modalInstance = bootstrap.Modal.getInstance(modalElement);
+            modalInstance.hide(); // Close the modal after adding the product
+        });
+
+        // Initialize the product cards
+        createProductCards();
+    </script>
+</body>
+
+</html>
