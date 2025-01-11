@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Joke Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #e6f7ff;
+            /* Light blue background for the body */
+            font-family: 'Arial', sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 600px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+        .card-header {
+            background-color: #004d99;
+            /* Dark blue background for the header */
+            color: #ffffff;
+            border-radius: 15px 15px 0 0;
+            font-size: 1.5rem;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .card-body {
+            padding: 30px;
+            text-align: center;
+            background-color: #f9f9f9;
+            /* Light grey background for the card body */
+        }
+
+        .card-text {
+            font-size: 1.25rem;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .btn-primary {
+            background-color: #1e90ff;
+            /* Vibrant blue button */
+            border-color: #1e90ff;
+            font-weight: bold;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #0073e6;
+            /* Darker blue on hover */
+            transform: scale(1.05);
+        }
+
+        /* Loading text styles */
+        .loading-text {
+            font-size: 1.25rem;
+            color: #ff6600;
+            /* Orange color for "Loading..." text */
+            font-weight: bold;
+        }
+
+        /* Dropdown menu styles */
+        .category-select {
+            font-size: 1rem;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #ffffff;
+            border: 2px solid #1e90ff;
+            color: #000000;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card shadow-lg">
+        <div class="card-header">
+            Random Joke Generator
+        </div>
+        <div class="card-body">
+            <!-- Category dropdown menu -->
+            <select id="categorySelect" class="category-select">
+                <option value="Any">Any</option>
+                <option value="Programming">Programming</option>
+                <option value="Miscellaneous">Miscellaneous</option>
+                <option value="Puns">Puns</option>
+                <option value="Spooky">Spooky</option>
+                <option value="Christmas">Christmas</option>
+            </select>
+
+            <p id="joke" class="card-text">Click below to get a random joke!</p>
+            <p id="loadingText" class="loading-text" style="display: none;">Loading...</p>
+            <!-- Loading text above button -->
+            <button id="getJoke" class="btn btn-primary">Get Joke</button>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Function to fetch a random joke from the selected category
+        function fetchJoke() {
+            // Get selected category
+            const category = document.getElementById('categorySelect').value;
+
+            // Show loading text
+            document.getElementById('loadingText').style.display = 'block';
+            document.getElementById('joke').textContent = '';  // Remove any previous joke text
+
+            // Simulate a loading time of 5 to 10 seconds
+            setTimeout(() => {
+                fetch(`https://v2.jokeapi.dev/joke/${category}?type=single`)  // Fetch joke based on selected category
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.joke) {
+                            document.getElementById('joke').textContent = data.joke;
+                        } else if (data.setup && data.delivery) {
+                            document.getElementById('joke').textContent = `${data.setup} - ${data.delivery}`;
+                        } else {
+                            document.getElementById('joke').textContent = 'Sorry, no joke found!';
+                        }
+                    })
+                    .catch(error => {
+                        document.getElementById('joke').textContent = 'Error fetching joke!';
+                        console.error('Error:', error);
+                    })
+                    .finally(() => {
+                        // Hide the loading text after fetching the joke
+                        document.getElementById('loadingText').style.display = 'none';
+                    });
+            }, Math.random() * (10000 - 5000) + 5000); // Random delay between 5 to 10 seconds
+        }
+
+        // Event listener to call fetchJoke when the button is clicked
+        document.getElementById('getJoke').addEventListener('click', fetchJoke);
+    </script>
+</body>
+
+</html>
