@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flashcard App</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet" />
+    <!-- Custom Styles -->
+    <style>
+        body {
+            background-color: #f4f7fc;
+            font-family: 'Montserrat', sans-serif;
+            padding: 0;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 40px auto;
+        }
+
+        .card-list-container {
+            display: grid;
+            gap: 1.5em;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            margin-top: 60px;
+        }
+
+        .card {
+            background-color: #ffffff;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+            padding: 2em;
+            border-radius: 12px;
+            transition: transform 0.3s ease-in-out;
+            font-size: 1.1em;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+        }
+
+        .modal-body {
+            font-size: 1.1em;
+        }
+
+        .modal-footer button {
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background-color: #4CAF50;
+            border-color: #4CAF50;
+        }
+
+        .btn-primary:hover {
+            background-color: #45a049;
+            border-color: #45a049;
+        }
+
+        .btn-warning {
+            background-color: #ff9800;
+            border-color: #ff9800;
+        }
+
+        .btn-warning:hover {
+            background-color: #fb8c00;
+            border-color: #fb8c00;
+        }
+
+        .btn-danger {
+            background-color: #f44336;
+            border-color: #f44336;
+        }
+
+        .btn-danger:hover {
+            background-color: #e53935;
+            border-color: #e53935;
+        }
+
+        .modal-header {
+            background-color: #4CAF50;
+            color: white;
+            font-weight: 600;
+        }
+
+        .modal-title {
+            font-size: 1.3em;
+        }
+
+        .hide {
+            display: none;
+        }
+
+        .error-message {
+            color: #f44336;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .question-div {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .answer-div {
+            font-weight: 400;
+            color: #7f8c8d;
+            margin-top: 12px;
+        }
+
+        .btn-sm {
+            padding: 0.5em 1.2em;
+            font-size: 0.9em;
+        }
+
+        .add-flashcard-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 1em 1.5em;
+            border-radius: 10px;
+            font-size: 1.1em;
+            text-decoration: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            z-index: 999;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .add-flashcard-btn:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+
+        .button-row {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .show-hide-btn,
+        .btn-warning,
+        .btn-danger {
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .show-hide-btn:hover,
+        .btn-warning:hover,
+        .btn-danger:hover {
+            transform: scale(1.05);
+        }
+
+        .show-hide-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+        }
+
+        .show-hide-btn:hover {
+            background-color: #45a049;
+        }
+
+        .btn-warning {
+            background-color: #ff9800;
+            color: white;
+            border: none;
+        }
+
+        .btn-warning:hover {
+            background-color: #fb8c00;
+        }
+
+        .btn-danger {
+            background-color: #f44336;
+            color: white;
+            border: none;
+        }
+
+        .btn-danger:hover {
+            background-color: #e53935;
+        }
+
+        .show-hide-btn i,
+        .btn-warning i,
+        .btn-danger i {
+            font-size: 1.2em;
+        }
+
+        .search-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .search-container input {
+            width: 80%;
+            padding: 0.5em;
+            border-radius: 5px;
+        }
+
+        @media screen and (max-width: 768px) {
+            .card-list-container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media screen and (max-width: 450px) {
+            .card-list-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container mt-4">
+        <!-- Search Bar -->
+        <div class="search-container">
+            <input type="text" id="search-input" class="form-control" placeholder="Search flashcards...">
+        </div>
+
+        <!-- Add Flashcard Button (Top Right) -->
+        <a href="#" class="add-flashcard-btn" id="add-flashcard">+ Add Flashcard</a>
+
+        <!-- Card List -->
+        <div id="card-con" class="card-list-container"></div>
+    </div>
+
+    <!-- Add Flashcard Form Modal -->
+    <div class="modal fade" id="addFlashcardModal" tabindex="-1" aria-labelledby="addFlashcardModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addFlashcardModalLabel">Add Flashcard</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="question" class="form-label">Question</label>
+                        <input type="text" class="form-control" id="question" placeholder="Type the question here...">
+                    </div>
+                    <div class="mb-3">
+                        <label for="answer" class="form-label">Answer</label>
+                        <textarea class="form-control" id="answer" placeholder="Type the answer here..."
+                            rows="4"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="category" class="form-label">Category</label>
+                        <select class="form-select" id="category">
+                            <option value="General Knowledge">General Knowledge</option>
+                            <option value="Math">Math</option>
+                            <option value="Science">Science</option>
+                            <option value="History">History</option>
+                        </select>
+                    </div>
+                    <div class="error-message hide" id="error">Input fields cannot be empty!</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="save-btn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const addFlashcardBtn = document.getElementById("add-flashcard");
+        const addFlashcardModal = new bootstrap.Modal(document.getElementById("addFlashcardModal"));
+        const saveBtn = document.getElementById("save-btn");
+        const errorMessage = document.getElementById("error");
+        const questionInput = document.getElementById("question");
+        const answerInput = document.getElementById("answer");
+        const categoryInput = document.getElementById("category");
+        const searchInput = document.getElementById("search-input");
+
+        let flashcards = [];
+        let currentEditIndex = -1;
+
+        addFlashcardBtn.addEventListener("click", () => {
+            questionInput.value = '';
+            answerInput.value = '';
+            categoryInput.value = 'General Knowledge';
+            errorMessage.classList.add('hide');
+            addFlashcardModal.show();
+        });
+
+        saveBtn.addEventListener("click", () => {
+            const question = questionInput.value.trim();
+            const answer = answerInput.value.trim();
+            const category = categoryInput.value;
+            if (question && answer) {
+                if (currentEditIndex === -1) {
+                    flashcards.push({ question, answer, category });
+                } else {
+                    flashcards[currentEditIndex] = { question, answer, category };
+                    currentEditIndex = -1;
+                }
+                renderFlashcards();
+                addFlashcardModal.hide();
+            } else {
+                errorMessage.classList.remove('hide');
+            }
+        });
+
+        searchInput.addEventListener('input', () => {
+            renderFlashcards(searchInput.value.trim());
+        });
+
+        function renderFlashcards(query = '') {
+            const cardContainer = document.getElementById("card-con");
+            cardContainer.innerHTML = '';
+            const filteredFlashcards = flashcards.filter(flashcard =>
+                flashcard.question.toLowerCase().includes(query.toLowerCase()) ||
+                flashcard.answer.toLowerCase().includes(query.toLowerCase()) ||
+                flashcard.category.toLowerCase().includes(query.toLowerCase())
+            );
+
+            filteredFlashcards.forEach((flashcard, index) => {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.innerHTML = `
+                    <div class="question-div">${flashcard.question}</div>
+                    <div class="answer-div hide">${flashcard.answer}</div>
+                    <div class="category-label">Category: ${flashcard.category}</div>
+                    <div class="button-row">
+                        <button class="show-hide-btn" onclick="toggleAnswer(event)">
+                            <i class="fa-solid fa-eye-slash"></i> Show
+                        </button>
+                        <button class="btn btn-warning btn-sm" onclick="editFlashcard(${index})">
+                            <i class="fa-solid fa-pen-to-square"></i> Edit
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteFlashcard(${index})">
+                            <i class="fa-solid fa-trash-can"></i> Delete
+                        </button>
+                    </div>
+                `;
+                cardContainer.appendChild(card);
+            });
+        }
+
+        function toggleAnswer(event) {
+            event.preventDefault();
+            const answerDiv = event.target.closest('.card').querySelector('.answer-div');
+            const icon = event.target.querySelector('i');
+            answerDiv.classList.toggle('hide');
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
+        }
+
+        function editFlashcard(index) {
+            currentEditIndex = index;
+            const flashcard = flashcards[index];
+            questionInput.value = flashcard.question;
+            answerInput.value = flashcard.answer;
+            categoryInput.value = flashcard.category;
+            addFlashcardModal.show();
+        }
+
+        function deleteFlashcard(index) {
+            flashcards.splice(index, 1);
+            renderFlashcards();
+        }
+    </script>
+</body>
+
+</html>
