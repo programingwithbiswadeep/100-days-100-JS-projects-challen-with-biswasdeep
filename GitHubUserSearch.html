@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GitHub User Search</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-KyZXEJ+J5vXs7nP5A1v2c5R5LxN8yOx9p5lwxl9J7Vmp7GF5ZV5oE+sa2fgDg1gs" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Open+Sans:wght@400;600&display=swap"
+        rel="stylesheet">
+
+    <style>
+        /* Custom Styles */
+        body {
+            font-family: 'Open Sans', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            background-color: #f8f9fa;
+            /* Default white background */
+        }
+
+        h1 {
+            color: #0d6efd;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .inputForm {
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        .inputForm input {
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 1rem;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 800px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            border-radius: 20px;
+            background-color: #ffffff;
+            margin-bottom: 30px;
+            padding: 1rem;
+        }
+
+        #repos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px;
+        }
+
+        .repo {
+            text-decoration: none;
+            background-color: #007bff;
+            color: white;
+            padding: 0.6rem;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: block;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .repo:hover {
+            background-color: #0056b3;
+            transform: translateY(-3px);
+        }
+
+        .repo:active {
+            transform: translateY(0);
+        }
+
+        #loader {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .bookmark-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        .bookmark-btn:hover {
+            background-color: #218838;
+        }
+
+        .visit-btn {
+            background-color: #007bff;
+            color: white;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        .visit-btn:hover {
+            background-color: #0056b3;
+        }
+
+        #savedProfiles {
+            margin-top: 40px;
+            padding-left: 20px;
+        }
+
+        #savedProfiles ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        #savedProfiles li {
+            background-color: #f8f9fa;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s ease;
+        }
+
+        #savedProfiles li:hover {
+            background-color: #e2e6ea;
+        }
+
+        #savedProfiles li button {
+            margin-left: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Container for both search bar and saved profiles -->
+    <div class="container">
+        <div class="row">
+            <!-- Search Bar and Profile Container (Left side) -->
+            <div class="col-md-6">
+                <!-- Search Bar -->
+                <div class="inputForm">
+                    <h1>GitHub User Search</h1>
+                    <input type="text" id="inputBox" autocomplete="off" placeholder="Search a Github User" />
+                </div>
+
+                <!-- Card Container -->
+                <div id="main" class="card">
+                    <!-- The card content will be dynamically generated -->
+                </div>
+
+                <!-- Loader -->
+                <div id="loader">
+                    <p>Loading...</p>
+                </div>
+            </div>
+
+            <!-- Saved Profiles Section (Right side) -->
+            <div class="col-md-6" id="savedProfiles">
+                <h3>Saved Profiles</h3>
+                <ul id="savedProfilesList">
+                    <!-- Bookmarked profiles will be listed here -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Axios for API requests -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script>
+        const api = "https://api.github.com/users/";
+        const githubToken = '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'; // Replace this with your GitHub token
+
+        // Load saved profiles from localStorage
+        window.onload = () => {
+            const savedProfiles = JSON.parse(localStorage.getItem('savedProfiles')) || [];
+            savedProfiles.forEach(profile => addSavedProfile(profile));
+        };
+
+        const userGetFunction = (name) => {
+            showLoader(true);
+            axios.get(api + name, {
+                headers: {
+                    'Authorization': 'token ' + githubToken  // Add token to the Authorization header
+                }
+            })
+                .then((response) => {
+                    userCard(response.data);
+                    repoGetFunction(name);
+                })
+                .catch((err) => {
+                    if (err.response && err.response.status === 404) {
+                        errorFunction("No profile found with this username");
+                    } else if (err.response && err.response.status === 401) {
+                        errorFunction("Unauthorized: Check your GitHub token or rate limit.");
+                    }
+                    showLoader(false);
+                });
+        };
+
+        const repoGetFunction = (name) => {
+            axios.get(api + name + "/repos?sort=created", {
+                headers: {
+                    'Authorization': 'token ' + githubToken  // Add token to the Authorization header
+                }
+            })
+                .then((response) => {
+                    repoCardFunction(response.data);
+                })
+                .catch((err) => {
+                    errorFunction("Problem fetching repositories");
+                });
+        };
+
+        const userCard = (user) => {
+            let id = user.name || user.login;
+            let info = user.bio ? `<p>${user.bio}</p>` : "";
+            let location = user.location ? `<p><strong>Location:</strong> ${user.location}</p>` : "";
+            let company = user.company ? `<p><strong>Company:</strong> ${user.company}</p>` : "";
+            let blog = user.blog ? `<p><strong>Blog:</strong> <a href="${user.blog}" target="_blank">${user.blog}</a></p>` : "";
+
+            let cardElement = `
+                <div class="d-flex">
+                    <img src="${user.avatar_url}" alt="${user.name}" class="avatar me-4" style="width: 120px; height: 120px; border-radius: 50%;">
+                    <div class="user-info">
+                        <h2>${id}</h2>
+                        ${info}
+                        ${location}
+                        ${company}
+                        ${blog}
+                        <ul class="list-unstyled d-flex justify-content-between">
+                            <li><strong>${user.followers}</strong> Followers</li>
+                            <li><strong>${user.following}</strong> Following</li>
+                            <li><strong>${user.public_repos}</strong> Repos</li>
+                        </ul>
+                        <div id="repos"></div>
+                        <div class="m-2">
+                            <button class="visit-btn" onclick="window.open('https://github.com/${user.login}', '_blank')">Visit Profile</button>
+                            <button class="bookmark-btn" onclick="saveProfile('${user.login}', '${user.name}')">Pin</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById("main").innerHTML = cardElement;
+            showLoader(false);
+        };
+
+        const errorFunction = (error) => {
+            let cardHTML = `
+                <div class="card mb-4 p-4">
+                    <h1 class="text-danger text-center">${error}</h1>
+                </div>
+            `;
+            document.getElementById("main").innerHTML = cardHTML;
+            showLoader(false);
+        };
+
+        const repoCardFunction = (repos) => {
+            let reposElement = document.getElementById("repos");
+            reposElement.innerHTML = ""; // Clear existing repos
+            repos.forEach((repo) => {
+                let repoEl = document.createElement("a");
+                repoEl.classList.add("repo");
+                repoEl.href = repo.html_url;
+                repoEl.target = "_blank";
+                repoEl.innerText = repo.name;
+                reposElement.appendChild(repoEl);
+            });
+        };
+
+        const showLoader = (isLoading) => {
+            const loader = document.getElementById("loader");
+            if (isLoading) {
+                loader.style.display = "block";
+            } else {
+                loader.style.display = "none";
+            }
+        };
+
+        const saveProfile = (username, name) => {
+            let savedProfiles = JSON.parse(localStorage.getItem('savedProfiles')) || [];
+            const profile = { username, name };
+            savedProfiles.push(profile);
+            localStorage.setItem('savedProfiles', JSON.stringify(savedProfiles));
+            addSavedProfile(profile);
+        };
+
+        const addSavedProfile = (profile) => {
+            const savedProfilesList = document.getElementById("savedProfilesList");
+            let li = document.createElement("li");
+            li.textContent = profile.name;
+            li.id = profile.username;
+
+            let visitBtn = document.createElement("button");
+            visitBtn.classList.add("visit-btn");
+            visitBtn.textContent = "Visit";
+            visitBtn.onclick = () => {
+                window.open(`https://github.com/${profile.username}`, '_blank');
+            };
+
+            let unpinBtn = document.createElement("button");
+            unpinBtn.classList.add("bookmark-btn");
+            unpinBtn.textContent = "Unpin";
+            unpinBtn.onclick = () => {
+                removeSavedProfile(profile.username);
+            };
+
+            li.appendChild(visitBtn);
+            li.appendChild(unpinBtn);
+            savedProfilesList.appendChild(li);
+        };
+
+        const removeSavedProfile = (username) => {
+            let savedProfiles = JSON.parse(localStorage.getItem('savedProfiles')) || [];
+            savedProfiles = savedProfiles.filter(profile => profile.username !== username);
+            localStorage.setItem('savedProfiles', JSON.stringify(savedProfiles));
+            document.getElementById(username).remove();
+        };
+
+        // Handle form submission
+        document.getElementById("inputBox").addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                let user = e.target.value;
+                if (user) {
+                    userGetFunction(user);
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
