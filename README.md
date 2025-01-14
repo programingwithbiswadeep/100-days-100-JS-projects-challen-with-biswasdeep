@@ -33,3 +33,13 @@ Day 30 -> Age Calculator<br>
 Day 31 -> Weather App with Alerts<br>
 Day 32 -> Movie Search App<br>
 Day 33 -> News App<br>
+Day 34 -> 2048 Game<br>
+Day 35 -> Recipe Finder<br>
+Day 36 -> Sign Up Form with Encrypted Passwords<br>
+Day 37 -> Advance Image Slider<br>
+Day 38 -> ProductCards<br>
+Day 39 -> Random Joke Generator<br>
+Day 40 -> Flashcard App<br>
+Day 41 -> Product Filter<br>
+Day 42 -> Star Rating<br>
+Day 43 -> GitHub User Search<br>
