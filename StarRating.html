@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Star Rating with Modal and Suggested Messages</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f7f7f7;
+            font-family: Arial, sans-serif;
+        }
+
+        .rating-container {
+            margin-top: 100px;
+            text-align: center;
+        }
+
+        .rating-container h1 {
+            font-size: 36px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .star-rating {
+            font-size: 40px;
+            color: #ddd;
+            cursor: pointer;
+        }
+
+        .star-rating .fa-star,
+        .star-rating .fa-star-half-alt {
+            color: #ffcc00;
+        }
+
+        .star-rating .fa-star-o {
+            color: #ddd;
+        }
+
+        .star-rating:hover {
+            color: #ffcc00;
+        }
+
+        .rating-value {
+            font-size: 24px;
+            color: #333;
+            margin-top: 20px;
+        }
+
+        .submit-btn {
+            margin-top: 30px;
+            background-color: #007bff;
+            color: white;
+            font-size: 18px;
+            padding: 10px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .submit-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .submit-btn:disabled {
+            background-color: #6c757d;
+        }
+
+        .rating-result {
+            font-size: 18px;
+            color: green;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .star-rating i {
+            transition: color 0.3s ease;
+        }
+
+        /* Styling the smaller box for suggested message as a card */
+        .suggested-message-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .suggested-message-card:hover {
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .suggested-message-card h5 {
+            margin-bottom: 15px;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .suggested-message-card p {
+            font-size: 14px;
+            color: #555;
+        }
+
+        /* Alert-style Confirmation Message */
+        .confirmation-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+            display: none;
+            width: auto;
+            max-width: 350px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container rating-container">
+        <h1>Rate Our Service</h1>
+
+        <div class="star-rating" id="star-rating">
+            <i class="far fa-star" data-index="1"></i>
+            <i class="far fa-star" data-index="2"></i>
+            <i class="far fa-star" data-index="3"></i>
+            <i class="far fa-star" data-index="4"></i>
+            <i class="far fa-star" data-index="5"></i>
+        </div>
+
+        <p class="rating-value">Your Rating: <span id="rating-value">0</span> out of 5</p>
+
+        <!-- Button to trigger the modal -->
+        <button class="submit-btn" id="submit-btn" onclick="openModal()" disabled>Submit Rating</button>
+
+        <p class="rating-result" id="rating-result"></p>
+    </div>
+
+    <!-- Modal for Feedback Message -->
+    <div class="modal fade" id="ratingModal" tabindex="-1" role="dialog" aria-labelledby="ratingModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ratingModalLabel">Submit Your Feedback</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <textarea id="userMessage" class="form-control" rows="4"
+                        placeholder="Write your message here..."></textarea>
+
+                    <!-- Suggested message card -->
+                    <div id="suggestedMessage" class="suggested-message-card">
+                        <h5>Suggested Message:</h5>
+                        <p>Good experience! Keep up the good work.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="submitFeedback()">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert-style Confirmation Message -->
+    <div id="confirmationMessage" class="alert alert-primary confirmation-message" role="alert">
+        A simple primary alert—check it out!
+        <button type="button" class="close" aria-label="Close" onclick="closeAlert()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        let currentRating = 0;
+
+        // Suggested messages for each rating
+        const suggestedMessages = {
+            1: "I'm very disappointed with the service. Please improve.",
+            2: "The service was below expectations, but it was okay.",
+            3: "The service was fine, but I think there's room for improvement.",
+            4: "Good experience! Keep up the good work.",
+            5: "Excellent service! I am very satisfied."
+        };
+
+        // Function to handle hover effect and update stars
+        document.querySelectorAll('.star-rating i').forEach(star => {
+            star.addEventListener('mouseover', function () {
+                const rating = parseInt(this.getAttribute('data-index'));
+                highlightStars(rating);
+            });
+
+            star.addEventListener('mouseout', function () {
+                highlightStars(currentRating);
+            });
+
+            star.addEventListener('click', function () {
+                currentRating = parseInt(this.getAttribute('data-index'));
+                updateStars(currentRating);
+                document.getElementById('rating-value').textContent = currentRating;
+                document.getElementById('submit-btn').disabled = false;
+                setSuggestedMessage(currentRating); // Update message when rating is selected
+            });
+        });
+
+        // Function to highlight stars based on the rating
+        function highlightStars(rating) {
+            const stars = document.querySelectorAll('.star-rating i');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.remove('far');
+                    star.classList.add('fas');
+                } else {
+                    star.classList.remove('fas');
+                    star.classList.add('far');
+                }
+            });
+        }
+
+        // Function to update stars after clicking
+        function updateStars(rating) {
+            const stars = document.querySelectorAll('.star-rating i');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.remove('far');
+                    star.classList.add('fas');
+                } else {
+                    star.classList.remove('fas');
+                    star.classList.add('far');
+                }
+            });
+            document.getElementById('rating-value').textContent = rating;
+        }
+
+        // Function to set the suggested message based on the rating
+        function setSuggestedMessage(rating) {
+            const messageBox = document.getElementById('userMessage');
+            const suggestedBox = document.getElementById('suggestedMessage');
+
+            // Update suggested message in the smaller card
+            suggestedBox.innerHTML = `
+                <h5>Suggested Message:</h5>
+                <p>${suggestedMessages[rating]}</p>
+            `;
+        }
+
+        // Function to make the suggested message clickable and fill it in the message box
+        document.getElementById('suggestedMessage').addEventListener('click', function () {
+            const messageBox = document.getElementById('userMessage');
+            messageBox.value = this.querySelector('p').textContent; // Fill the textarea with the clicked message
+        });
+
+        // Function to open the modal
+        function openModal() {
+            $('#ratingModal').modal('show');
+        }
+
+        // Function to handle the submission of feedback
+        function submitFeedback() {
+            const userMessage = document.getElementById('userMessage').value;
+            if (userMessage.trim() === "") {
+                alert("Please enter a message.");
+                return;
+            }
+
+            // Show alert-style confirmation message
+            document.getElementById('confirmationMessage').style.display = 'block';
+            document.getElementById('confirmationMessage').innerHTML = `You rated <strong>${currentRating} stars</strong>. Your message: <em>"${userMessage}"</em> 
+                <button type="button" class="close" aria-label="Close" onclick="closeAlert()">
+                    <span aria-hidden="true">&times;</span>
+                </button>`;
+
+            // Auto-dismiss the alert after 5 seconds
+            setTimeout(function () {
+                closeAlert();
+            }, 5000);
+
+            // Hide the modal and reset the form
+            $('#ratingModal').modal('hide');
+            document.getElementById('userMessage').value = ""; // Clear message box
+        }
+
+        // Function to close the confirmation alert
+        function closeAlert() {
+            document.getElementById('confirmationMessage').style.display = 'none';
+        }
+    </script>
+
+</body>
+
+</html>
