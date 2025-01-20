@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Count App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            /* Gradient Background */
+            font-family: 'Arial', sans-serif;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin-top: 30px;
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #333;
+            text-align: center;
+        }
+
+        .textarea-container {
+            position: relative;
+        }
+
+        #textInput {
+            border-radius: 15px;
+            border: 2px solid #ddd;
+            padding: 20px;
+            font-size: 1rem;
+            width: 100%;
+            height: 200px;
+            resize: none;
+            background-color: #2e2e2e;
+            /* Dark Textarea */
+            color: white;
+            transition: border 0.3s;
+        }
+
+        #textInput:focus {
+            border-color: #ff6f61;
+            /* Vibrant Coral Focus Border */
+            outline: none;
+            background-color: #333;
+        }
+
+        .info-box {
+            background-color: #f0f4f8;
+            /* Light Gray Box */
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-box p {
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        .info-box p span {
+            font-weight: bold;
+            color: #ff6f61;
+            /* Vibrant Coral */
+        }
+
+        .btn-clear {
+            background-color: #ff6f61;
+            color: white;
+            font-weight: bold;
+            padding: 12px 25px;
+            border-radius: 8px;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-clear:hover {
+            background-color: #ff4a34;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Word Count App</h1>
+        <div>
+            <label for="textInput" class="form-label">Enter Text:</label>
+            <div class="textarea-container">
+                <textarea id="textInput" placeholder="Type your text here..." oninput="countText()"></textarea>
+            </div>
+        </div>
+
+        <!-- Word Count, Character Count, Sentence Count, Paragraph Count -->
+        <div class="info-box">
+            <p id="wordCount"><span>Word Count:</span> 0</p>
+            <p id="charCount"><span>Character Count (including spaces):</span> 0</p>
+            <p id="charCountNoSpaces"><span>Character Count (without spaces):</span> 0</p>
+            <p id="sentenceCount"><span>Sentence Count:</span> 0</p>
+            <p id="paraCount"><span>Paragraph Count:</span> 0</p>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <button class="btn-clear" onclick="clearText()">Clear</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function countText() {
+            var text = document.getElementById("textInput").value.trim();
+
+            // Word Count
+            var wordCount = 0;
+            if (text) {
+                wordCount = text.split(/\s+/).length;
+            }
+
+            // Character Count (including spaces)
+            var charCount = text.length;
+
+            // Character Count (without spaces)
+            var charCountNoSpaces = text.replace(/\s+/g, '').length;
+
+            // Sentence Count (adjusted for multiple sentence-ending marks)
+            var sentenceCount = (text.match(/[.!?]+(?:\s|$)/g) || []).length;
+
+            // Paragraph Count (count paragraphs separated by newlines)
+            var paraCount = text.split(/\n+/).filter(Boolean).length;
+
+            // Update the text count dynamically
+            document.getElementById("wordCount").innerText = "Word Count: " + wordCount;
+            document.getElementById("charCount").innerText = "Character Count (including spaces): " + charCount;
+            document.getElementById("charCountNoSpaces").innerText = "Character Count (without spaces): " + charCountNoSpaces;
+            document.getElementById("sentenceCount").innerText = "Sentence Count: " + sentenceCount;
+            document.getElementById("paraCount").innerText = "Paragraph Count: " + paraCount;
+        }
+
+        function clearText() {
+            document.getElementById("textInput").value = "";
+            document.getElementById("wordCount").innerText = "Word Count: 0";
+            document.getElementById("charCount").innerText = "Character Count (including spaces): 0";
+            document.getElementById("charCountNoSpaces").innerText = "Character Count (without spaces): 0";
+            document.getElementById("sentenceCount").innerText = "Sentence Count: 0";
+            document.getElementById("paraCount").innerText = "Paragraph Count: 0";
+        }
+    </script>
+</body>
+
+</html>
+
