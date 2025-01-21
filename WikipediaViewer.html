@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Add Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-KyZXEJ6H5lqO0c2uQ8g8t7gHSatc2pnq6i7oG9vcZl0p5D4Qd3KjxojrS+1AebX3" crossorigin="anonymous">
+
+    <style>
+        /* General Body Styling */
+        body {
+            background-color: #eef2f7;
+            font-family: 'Arial', sans-serif;
+            color: #333;
+            padding: 80px 0;
+        }
+
+        h1 {
+            font-size: 40px;
+            font-weight: 700;
+            color: #2d3436;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* Input Group Styling */
+        .input-group {
+            max-width: 365px;
+            margin: 30px auto;
+            position: relative;
+        }
+
+        .input-group input {
+            border-radius: 30px;
+            height: 45px;
+            padding-left: 20px;
+            padding-right: 50px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .input-group input:focus {
+            border-color: #007bff;
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+        }
+
+        .input-group input::placeholder {
+            color: #888;
+        }
+
+        /* Search Button Styling */
+        .search-btn {
+            border-radius: 30px;
+            background-color: #007bff;
+            color: white;
+            font-size: 16px;
+            padding: 8px 20px;
+            border: none;
+            cursor: pointer;
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: all 0.3s ease;
+        }
+
+        .search-btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* Clear Button Styling */
+        .clear-btn {
+            position: absolute;
+            right: 115px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: transparent;
+            border: none;
+            color: #e74c3c;
+            font-size: 20px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .clear-btn:hover {
+            color: #c0392b;
+        }
+
+        /* Search Results Section */
+        .searchResult {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .searchResult:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .searchTitle {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .searchSnippet {
+            font-size: 14px;
+            color: #777;
+            margin-top: 10px;
+        }
+
+        .searchResult a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .searchResult a:hover .searchTitle {
+            color: #007bff;
+        }
+
+        .searchResult a:hover .searchSnippet {
+            color: #0056b3;
+        }
+
+        /* No results found */
+        .no-results {
+            text-align: center;
+            color: #e74c3c;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .input-group input {
+                font-size: 15px;
+                padding-left: 18px;
+                padding-right: 45px;
+            }
+
+            .search-btn {
+                font-size: 15px;
+                padding: 8px 18px;
+            }
+
+            h1 {
+                font-size: 30px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Wikipedia Viewer</h1>
+
+        <!-- Search Input Box with Button -->
+        <div class="input-group mb-4">
+            <input type="text" id="search" class="form-control" autocomplete="off" placeholder="Search Wikipedia...">
+            <button class="search-btn" onclick="searchWikipedia()">Search</button>
+            <button class="clear-btn" onclick="clearInput()">×</button> <!-- Clear button -->
+        </div>
+
+        <!-- Display search results -->
+        <div id="searchBox"></div>
+    </div>
+
+    <!-- Add Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Add jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $(document).keypress(function (e) {
+                if (e.which == 13) {
+                    searchWikipedia();
+                }
+            });
+        });
+
+        // Function to search Wikipedia when the search button or Enter key is pressed
+        function searchWikipedia() {
+            let searchQuery = document.getElementById("search").value;
+            if (searchQuery === "") return; // If input is empty, do nothing
+
+            let webLink = "https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=" + searchQuery + "&utf8=&format=json";
+
+            $.ajax({
+                url: webLink,
+                dataType: "jsonp",
+                success: function (data) {
+                    $("#searchBox").empty(); // Clear previous results
+                    if (data.query.search.length === 0) {
+                        $("#searchBox").append('<div class="no-results">No results found. Please try again.</div>');
+                    } else {
+                        data.query.search.forEach(result => {
+                            let titleForResult = result.title;
+                            let snippetForResult = result.snippet;
+                            $("#searchBox").append(
+                                `<a href="https://en.wikipedia.org/wiki/${titleForResult}" target="_blank">
+                                    <div class="searchResult">
+                                        <span class="searchTitle">${titleForResult}</span>
+                                        <div class="searchSnippet">${snippetForResult}</div>
+                                    </div>
+                                </a>`
+                            );
+                        });
+                    }
+                }
+            });
+        }
+
+        // Function to clear the input box
+        function clearInput() {
+            document.getElementById("search").value = "";
+            $("#searchBox").empty(); // Remove previous search results
+        }
+    </script>
+
+</body>
+
+</html>
