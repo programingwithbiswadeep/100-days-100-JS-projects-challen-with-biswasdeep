@@ -43,3 +43,9 @@ Day 40 -> Flashcard App<br>
 Day 41 -> Product Filter<br>
 Day 42 -> Star Rating<br>
 Day 43 -> GitHub User Search<br>
+Day 44 -> Polling App<br>
+Day 45 -> Virtual Keyboard<br>
+Day 46 -> Elegant Dictionary<br>
+Day 47 -> Advanced Rich Text<br>
+Day 48 -> Word Count App<br>
+Day 49 -> Wikipedia Viewer<br>
