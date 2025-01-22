@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Advanced Tabs</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+    <style>
+        body {
+            background-color: #e4e8ff;
+            font-family: "Poppins", sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 80%;
+            position: absolute;
+            transform: translateX(-50%);
+            left: 50%;
+            top: 50px;
+        }
+
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+        }
+
+        .card-header {
+            background-color: #4d5bf9;
+            color: white;
+            border-radius: 15px 15px 0 0;
+            padding: 15px 20px;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+            font-weight: 600;
+        }
+
+        .nav-tabs {
+            border-bottom: none;
+        }
+
+        .nav-link {
+            border: none;
+            border-radius: 25px;
+            padding: 12px 25px;
+            color: #fff;
+            font-weight: 600;
+            background-color: #4d5bf9;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background-color: #6a7ef7;
+            color: #fff;
+        }
+
+        .nav-link.active {
+            background-color: #fff;
+            color: #4d5bf9;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            font-weight: 700;
+        }
+
+        .tab-content h4 {
+            font-size: 32px;
+            margin-bottom: 20px;
+            color: #4d5bf9;
+            font-weight: 600;
+        }
+
+        .tab-content p {
+            text-align: justify;
+            line-height: 1.8;
+            letter-spacing: 0.5px;
+            color: #202238;
+        }
+
+        .tab-pane {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .form-check-input {
+            position: absolute;
+            margin-top: .4rem;
+            margin-left: 0.28rem;
+        }
+
+        /* Image preview styling */
+        .image-preview {
+            display: block;
+            margin-top: 10px;
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Modal styling */
+        .modal-content {
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .tab-content .tab-pane .row {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .tab-content .tab-pane img {
+                margin-top: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab"
+                            aria-controls="home" aria-selected="true">Tab 1</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab"
+                            aria-controls="profile" aria-selected="false">Tab 2</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab"
+                            aria-controls="contact" aria-selected="false">Tab 3</a>
+                    </li>
+                </ul>
+                <!-- Button to trigger the modal -->
+                <button id="addTabBtn" class="btn btn-outline-light mt-3"
+                    style="color: rgb(255, 255, 255); background-color: #565656;" data-toggle="modal"
+                    data-target="#addTabModal">Add
+                    New Tab</button>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                        <h4>First Title</h4>
+                        <p>
+                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolore explicabo cum dolores hic
+                            possimus aut corrupti quisquam aperiam quia veniam inventore officiis nam error sunt libero,
+                            commodi architecto reiciendis qui fuga, itaque delectus quidem sequi.
+                        </p>
+                    </div>
+                    <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                        <h4>Second Title</h4>
+                        <div class="row">
+                            <div class="col-md-7">
+                                <p>
+                                    Lorem ipsum dolor sit amet consectetur, adipisicing elit. Deleniti, fugiat ab?
+                                    Accusamus sed a iusto? Placeat incidunt repudiandae vero magnam nihil tempore quasi
+                                    earum illum totam aut delectus aliquam pariatur, iste, qui provident quo voluptatem
+                                    neque facere id laudantium aliquid numquam nisi accusantium. Inventore reiciendis
+                                    nulla, iste perferendis.
+                                </p>
+                            </div>
+                            <div class="col-md-5">
+                                <img src="computer.png" alt="Tab Image" class="image-preview">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
+                        <h4>Third Title</h4>
+                        <p>
+                            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Quaerat autem accusantium
+                            voluptate debitis ipsa animi aliquid dolore? Suscipit consequatur architecto ullam
+                            perferendis praesentium sed aliquid voluptatem quibusdam laborum, doloremque aut atque
+                            debitis et laudantium qui veniam eligendi accusamus ipsam optio, assumenda aliquam ipsum
+                            dolorem similique?
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for adding new tab -->
+    <div class="modal fade" id="addTabModal" tabindex="-1" role="dialog" aria-labelledby="addTabModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addTabModalLabel">Add New Tab</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="newTabForm">
+                        <div class="form-group">
+                            <label for="tabName">Tab Name</label>
+                            <input type="text" class="form-control" id="tabName" placeholder="Enter tab name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="tabContent">Tab Content</label>
+                            <textarea class="form-control" id="tabContent" rows="3"
+                                placeholder="Enter content for the tab" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="enableImageUpload">Enable Image Upload</label>
+                            <input type="checkbox" class="form-check-input" id="enableImageUpload">
+                        </div>
+                        <div class="form-group">
+                            <label for="tabImage">Tab Image</label>
+                            <input type="file" class="form-control" id="tabImage" accept="image/*" disabled>
+                            <img id="imagePreview" class="image-preview" style="display:none;" />
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" id="saveTabBtn">Add Tab</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Handle enabling/disabling image upload based on checkbox
+            $('#enableImageUpload').change(function () {
+                if ($(this).is(':checked')) {
+                    $('#tabImage').prop('disabled', false);
+                } else {
+                    $('#tabImage').prop('disabled', true);
+                    $('#imagePreview').hide();
+                }
+            });
+
+            // Preview the uploaded image
+            $('#tabImage').change(function () {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        $('#imagePreview').attr('src', e.target.result).show();
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Handle the form submission to create a new tab
+            $('#saveTabBtn').click(function () {
+                const tabName = $('#tabName').val();
+                const tabContent = $('#tabContent').val();
+                const tabImage = $('#tabImage')[0].files[0];
+                const isImageUploadEnabled = $('#enableImageUpload').is(':checked');
+
+                if (tabName && tabContent) {
+                    // Create a new tab
+                    let tabCount = $('#myTab .nav-item').length + 1;
+                    const newTabId = 'new-tab-' + tabCount;
+
+                    // Create new tab
+                    const newTab = `
+                        <li class="nav-item">
+                            <a class="nav-link" id="${newTabId}-tab" data-toggle="tab" href="#${newTabId}" role="tab"
+                                aria-controls="${newTabId}" aria-selected="false">${tabName}</a>
+                        </li>
+                    `;
+                    $('.nav-tabs').append(newTab);
+
+                    // Create new tab content
+                    const newTabContent = `
+                        <div class="tab-pane fade" id="${newTabId}" role="tabpanel" aria-labelledby="${newTabId}-tab">
+                            <h4>${tabName}</h4>
+                            <p>${tabContent}</p>
+                            ${isImageUploadEnabled && tabImage ? `<img src="${URL.createObjectURL(tabImage)}" alt="Tab Image" class="img-fluid" />` : ''}
+                        </div>
+                    `;
+                    $('.tab-content').append(newTabContent);
+
+                    // Close modal
+                    $('#addTabModal').modal('hide');
+
+                    // Clear the form
+                    $('#newTabForm')[0].reset();
+                } else {
+                    alert('Please fill out all fields.');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
