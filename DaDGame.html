@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Drag and Drop Game</title> 
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Stylesheet -->
+    <style>
+        body {
+            background-color: #eef2f3;
+            /* Light grey background */
+            font-family: 'Poppins', sans-serif;
+            color: #444;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 3em 1.5em;
+            border-radius: 1em;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            max-width: 900px;
+            margin: auto;
+            position: relative;
+        }
+
+        h3 {
+            text-align: center;
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #ff5722;
+            /* Changed header color */
+        }
+
+        .draggable-objects {
+            display: flex;
+            justify-content: center;
+            flex-wrap: nowrap;
+            margin-bottom: 2em;
+        }
+
+        .draggable-image {
+            width: 4em;
+            margin: 10px;
+            cursor: pointer;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .draggable-image:hover {
+            transform: scale(1.1);
+        }
+
+        .drop-points {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .countries {
+            width: 150px;
+            height: 100px;
+            display: grid;
+            place-items: center;
+            border: 2px dashed #ff5722;
+            /* Changed border color */
+            border-radius: 1em;
+            margin: 15px;
+            background-color: #fff3e0;
+            /* Light orange background */
+            transition: background-color 0.3s ease-in-out;
+        }
+
+        .countries.dropped {
+            background-color: #c8e6c9;
+            /* Light green background when dropped */
+            border-color: #4caf50;
+            /* Green border */
+        }
+
+        .controls-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .controls-container button {
+            font-size: 1.2em;
+            padding: 0.8em 1.5em;
+            border-radius: 0.5em;
+            border: none;
+            background-color: #ff5722;
+            /* Changed button background color */
+            color: #fff;
+            cursor: pointer;
+            letter-spacing: 0.05em;
+            transition: background-color 0.3s ease;
+        }
+
+        .controls-container button:hover {
+            background-color: #e64a19;
+            /* Darker button color on hover */
+        }
+
+        .controls-container p {
+            color: #444;
+            font-size: 2.5em;
+            margin-bottom: 1em;
+        }
+
+        .hide {
+            display: none;
+        }
+
+        .flag-container {
+            text-align: center;
+        }
+
+        .flag-name {
+            font-weight: 600;
+            margin-top: 8px;
+            color: #ff5722;
+            /* Changed flag name color */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h3>Drag & Drop The Flags Over Their Respective Country Names</h3>
+        <div class="draggable-objects row justify-content-center"></div>
+        <div class="drop-points row justify-content-center"></div>
+    </div>
+
+    <div class="controls-container">
+        <p id="result"></p>
+        <button id="start" class="btn btn-light">Start Game</button>
+    </div>
+
+    <!-- Script -->
+    <script>
+        //Initial References
+        let draggableObjects;
+        let dropPoints;
+        const startButton = document.getElementById("start");
+        const result = document.getElementById("result");
+        const controls = document.querySelector(".controls-container");
+        const dragContainer = document.querySelector(".draggable-objects");
+        const dropContainer = document.querySelector(".drop-points");
+        const data = [
+            "belgium", "bhutan", "brazil", "china", "cuba", "ecuador", "georgia", "germany", "hong-kong",
+            "india", "iran", "myanmar", "norway", "spain", "sri-lanka", "sweden", "switzerland",
+            "united-states", "uruguay", "wales"
+        ];
+
+        let count = 0;
+
+        //Random value from Array
+        const randomValueGenerator = () => {
+            return data[Math.floor(Math.random() * data.length)];
+        };
+
+        //Win Game Display
+        const stopGame = () => {
+            controls.classList.remove("hide");
+            startButton.classList.remove("hide");
+        };
+
+        //Drag & Drop Functions
+        function dragStart(e) {
+            e.dataTransfer.setData("text", e.target.id);
+        }
+
+        function dragOver(e) {
+            e.preventDefault();
+        }
+
+        const drop = (e) => {
+            e.preventDefault();
+            const draggedElementData = e.dataTransfer.getData("text");
+            const droppableElementData = e.target.getAttribute("data-id");
+
+            if (draggedElementData === droppableElementData) {
+                const draggedElement = document.getElementById(draggedElementData);
+                e.target.classList.add("dropped");
+                draggedElement.classList.add("hide");
+                draggedElement.setAttribute("draggable", "false");
+                e.target.innerHTML = ``;
+                e.target.insertAdjacentHTML("afterbegin", ` 
+                    <div class="flag-container">
+                        <img src="${draggedElementData}.png" class="img-fluid">
+                        <div class="flag-name">${droppableElementData.charAt(0).toUpperCase() + droppableElementData.slice(1).replace("-", " ")}</div>
+                    </div>
+                `);
+                count += 1;
+            }
+
+            //Win Check
+            if (count === 3) {
+                result.innerText = `You Won!`;
+                stopGame();
+            }
+        };
+
+        //Creates flags and countries
+        const creator = () => {
+            dragContainer.innerHTML = "";
+            dropContainer.innerHTML = "";
+            let randomData = [];
+            for (let i = 1; i <= 3; i++) {
+                let randomValue = randomValueGenerator();
+                if (!randomData.includes(randomValue)) {
+                    randomData.push(randomValue);
+                } else {
+                    i -= 1;
+                }
+            }
+
+            // Creating draggable flags
+            randomData.forEach((i) => {
+                const flagDiv = document.createElement("div");
+                flagDiv.classList.add("draggable-image", "col-4");
+                flagDiv.setAttribute("draggable", true);
+                flagDiv.id = i;
+                flagDiv.innerHTML = `<img src="${i}.png" id="${i}" class="img-fluid">`;
+                dragContainer.appendChild(flagDiv);
+            });
+
+            // Creating country drop areas
+            randomData = randomData.sort(() => 0.5 - Math.random());
+            randomData.forEach((i) => {
+                const countryDiv = document.createElement("div");
+                countryDiv.classList.add("col-4");
+                countryDiv.innerHTML = `<div class='countries' data-id='${i}'>
+                    ${i.charAt(0).toUpperCase() + i.slice(1).replace("-", " ")}
+                </div>`;
+                dropContainer.appendChild(countryDiv);
+            });
+        };
+
+        // Start Game
+        startButton.addEventListener("click", async () => {
+            controls.classList.add("hide");
+            startButton.classList.add("hide");
+            await creator();
+            count = 0;
+            dropPoints = document.querySelectorAll(".countries");
+            draggableObjects = document.querySelectorAll(".draggable-image");
+
+            draggableObjects.forEach((element) => {
+                element.addEventListener("dragstart", dragStart);
+            });
+
+            dropPoints.forEach((element) => {
+                element.addEventListener("dragover", dragOver);
+                element.addEventListener("drop", drop);
+            });
+        });
+    </script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>
