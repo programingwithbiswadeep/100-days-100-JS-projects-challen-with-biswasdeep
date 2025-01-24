@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Captcha Generator</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500&family=Roboto+Mono:wght@500&display=swap"
+        rel="stylesheet" />
+    <!-- Stylesheet -->
+    <style>
+        /* Body & Background Styling */
+        body {
+            background-color: #f0f0f0;
+            height: 100vh;
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* CAPTCHA Container */
+        .captcha-container {
+            background-color: #ffffff;
+            padding: 48px 40px;
+            border-radius: 19px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 480px;
+            width: 100%;
+        }
+
+        /* Title Styling */
+        .captcha-container h1 {
+            font-family: 'Roboto', sans-serif;
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 24px;
+        }
+
+        /* Canvas Styling */
+        canvas {
+            border-radius: 13px;
+            background-color: #e0e0e0;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Reload Button */
+        #reload-button {
+            background-color: #3498db;
+            font-size: 25px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease, transform 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            margin: 10px;
+        }
+
+        #submit-button {
+            margin: 10px;
+        }
+
+        /* Icon Style */
+        #reload-button i {
+            transition: transform 0.3s ease;
+        }
+
+        /* Hover Effect */
+        #reload-button:hover {
+            background-color: #2980b9;
+            transform: scale(1.1);
+        }
+
+        /* Active (Clicked) Effect */
+        #reload-button:active {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Input Field Styling */
+        .form-control {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 18px;
+            padding: 16px;
+            border-radius: 13px;
+            border: 1px solid #bdc3c7;
+            background-color: #f7f7f7;
+            color: #333;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.7);
+        }
+
+        /* Button Styling */
+        button {
+            background-color: #3498db;
+            color: white;
+            font-size: 18px;
+            padding: 10px 20px;
+            border-radius: 13px;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+            transform: scale(1.05);
+        }
+
+        /* Success & Error Messages */
+        .alert {
+            font-size: 19px;
+            display: none;
+            padding: 16px;
+            border-radius: 13px;
+            text-align: center;
+            margin-top: 24px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .alert.success {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        .alert.error {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        /* Wrapper for CAPTCHA and Reload button */
+        .captcha-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="captcha-container">
+        <h1>CAPTCHA Verification</h1>
+        <div class="captcha-wrapper">
+            <canvas id="canvas" width="200" height="70"></canvas>
+            <button id="reload-button">
+                <i class="fa-solid fa-arrow-rotate-right"></i>
+            </button>
+        </div>
+        <input type="text" id="user-input" class="form-control" placeholder="Enter the text in the image" />
+        <button id="submit-button">Submit</button>
+        <div id="alert-box" class="alert"></div>
+    </div>
+
+    <!-- Bootstrap JS, Popper.js, and jQuery (for Bootstrap features) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- Script -->
+    <script>
+        let submitButton = document.getElementById("submit-button");
+        let userInput = document.getElementById("user-input");
+        let canvas = document.getElementById("canvas");
+        let reloadButton = document.getElementById("reload-button");
+        let alertBox = document.getElementById("alert-box");
+        let text = "";
+
+        const textGenerator = () => {
+            let generatedText = "";
+            for (let i = 0; i < 3; i++) {
+                generatedText += String.fromCharCode(randomNumber(65, 90)); // Capital Letters
+                generatedText += String.fromCharCode(randomNumber(97, 122)); // Small Letters
+                generatedText += String.fromCharCode(randomNumber(48, 57)); // Numbers
+            }
+            return generatedText;
+        };
+
+        const randomNumber = (min, max) =>
+            Math.floor(Math.random() * (max - min + 1) + min);
+
+        function drawStringOnCanvas(string) {
+            let ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            const textColors = ["#333", "#3498db"];
+            const letterSpace = 150 / string.length;
+            for (let i = 0; i < string.length; i++) {
+                const xInitialSpace = 25;
+                ctx.font = "22px 'Roboto Mono', monospace";
+                ctx.fillStyle = textColors[randomNumber(0, 1)];
+                ctx.fillText(string[i], xInitialSpace + i * letterSpace, randomNumber(25, 40), 100);
+            }
+        }
+
+        function triggerFunction() {
+            userInput.value = "";
+            text = textGenerator();
+            text = [...text].sort(() => Math.random() - 0.5).join("");
+            drawStringOnCanvas(text);
+        }
+
+        reloadButton.addEventListener("click", triggerFunction);
+
+        window.onload = () => triggerFunction();
+
+        submitButton.addEventListener("click", () => {
+            if (userInput.value === "") {
+                alertBox.className = "alert error";
+                alertBox.textContent = "Please enter the CAPTCHA text.";
+                alertBox.style.display = "block";
+                setTimeout(() => {
+                    alertBox.style.display = "none";
+                }, 2000);
+            } else if (userInput.value === text) {
+                alertBox.className = "alert success";
+                alertBox.textContent = "Success! CAPTCHA Verified.";
+                alertBox.style.display = "block";
+                setTimeout(() => {
+                    alertBox.style.display = "none";
+                    triggerFunction();
+                }, 2000);
+            } else {
+                alertBox.className = "alert error";
+                alertBox.textContent = "Incorrect! Please try again.";
+                alertBox.style.display = "block";
+                setTimeout(() => {
+                    alertBox.style.display = "none";
+                    triggerFunction();
+                }, 2000);
+            }
+        });
+    </script>
+</body>
+
+</html>
