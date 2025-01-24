@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Advanced Image Editor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav {
+            background-color: #5c6bc0;
+            padding: 15px;
+            color: white;
+            text-align: center;
+        }
+
+        nav a {
+            font-size: 1.6rem;
+            color: white;
+            text-decoration: none;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .controls {
+            flex: 1;
+            margin-right: 20px;
+        }
+
+        .image-preview {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            margin-bottom: 30px;
+            border: 5px solid #ddd;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        canvas {
+            max-width: 100%;
+            max-height: 500px;
+        }
+
+        .help-text {
+            text-align: center;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group label {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .range-field input {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .file-controls {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .file-controls input[type="file"] {
+            padding: 15px;
+            border: none;
+            background-color: #5c6bc0;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .file-controls input[type="file"]:hover {
+            background-color: #3e4e91;
+        }
+
+        .slider-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .slider-container .slider-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slider-container label {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .slider-container input[type="range"] {
+            cursor: pointer;
+        }
+
+        /* General Button Styling */
+        .button-group button,
+        .image-save-buttons button {
+            padding: 12px 25px;
+            margin: 10px 10px;
+            background-color: #5c6bc0;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            outline: none;
+            width: auto;
+        }
+
+        /* Button Hover */
+        .button-group button:hover,
+        .image-save-buttons button:hover {
+            background-color: #3e4e91;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Button Active State */
+        .button-group button:active,
+        .image-save-buttons button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Button Focus State */
+        .button-group button:focus,
+        .image-save-buttons button:focus {
+            outline: 3px solid #3e4e91;
+        }
+
+        /* Adjust the layout for the buttons */
+        .button-group {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        .image-save-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .upload-button {
+            position: absolute;
+            bottom: 20px;
+            background-color: #5c6bc0;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            border: none;
+            transition: all 0.3s ease;
+            display: none;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .upload-button:hover {
+            background-color: #3e4e91;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .upload-button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-button:focus {
+            outline: 3px solid #3e4e91;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <a href="#">Custom Image Editor</a>
+    </nav>
+
+    <div class="container">
+        <div class="controls">
+            <div class="help-text">
+                <h3>Please Upload an Image to Start Editing</h3>
+            </div>
+
+            <!-- File Upload -->
+            <div class="file-controls">
+                <input type="file" accept="image/*" onchange="uploadImage(event)">
+            </div>
+
+            <div class="slider-container">
+                <div class="slider-group">
+                    <label for="brightnessSlider">Brightness</label>
+                    <input id="brightnessSlider" type="range" value="100" min="0" max="300" onchange="applyFilter()">
+                </div>
+                <div class="slider-group">
+                    <label for="contrastSlider">Contrast</label>
+                    <input id="contrastSlider" type="range" value="100" min="0" max="200" onchange="applyFilter()">
+                </div>
+                <div class="slider-group">
+                    <label for="grayscaleSlider">Grayscale</label>
+                    <input id="grayscaleSlider" type="range" value="0" min="0" max="100" onchange="applyFilter()">
+                </div>
+                <div class="slider-group">
+                    <label for="saturationSlider">Saturation</label>
+                    <input id="saturationSlider" type="range" value="100" min="0" max="300" onchange="applyFilter()">
+                </div>
+                <div class="slider-group">
+                    <label for="sepiaSlider">Sepia</label>
+                    <input id="sepiaSlider" type="range" value="0" min="0" max="200" onchange="applyFilter()">
+                </div>
+                <div class="slider-group">
+                    <label for="hueRotateSlider">Hue</label>
+                    <input id="hueRotateSlider" type="range" value="0" min="0" max="360" onchange="applyFilter()">
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button onclick="brightenFilter()">Brighten</button>
+                <button onclick="bwFilter()">Black and White</button>
+                <button onclick="funkyFilter()">Funky</button>
+                <button onclick="vintageFilter()">Vintage</button>
+            </div>
+
+            <div class="image-save-buttons">
+                <button onclick="saveImage()">Save Image</button>
+                <button onclick="resetImage()">Reset</button>
+            </div>
+        </div>
+
+        <div class="image-preview">
+            <canvas id="canvas"></canvas>
+            <input type="file" id="fileInput" accept="image/*" onchange="uploadImage(event)" style="display: none;">
+            <button class="upload-button" onclick="document.getElementById('fileInput').click()">Upload Image</button>
+        </div>
+    </div>
+
+    <a id="link" style="display: none;"></a>
+
+    <script>
+        let image = new Image();
+        let canvas = document.getElementById('canvas');
+        let context = canvas.getContext('2d');
+
+        const sliders = {
+            brightness: document.getElementById('brightnessSlider'),
+            contrast: document.getElementById('contrastSlider'),
+            grayscale: document.getElementById('grayscaleSlider'),
+            hueRotate: document.getElementById('hueRotateSlider'),
+            saturation: document.getElementById('saturationSlider'),
+            sepia: document.getElementById('sepiaSlider'),
+        };
+
+        function uploadImage(event) {
+            const file = event.target.files[0];
+            if (!file || !file.type.startsWith('image')) {
+                alert('Please upload a valid image.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                image.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        image.onload = function () {
+            canvas.width = image.width;
+            canvas.height = image.height;
+            applyFilter();
+        };
+
+        function applyFilter() {
+            const filterString = `brightness(${sliders.brightness.value}%) contrast(${sliders.contrast.value}%) grayscale(${sliders.grayscale.value}%) saturate(${sliders.saturation.value}%) sepia(${sliders.sepia.value}%) hue-rotate(${sliders.hueRotate.value}deg)`;
+            context.filter = filterString;
+            context.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas before redrawing
+            context.drawImage(image, 0, 0);
+        }
+
+        function brightenFilter() {
+            resetImage();
+            sliders.brightness.value = 130;
+            sliders.contrast.value = 120;
+            sliders.saturation.value = 120;
+            applyFilter();
+        }
+
+        function bwFilter() {
+            resetImage();
+            sliders.grayscale.value = 100;
+            sliders.brightness.value = 120;
+            sliders.contrast.value = 120;
+            applyFilter();
+        }
+
+        function funkyFilter() {
+            resetImage();
+            sliders.hueRotate.value = Math.floor(Math.random() * 360);
+            sliders.contrast.value = 120;
+            applyFilter();
+        }
+
+        function vintageFilter() {
+            resetImage();
+            sliders.brightness.value = 120;
+            sliders.saturation.value = 120;
+            sliders.sepia.value = 150;
+            applyFilter();
+        }
+
+        function resetImage() {
+            Object.keys(sliders).forEach(key => {
+                sliders[key].value = key === 'brightness' || key === 'contrast' || key === 'saturation' ? 100 : 0;
+            });
+            applyFilter();
+        }
+
+        function saveImage() {
+            const link = document.getElementById('link');
+            link.setAttribute('download', 'edited_image.png');
+            const canvasData = canvas.toDataURL('image/png');
+            link.setAttribute('href', canvasData);
+            link.click();
+        }
+    </script>
+
+</body>
+
+</html>
