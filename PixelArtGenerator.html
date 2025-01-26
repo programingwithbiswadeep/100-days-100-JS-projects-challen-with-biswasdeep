@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pixel Art Generator</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@500&display=swap" rel="stylesheet" />
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background-color: #1e212d;
+            font-family: "Roboto Mono", monospace;
+            color: #dcdde1;
+        }
+
+        .wrapper {
+            background-color: #3f4a59;
+            width: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 50px 40px;
+            border-radius: 15px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+        .form-range{
+            width: 80%;
+        }
+        .options {
+            margin-bottom: 40px;
+        }
+
+        .label-container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        label {
+            font-size: 1rem;
+            margin-bottom: 8px;
+            color: #f4f7fb;
+        }
+
+        .opt-wrapper {
+            margin-bottom: 20px;
+        }
+
+        button {
+            background-color: #6c757d;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 22px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease, background-color 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            background-color: #5a6268;
+        }
+
+        .gridCol {
+            height: 1.5em;
+            width: 1.5em;
+            border: 1px solid #4e5b68;
+            background-color: #596a80;
+            transition: background-color 0.2s ease;
+        }
+
+        .gridRow {
+            display: flex;
+        }
+
+        .container {
+            margin-top: 25px;
+        }
+
+        @media only screen and (max-width: 768px) {
+            .gridCol {
+                height: 1.2em;
+                width: 1.2em;
+            }
+        }
+
+        /* Color Picker Button */
+        .btn-color {
+            padding: 8px;
+            width: 80px;
+            height: 45px;
+            border: 2px solid #4e5b68;
+            border-radius: 8px;
+            cursor: pointer;
+            background-color: #f4f7fb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn-color input[type="color"] {
+            width: 100%;
+            height: 100%;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        /* Special button styles */
+        #erase-btn,
+        #paint-btn {
+            width: 110px;
+        }
+
+        #clear-grid {
+            background-color: #e63946;
+            color: white;
+        }
+
+        #submit-grid {
+            background-color: #4caf50;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="options">
+            <div class="opt-wrapper d-flex justify-content-between">
+                <div class="slider w-50">
+                    <label for="width-range">Grid Width</label>
+                    <input type="range" class="form-range" id="width-range" min="1" max="30" />
+                    <span id="width-value">00</span>
+                </div>
+                <div class="slider w-50">
+                    <label for="height-range">Grid Height</label>
+                    <input type="range" class="form-range" id="height-range" min="1" max="20" />
+                    <span id="height-value">00</span>
+                </div>
+            </div>
+            <div class="opt-wrapper d-flex justify-content-between align-items-center">
+                <button id="submit-grid" class="btn btn-success">Create Grid</button>
+                <button id="clear-grid" class="btn btn-danger">Clear Grid</button>
+                <div class="btn-color">
+                    <input type="color" id="color-input" />
+                </div>
+                <button id="erase-btn" class="btn btn-secondary">Erase</button>
+                <button id="paint-btn" class="btn btn-info">Paint</button>
+            </div>
+        </div>
+        <div class="container"></div>
+    </div>
+
+    <script>
+        // Initial references
+        let container = document.querySelector(".container");
+        let gridButton = document.getElementById("submit-grid");
+        let clearGridButton = document.getElementById("clear-grid");
+        let gridWidth = document.getElementById("width-range");
+        let gridHeight = document.getElementById("height-range");
+        let colorButton = document.getElementById("color-input");
+        let eraseBtn = document.getElementById("erase-btn");
+        let paintBtn = document.getElementById("paint-btn");
+        let widthValue = document.getElementById("width-value");
+        let heightValue = document.getElementById("height-value");
+
+        // Events object
+        let events = {
+            mouse: {
+                down: "mousedown",
+                move: "mousemove",
+                up: "mouseup",
+            },
+            touch: {
+                down: "touchstart",
+                move: "touchmove",
+                up: "touchend",
+            },
+        };
+
+        let deviceType = "";
+
+        // Initially draw and erase would be false
+        let draw = false;
+        let erase = false;
+
+        // Detect touch device
+        const isTouchDevice = () => {
+            try {
+                // We try to create TouchEvent(it would fail for desktops and throw error)
+                document.createEvent("TouchEvent");
+                deviceType = "touch";
+                return true;
+            } catch (e) {
+                deviceType = "mouse";
+                return false;
+            }
+        };
+
+        isTouchDevice();
+
+        // Create Grid
+        gridButton.addEventListener("click", () => {
+            // Initially clear the grid (old grids cleared)
+            container.innerHTML = "";
+            // count variable for generating unique ids
+            let count = 0;
+            // loop for creating rows
+            for (let i = 0; i < gridHeight.value; i++) {
+                // incrementing count by 2
+                count += 2;
+                // Create row div
+                let div = document.createElement("div");
+                div.classList.add("gridRow");
+                // Create Columns
+                for (let j = 0; j < gridWidth.value; j++) {
+                    count += 2;
+                    let col = document.createElement("div");
+                    col.classList.add("gridCol");
+                    /* We need unique ids for all columns (for touch screen specifically) */
+                    col.setAttribute("id", `gridCol${count}`);
+
+                    /*
+                    For eg if deviceType = "mouse"
+                    the statement for the event would be events[mouse].down which equals to mousedown
+                    if deviceType="touch"
+                    the statement for event would be events[touch].down which equals to touchstart
+                     */
+
+                    col.addEventListener(events[deviceType].down, () => {
+                        // user starts drawing
+                        draw = true;
+                        // if erase = true then background = transparent else color
+                        if (erase) {
+                            col.style.backgroundColor = "transparent";
+                        } else {
+                            col.style.backgroundColor = colorButton.value;
+                        }
+                    });
+
+                    col.addEventListener(events[deviceType].move, (e) => {
+                        /* elementFromPoint returns the element at x,y position of mouse */
+                        let elementId = document.elementFromPoint(
+                            !isTouchDevice() ? e.clientX : e.touches[0].clientX,
+                            !isTouchDevice() ? e.clientY : e.touches[0].clientY
+                        ).id;
+                        // checker
+                        checker(elementId);
+                    });
+                    // Stop drawing
+                    col.addEventListener(events[deviceType].up, () => {
+                        draw = false;
+                    });
+                    // append columns
+                    div.appendChild(col);
+                }
+                // append grid to container
+                container.appendChild(div);
+            }
+        });
+
+        function checker(elementId) {
+            let gridColumns = document.querySelectorAll(".gridCol");
+            // loop through all boxes
+            gridColumns.forEach((element) => {
+                // if id matches then color
+                if (elementId == element.id) {
+                    if (draw && !erase) {
+                        element.style.backgroundColor = colorButton.value;
+                    } else if (draw && erase) {
+                        element.style.backgroundColor = "transparent";
+                    }
+                }
+            });
+        }
+
+        // Clear Grid
+        clearGridButton.addEventListener("click", () => {
+            container.innerHTML = "";
+        });
+
+        // Erase Button
+        eraseBtn.addEventListener("click", () => {
+            erase = true;
+            // Make sure the color picker is active while eraser is on
+            colorButton.disabled = false;
+        });
+
+        // Paint button
+        paintBtn.addEventListener("click", () => {
+            erase = false;
+            // Enable color selection when painting mode is on
+            colorButton.disabled = false;
+        });
+
+        // Color Picker input
+        colorButton.addEventListener("input", () => {
+            // Ensure that color picker works regardless of erase or paint mode
+            if (erase) {
+                erase = false; // Automatically switch to paint mode after selecting a color
+            }
+        });
+
+        // Display grid width and height
+        gridWidth.addEventListener("input", () => {
+            widthValue.innerHTML =
+                gridWidth.value < 9 ? `0${gridWidth.value}` : gridWidth.value;
+        });
+
+        gridHeight.addEventListener("input", () => {
+            heightValue.innerHTML =
+                gridHeight.value < 9 ? `0${gridHeight.value}` : gridHeight.value;
+        });
+
+        window.onload = () => {
+            gridWidth.value = 0;
+            gridHeight.value = 0;
+        };
+    </script>
+
+</body>
+
+</html>
