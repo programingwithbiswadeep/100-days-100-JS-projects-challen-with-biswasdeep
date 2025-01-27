@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Compact Image Gallery</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-KyZXEJ2RZrL4jWaZq5ZYGoD3w+Pp82h+RpgmtPxsWV6hbFVVHUBhd+M7bmG8h79C" crossorigin="anonymous">
+    <style>
+        .gallery-card {
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin: 10px;
+            height: 600px;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .gallery-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .main-image {
+            width: 90%;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 10px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .main-image:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .thumbnail-container {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .thumbnail {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease;
+        }
+
+        .thumbnail:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .thumbnail.active {
+            border: 3px solid #007bff;
+            transform: scale(1.1);
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .gallery-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        .gallery-description {
+            font-size: 0.9rem;
+            color: #777;
+            margin-top: 10px;
+        }
+
+        /* Flexbox for the gallery container to display items in a single row */
+        .gallery-row {
+            display: flex;
+            justify-content: space-evenly;
+            flex-wrap: nowrap;
+            margin-top: 50px;
+        }
+
+        .gallery-column {
+            flex: 0 0 auto;
+            width: 400px;
+            position: relative;
+        }
+
+        /* Left and right arrows */
+        .arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2rem;
+            color: rgba(0, 0, 0, 0.5);
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .arrow-left {
+            left: 10px;
+            top: 30%;
+        }
+
+        .arrow-right {
+            right: 10px;
+            top: 30%;
+        }
+
+        /* Adjust the container for smaller screens */
+        @media (max-width: 768px) {
+            .gallery-row {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .gallery-column {
+                flex: 0 0 45%;
+                margin-bottom: 20px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .gallery-column {
+                flex: 0 0 100%;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="container py-5">
+        <div class="gallery-row">
+            <!-- First Gallery Card -->
+            <div class="gallery-column mb-4">
+                <div class="card gallery-card">
+                    <img id="mainImage1" src="img/jacket-1.png" alt="Main Image" class="main-image card-img-top">
+                    <div class="card-body text-center">
+                        <h5 class="gallery-title">Gallery 1</h5>
+                        <p class="gallery-description">Explore our collection of stylish jackets with amazing features.
+                        </p>
+                        <div class="thumbnail-container">
+                            <img src="img/jacket-1.png" alt="Thumbnail 1" class="thumbnail"
+                                onclick="changeImage(this, 'mainImage1')" aria-label="Thumbnail 1"
+                                onmouseover="hoverImage(this, 'mainImage1')">
+                            <img src="img/jacket-2.png" alt="Thumbnail 2" class="thumbnail"
+                                onclick="changeImage(this, 'mainImage1')" aria-label="Thumbnail 2"
+                                onmouseover="hoverImage(this, 'mainImage1')">
+                            <img src="img/jacket-3.png" alt="Thumbnail 3" class="thumbnail"
+                                onclick="changeImage(this, 'mainImage1')" aria-label="Thumbnail 3"
+                                onmouseover="hoverImage(this, 'mainImage1')">
+                            <img src="img/jacket-4.png" alt="Thumbnail 4" class="thumbnail"
+                                onclick="changeImage(this, 'mainImage1')" aria-label="Thumbnail 4"
+                                onmouseover="hoverImage(this, 'mainImage1')">
+                        </div>
+                    </div>
+
+                    <!-- Arrows for navigation -->
+                    <span class="arrow arrow-left" onclick="navigateImage('mainImage1', -1)">&#10094;</span>
+                    <span class="arrow arrow-right" onclick="navigateImage('mainImage1', 1)">&#10095;</span>
+                </div>
+            </div>
+
+            <!-- Second Gallery Card -->
+            <div class="gallery-column mb-4">
+                <div class="card gallery-card">
+                    <img id="mainImage2" src="img/watch-1.png" alt="Main Image" class="main-image card-img-top">
+                    <div class="card-body text-center">
+                        <h5 class="gallery-title">Gallery 2</h5>
+                        <p class="gallery-description">Discover our latest designs and styles for every occasion.</p>
+                        <div class="thumbnail-container">
+                            <img src="img/watch-1.png" alt="Thumbnail 1" class="thumbnail"
+                                onclick="changeImage(this, 'mainImage2')" aria-label="Thumbnail 1"
+                                onmouseover="hoverImage(this, 'mainImage2')">
+                            <img src="img/watch-2.png" alt="Thumbnail 2" class="thumbnail"
+                                onclick="changeImage(this, 'mainImage2')" aria-label="Thumbnail 2"
+                                onmouseover="hoverImage(this, 'mainImage2')">
+                            <img src="img/watch-3.png" alt="Thumbnail 3" class="thumbnail"
+                                onclick="changeImage(this, 'mainImage2')" aria-label="Thumbnail 3"
+                                onmouseover="hoverImage(this, 'mainImage2')">
+                            <img src="img/watch-4.png" alt="Thumbnail 4" class="thumbnail"
+                                onclick="changeImage(this, 'mainImage2')" aria-label="Thumbnail 4"
+                                onmouseover="hoverImage(this, 'mainImage2')">
+                        </div>
+                    </div>
+
+                    <!-- Arrows for navigation -->
+                    <span class="arrow arrow-left" onclick="navigateImage('mainImage2', -1)">&#10094;</span>
+                    <span class="arrow arrow-right" onclick="navigateImage('mainImage2', 1)">&#10095;</span>
+                </div>
+            </div>
+
+            <!-- Third Gallery Card -->
+            <div class="gallery-column mb-4">
+                <div class="card gallery-card">
+                    <img id="mainImage3" src="img/kargo-1.png" alt="Main Image" class="main-image card-img-top">
+                    <div class="card-body text-center">
+                        <h5 class="gallery-title">Gallery 3</h5>
+                        <p class="gallery-description">Handpicked collections for the perfect look and comfort.</p>
+                        <div class="thumbnail-container">
+                            <img src="img/kargo-1.png" alt="Thumbnail 1" class="thumbnail"
+                                onclick="changeImage(this, 'mainImage3')" aria-label="Thumbnail 1"
+                                onmouseover="hoverImage(this, 'mainImage3')">
+                            <img src="img/kargo-2.png" alt="Thumbnail 2" class="thumbnail"
+                                onclick="changeImage(this, 'mainImage3')" aria-label="Thumbnail 2"
+                                onmouseover="hoverImage(this, 'mainImage3')">
+                            <img src="img/kargo-3.png" alt="Thumbnail 3" class="thumbnail"
+                                onclick="changeImage(this, 'mainImage3')" aria-label="Thumbnail 3"
+                                onmouseover="hoverImage(this, 'mainImage3')">
+                        </div>
+                    </div>
+
+                    <!-- Arrows for navigation -->
+                    <span class="arrow arrow-left" onclick="navigateImage('mainImage3', -1)">&#10094;</span>
+                    <span class="arrow arrow-right" onclick="navigateImage('mainImage3', 1)">&#10095;</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-kaBlzFt94NlKxhfM8os7+aZbA9gDtdfoPeAHf3KqROZgg9nD6vLcktyzpk84dGf0"
+        crossorigin="anonymous"></script>
+
+    <!-- Custom JS -->
+    <script>
+        // Function to change the main image when a thumbnail is clicked
+        function changeImage(thumbnail, mainImageId) {
+            const mainImage = document.getElementById(mainImageId);
+
+            // Change the source and alt of the main image
+            mainImage.src = thumbnail.src;
+            mainImage.alt = thumbnail.alt;
+
+            // Remove 'active' class from all thumbnails in the container
+            const thumbnails = thumbnail.parentNode.querySelectorAll('.thumbnail');
+            thumbnails.forEach(thumb => thumb.classList.remove('active'));
+
+            // Add the 'active' class to the clicked thumbnail
+            thumbnail.classList.add('active');
+        }
+
+        // Function to change the main image when a thumbnail is hovered
+        function hoverImage(thumbnail, mainImageId) {
+            const mainImage = document.getElementById(mainImageId);
+
+            // Change the source and alt of the main image
+            mainImage.src = thumbnail.src;
+            mainImage.alt = thumbnail.alt;
+        }
+
+        // Function for navigating images with arrows
+        function navigateImage(mainImageId, direction) {
+            const mainImage = document.getElementById(mainImageId);
+            const thumbnails = mainImage.parentNode.querySelectorAll('.thumbnail');
+            let currentIndex = Array.from(thumbnails).findIndex(thumb => thumb.src === mainImage.src);
+
+            currentIndex += direction;
+
+            // Ensure that the index loops
+            if (currentIndex >= thumbnails.length) currentIndex = 0;
+            if (currentIndex < 0) currentIndex = thumbnails.length - 1;
+
+            // Change the main image to the new thumbnail
+            changeImage(thumbnails[currentIndex], mainImageId);
+        }
+    </script>
+</body>
+
+</html>
