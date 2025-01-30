@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minion Eyes</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #2f2f2f;
+            font-family: 'Arial', sans-serif;
+            color: #f0f0f0;
+        }
+
+        .container-custom {
+            background-color: #3c3c3c;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            /* Make it relative so other content can be stacked above */
+            min-height: 500px;
+        }
+
+        header {
+            background-color: #5e35b1;
+            color: white;
+            padding: 30px 0;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+            /* Ensure header is above the fixed box */
+        }
+
+        header h1 {
+            text-align: center;
+            font-size: 2.5rem;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        nav ul li {
+            margin: 0 20px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: color 0.3s;
+        }
+
+        nav ul li a:hover {
+            color: #ff9800;
+        }
+
+        .main-content {
+            margin-top: 50px;
+        }
+
+        .main-section h2 {
+            color: #5e35b1;
+            margin-bottom: 15px;
+        }
+
+        .main-section p {
+            font-size: 1.1rem;
+            color: #d1d1d1;
+        }
+
+        .sidebar {
+            background-color: #424242;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar h3 {
+            color: #f0f0f0;
+            font-size: 1.3rem;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar ul li {
+            margin-bottom: 10px;
+        }
+
+        .sidebar ul li a {
+            color: #5e35b1;
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: color 0.3s;
+        }
+
+        .sidebar ul li a:hover {
+            color: #ff9800;
+        }
+
+        footer {
+            background-color: #5e35b1;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            border-radius: 8px;
+            margin-top: 40px;
+            position: relative;
+        }
+
+        footer p {
+            font-size: 1rem;
+        }
+
+        form input,
+        form textarea {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #888;
+            font-size: 1rem;
+        }
+
+        form button {
+            padding: 12px 20px;
+            background-color: #5e35b1;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        form button:hover {
+            background-color: #4527a0;
+        }
+
+        .bg-light {
+            background-color: #424242 !important;
+        }
+
+        .eyes-wrapper {
+            display: flex;
+            justify-content: center;
+        }
+
+        .eye {
+            width: 2em;
+            height: 2em;
+            border: 4px solid #a6a4ad;
+            background-color: #ffffff;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .eyeball {
+            height: 0.8em;
+            width: 0.8em;
+            background: radial-gradient(#271e1e 35%, #935a29 37%);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: transform 0.1s ease;
+        }
+
+        .eyeball:before {
+            content: "";
+            position: absolute;
+            background-color: #ffffff;
+            height: 0.1em;
+            width: 0.1em;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            transform: rotate(45deg);
+        }
+
+        @media (max-width: 768px) {
+            nav ul li {
+                margin: 0 15px;
+            }
+
+            .main-section h2 {
+                font-size: 2rem;
+            }
+
+            .sidebar ul li {
+                margin-bottom: 8px;
+            }
+
+            .sidebar {
+                margin-top: 20px;
+            }
+
+            header h1 {
+                font-size: 2rem;
+            }
+
+            footer p {
+                font-size: 0.9rem;
+            }
+        }
+
+        .fixed-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 32px;
+            height: 32px;
+            line-height: 100px;
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container-custom">
+            <h1>Minion Eyes</h1>
+            <nav>
+                <ul class="d-flex justify-content-center">
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container my-5 container-custom">
+        <!-- Fixed Circular Box inside the container -->
+        <div class="fixed-box">
+            <div class="eyes-wrapper">
+                <div class="eye">
+                    <div class="eyeball"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8">
+                <section id="home" class="main-section">
+                    <h2>Home</h2>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ducimus impedit obcaecati similique
+                        sunt dicta odio tenetur vitae libero doloremque corrupti totam nulla nemo officiis dignissimos,
+                        velit sapiente accusamus aliquid at.</p>
+                </section>
+                <section id="about" class="main-section">
+                    <h2>About</h2>
+                    <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Fugiat velit soluta dolor officia
+                        corporis harum hic laboriosam, atque obcaecati ullam reiciendis enim eos veniam sit non
+                        consequatur molestiae eum perferendis?</p>
+                </section>
+            </div>
+            <div class="col-md-4">
+                <div class="sidebar">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="#home">Home Section</a></li>
+                        <li><a href="#about">About Section</a></li>
+                        <li><a href="#contact">Contact Section</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section id="contact" class="bg-light py-5">
+        <div class="container-custom">
+            <h2>Contact</h2>
+            <form id="contact-form">
+                <input type="text" id="name" class="form-control" placeholder="Your Name" required>
+                <input type="email" id="email" class="form-control" placeholder="Your Email" required>
+                <textarea id="message" class="form-control" placeholder="Your Message" required></textarea>
+                <button type="submit" class="btn btn-dark mt-3">Send</button>
+            </form>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container-custom">
+            <p>&copy; 2025 Minion Eyes. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+    <script>
+
+        let eye = document.querySelector('.eye');
+        let eyeball = document.querySelector('.eyeball');
+
+        // Function to calculate the eye movement
+        function moveEye(event) {
+            let eyeRect = eye.getBoundingClientRect();
+            let eyeCenterX = eyeRect.left + eyeRect.width / 2;
+            let eyeCenterY = eyeRect.top + eyeRect.height / 2;
+
+            // Get mouse or touch position
+            let mouseX = event.clientX || event.touches[0].clientX;
+            let mouseY = event.clientY || event.touches[0].clientY;
+
+            // Calculate the angle between the center of the eye and the mouse position
+            let deltaX = mouseX - eyeCenterX;
+            let deltaY = mouseY - eyeCenterY;
+            let angle = Math.atan2(deltaY, deltaX);
+
+            // Calculate the new position for the eyeball based on the angle
+            let distance = Math.min(eyeRect.width / 3, eyeRect.height / 3); // Limit the distance
+            let eyeballX = Math.cos(angle) * distance;
+            let eyeballY = Math.sin(angle) * distance;
+
+            // Apply the transformation to move the eyeball
+            eyeball.style.transform = `translate(-50%, -50%) translate(${eyeballX}px, ${eyeballY}px)`;
+        }
+
+        // Add event listeners for mousemove and touchmove
+        window.addEventListener('mousemove', moveEye);
+        window.addEventListener('touchmove', moveEye);
+
+        document.getElementById('contact-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const message = document.getElementById('message').value;
+
+            if (name && email && message) {
+                alert('Message Sent! Thank you for contacting us.');
+            } else {
+                alert('Please fill out all fields.');
+            }
+        });
+    </script>
+</body>
+
+</html>
+
+
+<!-- <style>
+        body {
+            padding: 0;
+            margin: 0;
+            background-color: #f5d60e;
+        }
+
+        .container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .eyes-wrapper {
+            display: flex;
+            justify-content: center;
+        }
+
+        .eye {
+            width: 2em;
+            /* Set the eye size to 2em */
+            height: 2em;
+            /* Set the eye size to 2em */
+            border: 4px solid #a6a4ad;
+            background-color: #ffffff;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .eyeball {
+            height: 0.8em;
+            /* Adjust eyeball size to fit in a 2em eye */
+            width: 0.8em;
+            /* Adjust eyeball size to fit in a 2em eye */
+            background: radial-gradient(#271e1e 35%, #935a29 37%);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: transform 0.1s ease;
+        }
+
+        .eyeball:before {
+            content: "";
+            position: absolute;
+            background-color: #ffffff;
+            height: 0.1em;
+            width: 0.1em;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            transform: rotate(45deg);
+        }
+    </style> -->
+
+<!-- <div class="container">
+        <div class="eyes-wrapper">
+            <div class="eye">
+                <div class="eyeball"></div>
+            </div>
+        </div>
+    </div> -->
+
+<!-- Script -->
+<!-- <script>
+        let eye = document.querySelector('.eye');
+        let eyeball = document.querySelector('.eyeball');
+
+        // Function to calculate the eye movement
+        function moveEye(event) {
+            let eyeRect = eye.getBoundingClientRect();
+            let eyeCenterX = eyeRect.left + eyeRect.width / 2;
+            let eyeCenterY = eyeRect.top + eyeRect.height / 2;
+
+            // Get mouse or touch position
+            let mouseX = event.clientX || event.touches[0].clientX;
+            let mouseY = event.clientY || event.touches[0].clientY;
+
+            // Calculate the angle between the center of the eye and the mouse position
+            let deltaX = mouseX - eyeCenterX;
+            let deltaY = mouseY - eyeCenterY;
+            let angle = Math.atan2(deltaY, deltaX);
+
+            // Calculate the new position for the eyeball based on the angle
+            let distance = Math.min(eyeRect.width / 3, eyeRect.height / 3); // Limit the distance
+            let eyeballX = Math.cos(angle) * distance;
+            let eyeballY = Math.sin(angle) * distance;
+
+            // Apply the transformation to move the eyeball
+            eyeball.style.transform = `translate(-50%, -50%) translate(${eyeballX}px, ${eyeballY}px)`;
+        }
+
+        // Add event listeners for mousemove and touchmove
+        window.addEventListener('mousemove', moveEye);
+        window.addEventListener('touchmove', moveEye);
+    </script> -->
