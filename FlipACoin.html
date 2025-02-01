@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flip A Coin</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(to right, #6a0dad, #ff6347);
+            font-family: 'Rubik', sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+
+        .container {
+            background: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 350px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .title {
+            color: #6a0dad;
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .coin {
+            margin: 30px auto;
+            width: 120px;
+            height: 120px;
+            position: relative;
+            display: none;
+        }
+
+        .coin img {
+            width: 100%;
+            border-radius: 50%;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .btn-toss,
+        .btn-restart {
+            background: #6a0dad;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn-toss:disabled {
+            background: #bbb;
+            cursor: not-allowed;
+        }
+
+        .btn-toss:hover:not(:disabled),
+        .btn-restart:hover {
+            background: #9b30b2;
+        }
+
+        .input-section {
+            display: block;
+            transition: all 0.3s ease;
+        }
+
+        .stats {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotateY(0deg);
+            }
+
+            100% {
+                transform: rotateY(720deg);
+            }
+        }
+
+        #toss-status {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #6a0dad;
+        }
+
+        .input-section input {
+            margin-bottom: 15px;
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2 class="title">Flip A Coin</h2>
+
+        <!-- Input fields for Topic, Head, and Tails -->
+        <div class="input-section" id="input-section">
+            <label for="topic">Topic:</label>
+            <input type="text" id="topic" name="topic" placeholder="Enter topic name" required>
+
+            <label for="head-name">Head Name:</label>
+            <input type="text" id="head-name" name="head-name" placeholder="Enter Head Name" required>
+
+            <label for="tails-name">Tails Name:</label>
+            <input type="text" id="tails-name" name="tails-name" placeholder="Enter Tails Name" required>
+        </div>
+
+        <div class="coin" id="coin">
+            <img id="coin-img" src="heads.svg" alt="Coin">
+        </div>
+
+        <p id="toss-status">Please fill in all fields before tossing</p>
+        <button id="toss-button" class="btn-toss" disabled>Toss Coin</button>
+        <button id="restart-button" class="btn-restart hidden">Restart</button>
+
+        <div class="stats">
+            <p id="heads-count">Heads: 0</p>
+            <p id="tails-count">Tails: 0</p>
+        </div>
+    </div>
+
+    <script>
+        let heads = 0;
+        let tails = 0;
+        const tossButton = document.getElementById("toss-button");
+        const tossStatus = document.getElementById("toss-status");
+        const coinImage = document.getElementById("coin-img");
+        const headsCount = document.getElementById("heads-count");
+        const tailsCount = document.getElementById("tails-count");
+
+        const topicInput = document.getElementById("topic");
+        const headNameInput = document.getElementById("head-name");
+        const tailsNameInput = document.getElementById("tails-name");
+
+        const inputSection = document.getElementById("input-section");
+        const coinSection = document.getElementById("coin");
+        const restartButton = document.getElementById("restart-button");
+
+        // Enable Toss button when all inputs are filled
+        function checkInputs() {
+            if (topicInput.value && headNameInput.value && tailsNameInput.value) {
+                tossButton.disabled = false;
+                tossStatus.textContent = "Ready to Toss!";
+            } else {
+                tossButton.disabled = true;
+                tossStatus.textContent = "Please fill in all fields before tossing";
+            }
+        }
+
+        // Listen to inputs and check if all are filled
+        topicInput.addEventListener("input", checkInputs);
+        headNameInput.addEventListener("input", checkInputs);
+        tailsNameInput.addEventListener("input", checkInputs);
+
+        tossButton.addEventListener("click", function () {
+            // Hide input fields and show the coin toss
+            inputSection.style.display = "none";
+            coinSection.style.display = "block";
+            tossButton.disabled = true;
+            tossStatus.textContent = "Tossing...";
+
+            // Reset coin animation
+            coinImage.style.animation = "none";
+            setTimeout(function () {
+                // Randomize the flip duration between 3 to 4 seconds for a more natural feel
+                const flipDuration = Math.random() * 1 + 3;  // 3 to 4 seconds
+                coinImage.style.animation = `spin ${flipDuration}s ease-in-out`;
+
+                // Simulate coin flip with random result
+                let result = Math.random() < 0.5 ? "heads" : "tails";
+                setTimeout(() => {
+                    if (result === "heads") {
+                        coinImage.src = "heads.svg";
+                        heads++;
+                        tossStatus.textContent = `Result: ${headNameInput.value}`;
+                    } else {
+                        coinImage.src = "tails.svg";
+                        tails++;
+                        tossStatus.textContent = `Result: ${tailsNameInput.value}`;
+                    }
+
+                    // Update stats
+                    headsCount.textContent = `Heads: ${heads}`;
+                    tailsCount.textContent = `Tails: ${tails}`;
+                    tossButton.disabled = false;
+                    restartButton.classList.remove("hidden");
+                }, flipDuration * 1000);  // Wait for the random duration to end
+            }, 10);
+        });
+
+        // Restart the game
+        restartButton.addEventListener("click", function () {
+            heads = 0;
+            tails = 0;
+            headsCount.textContent = "Heads: 0";
+            tailsCount.textContent = "Tails: 0";
+            topicInput.value = "";
+            headNameInput.value = "";
+            tailsNameInput.value = "";
+            tossStatus.textContent = "Please fill in all fields before tossing";
+            inputSection.style.display = "block";
+            coinSection.style.display = "none";
+            restartButton.classList.add("hidden");
+            tossButton.disabled = true;
+        });
+    </script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
