@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <title>Palindrome Checker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #dde1e7, #f8f9fa);
+        }
+        
+        .wrapper {
+            max-width: 500px;
+            background: #dde1e7;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 10px 10px 20px #babecc, -10px -10px 20px #ffffff;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 27px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        header p {
+            margin-top: 5px;
+            font-size: 18px;
+            color: #777;
+        }
+        
+        .inputs {
+            margin: 20px 0 27px;
+        }
+        
+        .inputs input {
+            width: 100%;
+            height: 60px;
+            outline: none;
+            padding: 0 17px;
+            font-size: 19px;
+            border-radius: 10px;
+            border: none;
+            background: #dde1e7;
+            box-shadow: inset 5px 5px 10px #babecc, inset -5px -5px 10px #ffffff;
+            text-align: center;
+        }
+        
+        .inputs button {
+            width: 100%;
+            height: 56px;
+            border: none;
+            outline: none;
+            color: #0f0e0e;
+            cursor: pointer;
+            font-size: 17px;
+            margin-top: 15px;
+            border-radius: 10px;
+            background: #74a3ea;
+            box-shadow: 5px 5px 10px #babecc, -5px -5px 10px #ffffff;
+            transition: 0.2s;
+        }
+        
+        .inputs button:active {
+            box-shadow: inset 5px 5px 10px #babecc, inset -5px -5px 10px #ffffff;
+        }
+        
+        .info-txt {
+            display: none;
+            font-size: 19px;
+            margin-top: 15px;
+            color: #555;
+        }
+        
+        .info-txt span {
+            color: #6c63ff;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <header>
+            <h1>Palindrome Checker</h1>
+            <p>Check if a word, number, or sentence reads the same backward.</p>
+        </header>
+        <div class="inputs">
+            <input type="text" spellcheck="false" placeholder="Enter text, number, or sentence">
+            <button id="checkBtn">Check Palindrome</button>
+            <button id="resetBtn">Reset</button>
+        </div>
+        <p class="info-txt"></p>
+    </div>
+    <script>
+        const txtInput = document.querySelector(".inputs input"),
+              checkBtn = document.getElementById("checkBtn"),
+              resetBtn = document.getElementById("resetBtn"),
+              infoTxt = document.querySelector(".info-txt");
+        
+        checkBtn.addEventListener("click", () => {
+            let userInput = txtInput.value.trim();
+            if (!userInput) {
+                infoTxt.style.display = "block";
+                infoTxt.innerHTML = "Please enter a valid text, number, or sentence.";
+                return;
+            }
+            
+            let filteredInput = userInput.toLowerCase().replace(/[^a-z0-9]/g, "");
+            let reversedInput = filteredInput.split("").reverse().join("");
+            
+            infoTxt.style.display = "block";
+            if (filteredInput !== reversedInput) {
+                infoTxt.innerHTML = `No, <span>'${userInput}'</span> isn't a palindrome!`;
+            } else {
+                infoTxt.innerHTML = `Yes, <span>'${userInput}'</span> is a palindrome!`;
+            }
+        });
+        
+        resetBtn.addEventListener("click", () => {
+            txtInput.value = "";
+            infoTxt.style.display = "none";
+        });
+    </script>
+</body>
+</html>
