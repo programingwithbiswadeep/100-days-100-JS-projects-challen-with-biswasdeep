@@ -102,7 +102,7 @@
                         <option value="ar">Arabic</option>
                         <option value="ru">Russian</option>
                         <option value="pt">Portuguese</option>
-                        <option value="hi">hindi</option>
+                        <option value="hi">Hindi</option>
                     </select>
                 </div>
 
@@ -130,21 +130,24 @@
         var buttonReset = document.querySelector('#btn-reset');
         var languageSelect = document.querySelector('#language-select');
 
-        // API URL and options for Google Translate API
-        const url = 'https://google-translate113.p.rapidapi.com/api/v1/translator/html';
-        const options = {
-            method: 'POST',
-            headers: {
-                'x-rapidapi-key': '455c0d7a86msh0b66aca9d4dffd2p124126jsn76e1605a6c3a', // Replace with your RapidAPI key
-                'x-rapidapi-host': 'google-translate113.p.rapidapi.com',
-                'Content-Type': 'application/json'
-            }
-        };
+        // Mock translation function (just returns a static translation for demonstration purposes)
+        function mockTranslate(text, lang) {
+            // This is a simple mock translation for the sake of demonstration.
+            const translations = {
+                fr: "Texte en français",
+                es: "Texto en español",
+                de: "Text auf Deutsch",
+                it: "Testo in italiano",
+                ja: "日本語のテキスト",
+                ko: "한국어 텍스트",
+                zh: "中文文本",
+                ar: "نص باللغة العربية",
+                ru: "Текст на русском",
+                pt: "Texto em português",
+                hi: "हिंदी में टेक्स्ट"
+            };
 
-        // Error handling function to show alerts and log errors
-        function errorHandle(error) {
-            alert('Error occurred: ' + error);
-            console.log("Error:", error);
+            return translations[lang] || "Translation not available";
         }
 
         // Main translation function when the button is clicked
@@ -152,43 +155,22 @@
             var text = inputText.value;
             var targetLanguage = languageSelect.value;
 
-            // Build the request body for the API call
-            const requestBody = {
-                from: 'en', // Set the source language (assuming the input is in English)
-                to: targetLanguage, // Target language from the dropdown
-                html: text // The text to translate (which can be HTML content)
-            };
+            // Mock translation logic
+            if (targetLanguage === '---') {
+                alert("Please select a language.");
+                return;
+            }
 
-            // Update the options to include the correct body for the request
-            options.body = JSON.stringify(requestBody);
-
-            // Make the fetch request to the translation API
-            fetch(url, options)
-                .then(response => response.json()) // Convert the response to JSON
-                .then(json => {
-                    // Log the JSON response to check the data
-                    console.log("Response JSON:", json);
-
-                    // Use the correct key from the API response
-                    if (json.trans) {
-                        outputText.value = json.trans; // Set the translated text in the output field
-                    } else {
-                        // Provide more detailed error message
-                        alert('Translation failed. Response data: ' + JSON.stringify(json));
-                    }
-                })
-                .catch(error => {
-                    // Catch network or fetch-related errors
-                    console.error("Error fetching translation:", error);
-                    alert('An error occurred while trying to fetch the translation.');
-                }); // Handle any errors from fetch or API
+            // Use the mockTranslate function to simulate the translation
+            var translatedText = mockTranslate(text, targetLanguage);
+            outputText.value = translatedText;
         }
 
         // Reset function to clear input and output fields
         function resetHandler() {
             inputText.value = '';
             outputText.value = '';
-            languageSelect.value = 'fr'; // Reset to default language (French)
+            languageSelect.value = '---'; // Reset to default state
         }
 
         // Event listeners for translate and reset buttons
