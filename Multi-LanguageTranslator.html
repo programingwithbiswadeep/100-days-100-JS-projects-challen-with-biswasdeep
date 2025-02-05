@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Language Translator</title>
+
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f0f8ff;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .header {
+            background-color: #4e73df;
+            color: white;
+            text-align: center;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            padding: 1em 0px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .card {
+            border-radius: 1rem;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .btn-translate,
+        .btn-reset {
+            background-color: #4e73df;
+            border-radius: 0.5rem;
+            color: white;
+            padding: 5px;
+            margin: 0.5em 0px;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-translate:hover,
+        .btn-reset:hover {
+            background-color: #2e59d9;
+        }
+
+        textarea {
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            font-size: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            padding: 1em;
+        }
+
+        .form-label {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>Multi-Language Translator</h1>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="language-select" class="form-label">Select Language:</label>
+                    <select id="language-select" class="form-select">
+                        <option value="---">----</option>
+                        <option value="fr">French</option>
+                        <option value="es">Spanish</option>
+                        <option value="de">German</option>
+                        <option value="it">Italian</option>
+                        <option value="ja">Japanese</option>
+                        <option value="ko">Korean</option>
+                        <option value="zh">Chinese</option>
+                        <option value="ar">Arabic</option>
+                        <option value="ru">Russian</option>
+                        <option value="pt">Portuguese</option>
+                        <option value="hi">hindi</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="input-text" class="form-label">Enter Text:</label>
+                    <textarea id="input-text" class="form-control" placeholder="Type text here..."></textarea>
+                </div>
+
+                <button id="btn-translate" class="btn btn-translate">Translate</button>
+                <button id="btn-reset" class="btn btn-reset">Reset</button>
+
+                <div class="mb-3">
+                    <label for="output-text" class="form-label">Translated Text:</label>
+                    <textarea id="output-text" class="form-control" placeholder="Your translation will appear here..."
+                        readonly></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var inputText = document.querySelector('#input-text');
+        var outputText = document.querySelector('#output-text');
+        var buttonTranslate = document.querySelector('#btn-translate');
+        var buttonReset = document.querySelector('#btn-reset');
+        var languageSelect = document.querySelector('#language-select');
+
+        // API URL and options for Google Translate API
+        const url = 'https://google-translate113.p.rapidapi.com/api/v1/translator/html';
+        const options = {
+            method: 'POST',
+            headers: {
+                'x-rapidapi-key': '455c0d7a86msh0b66aca9d4dffd2p124126jsn76e1605a6c3a', // Replace with your RapidAPI key
+                'x-rapidapi-host': 'google-translate113.p.rapidapi.com',
+                'Content-Type': 'application/json'
+            }
+        };
+
+        // Error handling function to show alerts and log errors
+        function errorHandle(error) {
+            alert('Error occurred: ' + error);
+            console.log("Error:", error);
+        }
+
+        // Main translation function when the button is clicked
+        function clickHandler() {
+            var text = inputText.value;
+            var targetLanguage = languageSelect.value;
+
+            // Build the request body for the API call
+            const requestBody = {
+                from: 'en', // Set the source language (assuming the input is in English)
+                to: targetLanguage, // Target language from the dropdown
+                html: text // The text to translate (which can be HTML content)
+            };
+
+            // Update the options to include the correct body for the request
+            options.body = JSON.stringify(requestBody);
+
+            // Make the fetch request to the translation API
+            fetch(url, options)
+                .then(response => response.json()) // Convert the response to JSON
+                .then(json => {
+                    // Log the JSON response to check the data
+                    console.log("Response JSON:", json);
+
+                    // Use the correct key from the API response
+                    if (json.trans) {
+                        outputText.value = json.trans; // Set the translated text in the output field
+                    } else {
+                        // Provide more detailed error message
+                        alert('Translation failed. Response data: ' + JSON.stringify(json));
+                    }
+                })
+                .catch(error => {
+                    // Catch network or fetch-related errors
+                    console.error("Error fetching translation:", error);
+                    alert('An error occurred while trying to fetch the translation.');
+                }); // Handle any errors from fetch or API
+        }
+
+        // Reset function to clear input and output fields
+        function resetHandler() {
+            inputText.value = '';
+            outputText.value = '';
+            languageSelect.value = 'fr'; // Reset to default language (French)
+        }
+
+        // Event listeners for translate and reset buttons
+        buttonTranslate.addEventListener("click", clickHandler);
+        buttonReset.addEventListener("click", resetHandler);
+    </script>
+
+    <!-- Popper.js and Bootstrap JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+</body>
+
+</html>
