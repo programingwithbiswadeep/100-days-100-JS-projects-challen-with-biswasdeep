@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Percentage Calculator</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f1f1f1;
+            /* Light grey background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+            color: #333;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 380px;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(to top right, #64b5f6, #2196f3);
+            /* Soft blue gradient */
+        }
+
+        h1 {
+            font-size: 24px;
+            text-align: center;
+            color: #0d47a1;
+            /* Dark blue for the heading */
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .form-control {
+            border: 2px solid #1976d2;
+            /* Blue border for input fields */
+            border-radius: 8px;
+            font-size: 14px;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+
+        .form-control:focus {
+            border-color: #1565c0;
+            /* Darker blue on focus */
+            box-shadow: 0 0 8px rgba(0, 87, 107, 0.5);
+        }
+
+        .btn {
+            text-transform: uppercase;
+            font-weight: 700;
+            font-size: 14px;
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: #1976d2;
+            /* Blue button background */
+            color: #fff;
+            border: none;
+            margin-top: 10px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #1565c0;
+            /* Darker blue on hover */
+            cursor: pointer;
+            transform: scale(1.05);
+        }
+
+        .reset-btn {
+            background-color: #d32f2f;
+            /* Red button for reset */
+            margin-top: 10px;
+        }
+
+        .reset-btn:hover {
+            background-color: #c62828;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+        <h1>Percentage Calculator</h1>
+
+        <!-- First Calculation (Percentage of a Number) -->
+        <div class="mb-3">
+            <input type="number" class="form-control d-inline" id="percent"
+                placeholder="Enter percentage to calculate" />
+            <input type="number" class="form-control d-inline" id="num" placeholder="Enter number to calculate from" />
+            <button class="btn" onclick="percentage_1()">Calculate</button>
+            <div class="mt-2">
+                <input type="text" class="form-control" id="value1" readonly placeholder="Result will appear here" />
+            </div>
+        </div>
+
+        <!-- Second Calculation (What Percent is this of a Number) -->
+        <div class="mb-3">
+            <input type="number" class="form-control d-inline" id="num1" placeholder="Enter part to calculate" />
+            <input type="number" class="form-control d-inline" id="num2" placeholder="Enter total to calculate from" />
+            <button class="btn" onclick="percentage_2()">Calculate</button>
+            <div class="mt-2">
+                <input type="text" class="form-control" id="value2" readonly placeholder="Result will appear here" />
+            </div>
+        </div>
+
+        <!-- Reset Button -->
+        <button class="btn reset-btn" onclick="resetFields()">Reset</button>
+
+    </div>
+
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+
+    <script>
+        function percentage_1() {
+            let percent = document.getElementById("percent").value;
+            let num = document.getElementById("num").value;
+
+            if (percent && num) {
+                let result = (num / 100) * percent;
+                document.getElementById("value1").value = result.toFixed(2);
+            } else {
+                alert("Please enter both the percentage and the number.");
+            }
+        }
+
+        function percentage_2() {
+            let num1 = document.getElementById("num1").value;
+            let num2 = document.getElementById("num2").value;
+
+            if (num1 && num2) {
+                let result = (num1 * 100) / num2;
+                document.getElementById("value2").value = result.toFixed(2) + "%";
+            } else {
+                alert("Please enter both the part and the total.");
+            }
+        }
+
+        // Reset function to clear inputs and results
+        function resetFields() {
+            document.getElementById("percent").value = "";
+            document.getElementById("num").value = "";
+            document.getElementById("value1").value = "";
+            document.getElementById("num1").value = "";
+            document.getElementById("num2").value = "";
+            document.getElementById("value2").value = "";
+        }
+    </script>
+
+</body>
+
+</html>
