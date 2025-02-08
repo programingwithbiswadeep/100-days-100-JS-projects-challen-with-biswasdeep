@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Blob Generator</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: #f4f7fc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 700px;
+            text-align: center;
+        }
+
+        .heading {
+            font-size: 28px;
+            color: #4a4a4a;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .output {
+            background-color: #fff;
+            width: 100%;
+            height: 180px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        #blob {
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, #ff0099, #660066);
+            border-radius: 50%;
+            box-shadow: 6px 6px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .control-group {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .control-group input {
+            width: 100px;
+            padding: 8px;
+            border-radius: 8px;
+            background-color: #f0f0f0;
+            border: none;
+            font-size: 14px;
+        }
+
+        .control-group input:focus {
+            outline: none;
+            background-color: #fff;
+            border: 1px solid #ff0099;
+            box-shadow: 0 0 5px rgba(255, 0, 153, 0.3);
+        }
+
+        .sliders {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .sliders input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 8px;
+            background: linear-gradient(90deg, #ff0099, #660066);
+            outline: none;
+        }
+
+        .sliders input[type="range"]:focus {
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-copy {
+            width: 100%;
+            background-color: #ff0099;
+            border: none;
+            color: white;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-copy:hover {
+            background-color: #cc0077;
+        }
+
+        #css-code {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            color: #333;
+            margin-bottom: 15px;
+            outline: none;
+        }
+
+        #css-code:focus {
+            border-color: #ff0099;
+            box-shadow: 0 0 5px rgba(255, 0, 153, 0.3);
+        }
+
+        .blob-controls {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="heading">Advanced Blob Generator</div>
+        <div class="output">
+            <div id="blob"></div>
+        </div>
+
+        <!-- Controls -->
+        <div class="control-group">
+            <div>
+                <label for="blob-height" class="form-label">Height</label>
+                <input type="number" value="150" id="blob-height" class="form-control">
+            </div>
+            <div>
+                <label for="blob-width" class="form-label">Width</label>
+                <input type="number" value="150" id="blob-width" class="form-control">
+            </div>
+        </div>
+
+        <!-- Sliders -->
+        <div class="sliders">
+            <input type="range" value="30" class="form-range" id="radius-one">
+            <input type="range" value="80" class="form-range" id="radius-two">
+            <input type="range" value="60" class="form-range" id="radius-three">
+            <input type="range" value="40" class="form-range" id="radius-four">
+        </div>
+
+        <!-- Color Pickers -->
+        <div class="control-group">
+            <div>
+                <label for="color-one" class="form-label">Color 1</label>
+                <input type="color" id="color-one" class="form-control" value="#ff0099">
+            </div>
+            <div>
+                <label for="color-two" class="form-label">Color 2</label>
+                <input type="color" id="color-two" class="form-control" value="#660066">
+            </div>
+        </div>
+
+        <!-- Output & Copy Button -->
+        <input type="text" id="css-code" class="form-control" readonly>
+
+        <div class="control-group gap-5">
+            <button id="copy" class="btn-copy">Copy CSS Code</button>
+            <button id="generate-sharp" class="btn-copy">Generate Sharp Shape</button>
+        </div>
+
+
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let outputCode = document.getElementById("css-code");
+        let sliders = document.querySelectorAll("input[type='range']");
+        let inputs = document.querySelectorAll("input[type='number']");
+        let colorOne = document.getElementById("color-one");
+        let colorTwo = document.getElementById("color-two");
+
+        // Existing code for blob generation
+        function createBlob() {
+            let radiusOne = sliders[0].value;
+            let radiusTwo = sliders[1].value;
+            let radiusThree = sliders[2].value;
+            let radiusFour = sliders[3].value;
+
+            let blobHeight = inputs[0].value;
+            let blobWidth = inputs[1].value;
+
+            let borderRadius = `${radiusOne}% ${100 - radiusOne}% ${100 - radiusThree}% ${radiusThree}% / ${radiusFour}% ${radiusTwo}% ${100 - radiusTwo}% ${100 - radiusFour}%`;
+
+            let gradient = `radial-gradient(circle, ${colorOne.value}, ${colorTwo.value})`;
+
+            document.getElementById("blob").style.cssText = `border-radius: ${borderRadius}; height: ${blobHeight}px; width: ${blobWidth}px; background: ${gradient};`;
+
+            outputCode.value = `border-radius: ${borderRadius}; background: ${gradient};`;
+        }
+
+        // Event listeners for manual controls
+        sliders.forEach(function (slider) {
+            slider.addEventListener("input", createBlob);
+        });
+
+        inputs.forEach(function (inp) {
+            inp.addEventListener("change", createBlob);
+        });
+
+        colorOne.addEventListener("input", createBlob);
+        colorTwo.addEventListener("input", createBlob);
+
+        // Button to generate sharp shape automatically
+        document.getElementById("generate-sharp").addEventListener("click", function () {
+            let blobHeight = 150;
+            let blobWidth = 150;
+
+            // Random sharp edge values
+            let sharpEdges = [
+                Math.floor(Math.random() * 40),   // sharpness for top-left
+                Math.floor(Math.random() * 40),   // sharpness for top-right
+                Math.floor(Math.random() * 40),   // sharpness for bottom-right
+                Math.floor(Math.random() * 40),   // sharpness for bottom-left
+            ];
+
+            let radiusOne = sharpEdges[0];
+            let radiusTwo = sharpEdges[1];
+            let radiusThree = sharpEdges[2];
+            let radiusFour = sharpEdges[3];
+
+            let borderRadius = `${radiusOne}% ${radiusTwo}% ${radiusThree}% ${radiusFour}% / ${radiusOne}% ${radiusTwo}% ${radiusThree}% ${radiusFour}%`;
+
+            let gradient = `radial-gradient(circle, ${colorOne.value}, ${colorTwo.value})`;
+
+            document.getElementById("blob").style.cssText = `border-radius: ${borderRadius}; height: ${blobHeight}px; width: ${blobWidth}px; background: ${gradient};`;
+
+            outputCode.value = `border-radius: ${borderRadius}; background: ${gradient};`;
+        });
+
+        // Copy button functionality
+        document.getElementById("copy").addEventListener("click", function () {
+            outputCode.select();
+            document.execCommand('copy');
+            alert('CSS Code Copied!');
+        });
+
+        createBlob();  // Initialize blob
+    </script>
+</body>
+
+</html>
