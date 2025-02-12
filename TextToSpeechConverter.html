@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Text To Speech Converter</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Roboto", sans-serif;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #da464b, #9a6859);
+        }
+
+        .wrapper {
+            width: 400px;
+            padding: 30px;
+            border-radius: 10px;
+            background: #fff;
+            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .wrapper header {
+            font-size: 26px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .wrapper form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .row {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .row label {
+            font-size: 16px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        textarea,
+        select,
+        button {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        textarea {
+            resize: none;
+            height: 120px;
+        }
+
+        button {
+            background: #ff4b5c;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #e04350;
+        }
+
+        #reset {
+            display: flex;
+            background: #333;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.3s;
+            justify-content: center;
+        }
+
+        #reset:hover {
+            background: #222;
+        }
+
+        select {
+            position: relative;
+            z-index: 10;
+            overflow: visible;
+        }
+    </style>
+</head>
+
+<body onload="resetEverything()">
+    <div class="wrapper">
+        <header>Text To Speech</header>
+        <form action="#">
+            <div class="row">
+                <label>Enter Text</label>
+                <textarea></textarea>
+            </div>
+            <div class="row">
+                <label>Select Voice</label>
+                <select></select>
+            </div>
+            <button>Convert To Speech</button>
+            <div id="reset">Reset</div>
+        </form>
+    </div>
+    <script>
+        const textarea = document.querySelector("textarea"),
+            voicelist = document.querySelector("select"),
+            speechbtn = document.querySelector("button"),
+            resetbtn = document.getElementById("reset");
+
+        let synth = speechSynthesis;
+
+        function voiceSpeech() {
+            voicelist.innerHTML = "";
+            for (let voice of synth.getVoices()) {
+                let selected = voice.name === "Google US English" ? "selected" : "";
+                let option = `<option value="${voice.name}" ${selected}>${voice.name} (${voice.lang})</option>`;
+                voicelist.insertAdjacentHTML("beforeend", option);
+            }
+        }
+
+        synth.addEventListener("voiceschanged", voiceSpeech);
+        voiceSpeech();
+
+        function textToSpeech(text) {
+            let utterance = new SpeechSynthesisUtterance(text);
+            for (let voice of synth.getVoices()) {
+                if (voice.name === voicelist.value) {
+                    utterance.voice = voice;
+                }
+            }
+            synth.speak(utterance);
+        }
+
+        speechbtn.addEventListener("click", (event) => {
+            event.preventDefault();
+            if (textarea.value !== "") {
+                if (!synth.speaking) {
+                    synth.cancel();
+                    setTimeout(() => {
+                        textToSpeech(textarea.value);
+                    }, 500);
+                }
+            }
+        });
+
+        resetbtn.addEventListener("click", (event) => {
+            event.preventDefault();
+            resetEverything();
+        });
+
+        function resetEverything() {
+            synth.cancel();
+            textarea.value = "";
+            speechbtn.innerText = "Convert To Speech";
+        }
+    </script>
+</body>
+
+</html>
