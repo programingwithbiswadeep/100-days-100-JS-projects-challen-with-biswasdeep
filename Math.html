@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Math Game</title>
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500;600&display=swap" rel="stylesheet" />
+    <!-- Custom Styles -->
+    <style>
+        body {
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.8), rgba(155, 89, 182, 0.8));
+            font-family: "Roboto", sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2em;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .container:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        h3 {
+            font-size: 2.2em;
+            color: #080808;
+            margin-bottom: 1em;
+            font-weight: 600;
+        }
+
+        #question {
+            font-size: 2.5em;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 1.5em;
+        }
+
+        input {
+            font-size: 1.2em;
+            width: 109px;
+            padding: 0.8em;
+            text-align: center;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            margin-bottom: 1.5em;
+            outline: none;
+            transition: border 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            left: 92px;
+            top: -36px;
+        }
+
+        input:focus {
+            border-color: #8e44ad;
+            box-shadow: 0 0 10px rgba(142, 68, 173, 0.7);
+        }
+
+        .btn-custom {
+            font-size: 1.3em;
+            font-weight: 600;
+            padding: 0.8em 2.5em;
+            background-color: #0a314b;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            position: relative;
+            top: 25 px;
+            left: 4px;
+        }
+
+        .btn-custom:hover {
+            background-color: #2980b9;
+            transform: translateY(-3px);
+        }
+
+        .btn-custom:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        .result-message {
+            font-size: 1.6em;
+            color: #ffffff;
+            margin-top: 1em;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        #error-msg {
+            color: #e74c3c;
+            margin-top: 3em;
+            font-size: 1.2em;
+            display: none;
+        }
+
+        .hide {
+            display: none;
+        }
+
+        .highlight {
+            color: #8e44ad;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 2em;
+            }
+
+            h3 {
+                font-size: 1.8em;
+            }
+
+            #question {
+                font-size: 2.2em;
+            }
+
+            input {
+                width: 100px;
+                font-size: 1.4em;
+            }
+
+            .btn-custom {
+                padding: 0.6em 2em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h3>Choose the Correct Number Or Operator</h3>
+        <div id="question"></div>
+        <input type="text" id="inputValue" placeholder="?" class="form-control hide" />
+        <button id="submit-btn" class="btn btn-custom hide"
+            style="position: relative; top:60px; left:-px">Submit</button>
+        <p id="error-msg">Please fill in a valid answer.</p>
+        <div class="result-message" id="result"></div>
+        <button id="start-btn" class="btn btn-custom">Start Game</button>
+    </div>
+
+    <script>
+        const operators = ["+", "-", "*"];
+        const startBtn = document.getElementById("start-btn");
+        const question = document.getElementById("question");
+        const submitBtn = document.getElementById("submit-btn");
+        const errorMessage = document.getElementById("error-msg");
+        const resultMessage = document.getElementById("result");
+        const inputField = document.getElementById("inputValue");
+        let answerValue;
+        let operatorQuestion;
+        let questionText;
+
+        const randomValue = (min, max) => Math.floor(Math.random() * (max - min)) + min;
+
+        const questionGenerator = () => {
+            let [num1, num2] = [randomValue(1, 20), randomValue(1, 20)];
+            let randomOperator = operators[Math.floor(Math.random() * operators.length)];
+
+            // Avoid negative results for subtraction (if num2 is greater than num1)
+            if (randomOperator == "-" && num2 > num1) {
+                [num1, num2] = [num2, num1];
+            }
+
+            let solution = eval(`${num1}${randomOperator}${num2}`);
+            let randomVar = randomValue(1, 5); // Randomly select which part is missing
+
+            // Handling each case where "?" should appear
+            if (randomVar == 1) {
+                answerValue = num1;
+                questionText = `? ${randomOperator} ${num2} = ${solution}`;  // Missing number 1
+            } else if (randomVar == 2) {
+                answerValue = num2;
+                questionText = `${num1} ${randomOperator} ? = ${solution}`;  // Missing number 2
+            } else if (randomVar == 3) {
+                answerValue = randomOperator;
+                operatorQuestion = true;
+                questionText = `${num1} ? ${num2} = ${solution}`;  // Missing operator
+            } else {
+                answerValue = solution;
+                questionText = `${num1} ${randomOperator} ${num2} = ?`;  // Missing result
+            }
+
+            // Ensure the question is updated with the question text correctly
+            question.innerHTML = questionText;
+        };
+
+        startBtn.addEventListener("click", () => {
+            resultMessage.textContent = "";
+            errorMessage.style.display = "none";
+            startBtn.style.display = "none";
+            submitBtn.classList.remove("hide");
+            inputField.classList.remove("hide");
+            questionGenerator();
+        });
+
+        submitBtn.addEventListener("click", () => {
+            let userInput = inputField.value.trim();
+            errorMessage.style.display = "none";
+            resultMessage.style.opacity = 1;
+
+            if (userInput) {
+                if (userInput == answerValue) {
+                    resultMessage.innerHTML = `Yippie!! <span class="text-success">Correct</span> Answer`;
+
+                    // Replace the '?' with the correct answer in the question
+                    let updatedQuestion = questionText.replace('?', `<span class="highlight">${userInput}</span>`);
+                    question.innerHTML = updatedQuestion;
+                } else if (operatorQuestion && !operators.includes(userInput)) {
+                    errorMessage.textContent = "Please enter a valid operator (+, -, *)";
+                    errorMessage.style.display = "block";
+                    resultMessage.innerHTML = `Oops!! <span class="text-danger">Wrong</span> Answer`;
+                } else {
+                    resultMessage.innerHTML = `Oops!! <span class="text-danger">Wrong</span> Answer`;
+                }
+
+                inputField.value = '';
+
+                setTimeout(() => {
+                    resultMessage.style.opacity = 0;
+                    errorMessage.style.display = "none";
+                    inputField.classList.add("hide");
+                    submitBtn.classList.add("hide");
+                    startBtn.style.display = "inline-block";
+                }, 1500);
+            } else {
+                errorMessage.textContent = "Input Cannot Be Empty";
+                errorMessage.style.display = "block";
+            }
+        });
+    </script>
+</body>
+
+</html>
