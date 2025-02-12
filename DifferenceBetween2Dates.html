@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Difference Between 2 Dates</title>
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            background: linear-gradient(135deg, #8b043d, #38050e);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 90vw;
+            max-width: 40em;
+            background-color: #ffffff;
+            padding: 3em;
+            border-radius: 20px;
+            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        h1 {
+            color: #16083d;
+            margin-bottom: 1em;
+            font-size: 24px;
+        }
+
+        .inp-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 1em;
+        }
+
+        label {
+            color: #16083d;
+            font-weight: 600;
+            margin-bottom: 0.5em;
+            display: block;
+        }
+
+        input[type="date"] {
+            font-size: 16px;
+            padding: 0.8em;
+            color: #333;
+            border: 2px solid #38050e;
+            outline: none;
+            border-radius: 10px;
+            width: 100%;
+        }
+
+        .btn-wrapper {
+            display: flex;
+            justify-content: center;
+            gap: 1em;
+            margin-top: 1.5em;
+        }
+
+        button {
+            background-color:  #5c595a;
+            color: #ffffff;
+            font-size: 18px;
+            border: none;
+            padding: 0.8em 2em;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        button:hover {
+            background-color: #050505;
+            transform: scale(1.05);
+        }
+
+        #reset {
+            background-color: #5c595a;
+        }
+
+        #reset:hover {
+            background-color: #000000;
+        }
+
+        #output {
+            background-color: rgba(255, 117, 140, 0.1);
+            text-align: center;
+            padding: 1.2em;
+            color: #16083d;
+            font-size: 1.2em;
+            font-weight: 600;
+            border-radius: 10px;
+            margin-top: 1em;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Calculate Date Difference</h1>
+        <div class="inp-wrapper">
+            <div class="date-wrapper">
+                <label for="date-1">Start Date</label>
+                <input type="date" id="date-1" />
+            </div>
+            <div class="date-wrapper">
+                <label for="date-2">End Date</label>
+                <input type="date" id="date-2" />
+            </div>
+        </div>
+        <div class="btn-wrapper">
+            <button id="submit">Calculate</button>
+            <button id="reset">Reset</button>
+        </div>
+        <div id="output">Select the dates to get started</div>
+    </div>
+    <!-- Script -->
+    <script>
+        let submit = document.getElementById("submit");
+        let reset = document.getElementById("reset");
+        let output = document.getElementById("output");
+
+        submit.addEventListener("click", () => {
+            let date1 = new Date(document.getElementById("date-1").value);
+            let date2 = new Date(document.getElementById("date-2").value);
+
+            if (date1.getTime() && date2.getTime()) {
+                let timeDifference = date2.getTime() - date1.getTime();
+                let dayDifference = Math.abs(timeDifference / (1000 * 3600 * 24));
+                output.innerHTML = `Difference between the two dates is <span>${dayDifference}</span> days`;
+            } else {
+                output.innerHTML = "Please select a valid date";
+            }
+        });
+
+        reset.addEventListener("click", () => {
+            document.getElementById("date-1").value = "";
+            document.getElementById("date-2").value = "";
+            output.innerHTML = "Select the dates to get started";
+        });
+    </script>
+</body>
+
+</html>
