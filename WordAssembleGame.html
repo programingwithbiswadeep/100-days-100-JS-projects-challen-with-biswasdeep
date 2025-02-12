@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Assemble Game</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            margin: 50px;
+            background-color: #1e3a5f;
+            color: #fff;
+        }
+        .game-container {
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            display: inline-block;
+            max-width: 450px;
+            width: 100%;
+            color: #333;
+        }
+        .hidden {
+            display: none;
+        }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 12px;
+            color: #0d3b66;
+        }
+        p {
+            font-size: 16px;
+            color: #5a5a5a;
+        }
+        .letters, .dropzone {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        .letters {
+            background: #f4a261;
+        }
+        .letter {
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #264653;
+            cursor: grab;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 3px 4px 7px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease, background 0.3s;
+        }
+        .letter:hover {
+            transform: scale(1.1);
+            background: #2a9d8f;
+            color: #ffffff;
+        }
+        .dropzone {
+            border: 2px dashed #264653;
+            background: #e9c46a;
+            min-height: 65px;
+        }
+        .button {
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            background: #264653;
+            color: white;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background 0.3s, transform 0.2s;
+            margin: 8px;
+        }
+        .button:hover {
+            background: #2a9d8f;
+            transform: scale(1.05);
+        }
+        #resetBtn {
+            background: #e76f51;
+        }
+        #resetBtn:hover {
+            background: #c44536;
+        }
+        #tryAgain {
+            background: #f94144;
+            display: none;
+        }
+        #tryAgain:hover {
+            background: #d90429;
+        }
+        #message {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container" id="welcomeScreen">
+        <h1>Word Assemble Game</h1>
+        <button class="button" onclick="startGame()">Start Game</button>
+    </div>
+
+    <div class="game-container hidden" id="gameScreen">
+        <h1>Word Assemble Game</h1>
+        <p>Drag and arrange the letters to form the correct word</p>
+        <div class="letters" id="lettersContainer"></div>
+        <div class="dropzone" id="dropzone" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <br>
+        <button class="button" onclick="checkWord()">Check</button>
+        <button class="button" id="resetBtn" onclick="initializeGame()">Reset</button>
+        <button class="button" id="tryAgain" onclick="initializeGame()">Try Again</button>
+        <p id="message"></p>
+    </div>
+
+    <script>
+        let selectedWord;
+
+        function startGame() {
+            document.getElementById("welcomeScreen").classList.add("hidden");
+            document.getElementById("gameScreen").classList.remove("hidden");
+            initializeGame();
+        }
+
+        function initializeGame() {
+            document.getElementById("lettersContainer").innerHTML = "";
+            document.getElementById("dropzone").innerHTML = "";
+            document.getElementById("message").textContent = "";
+            document.getElementById("message").style.color = "black";
+            document.getElementById("tryAgain").style.display = "none";
+            
+            const words = ["LEOPARD", "HOUSE", "KANGAROO", "PLANT", "JOURNAL", "POTATO"];
+            selectedWord = words[Math.floor(Math.random() * words.length)];
+            let shuffledWord = selectedWord.split('').sort(() => Math.random() - 0.5);
+
+            shuffledWord.forEach(letter => {
+                let div = document.createElement("div");
+                div.textContent = letter;
+                div.classList.add("letter");
+                div.draggable = true;
+                div.setAttribute("ondragstart", "drag(event)");
+                div.id = "letter-" + Math.random();
+                document.getElementById("lettersContainer").appendChild(div);
+            });
+        }
+
+        function drag(event) {
+            event.dataTransfer.setData("text", event.target.id);
+        }
+
+        function allowDrop(event) {
+            event.preventDefault();
+        }
+
+        function drop(event) {
+            event.preventDefault();
+            let letterId = event.dataTransfer.getData("text");
+            let letterElement = document.getElementById(letterId);
+            if (letterElement && letterElement.parentElement !== document.getElementById("dropzone")) {
+                document.getElementById("dropzone").appendChild(letterElement);
+            }
+        }
+
+        function checkWord() {
+            let formedWord = "";
+            document.querySelectorAll(".dropzone .letter").forEach(el => {
+                formedWord += el.textContent;
+            });
+            let message = document.getElementById("message");
+            let tryAgainBtn = document.getElementById("tryAgain");
+
+            if (formedWord === selectedWord) {
+                message.textContent = "🎉 Correct! Well done!";
+                message.style.color = "green";
+                tryAgainBtn.style.display = "none";
+            } else {
+                message.textContent = "❌ Try Again!";
+                message.style.color = "red";
+                tryAgainBtn.style.display = "inline-block";
+            }
+        }
+    </script>
+</body>
+</html>
