@@ -1,1 +1,279 @@
-*This is a personal project. For the source code, please contact me.*
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News App</title>
+    <!-- Link to Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f9f3f3;
+            /* Soft off-white background */
+            color: #333;
+        }
+
+        h1 {
+            font-weight: 600;
+            color: #4b4b4b;
+            /* Dark Gray */
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        /* Colorful Button */
+        .btn-primary {
+            background-color: #ff6f61;
+            /* Coral red */
+            border-color: #ff6f61;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #e85a4f;
+            /* Darker Coral */
+            border-color: #e85a4f;
+            transform: translateY(-2px);
+        }
+
+        /* Search Bar */
+        .search-bar {
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .form-control {
+            border-radius: 50px;
+            font-size: 1.1rem;
+            border: 2px solid #ff6f61;
+        }
+
+        .form-control:focus {
+            border-color: #ff6f61;
+            box-shadow: 0px 4px 8px rgba(255, 111, 97, 0.5);
+        }
+
+        /* Card Styling */
+        .card-body {
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .card-body:hover {
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .card {
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: #fff;
+            transition: transform 0.3s ease;
+            margin-bottom: 30px;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+        .card-img-top {
+            height: 250px;
+            object-fit: cover;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #3d3d3d;
+        }
+
+        .card-text {
+            font-size: 1rem;
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
+
+        .publish-date {
+            font-size: 0.9rem;
+            color: #007bff;
+            margin-top: 10px;
+        }
+
+        .publish-date span {
+            font-weight: 600;
+        }
+
+        .card-footer {
+            background-color: #f1f1f1;
+            /* Light Gray */
+            border-top: 1px solid #e0e0e0;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .card-footer a {
+            font-size: 1rem;
+            color: #ff6f61;
+            /* Coral */
+            text-decoration: none;
+        }
+
+        .card-footer a:hover {
+            color: #e85a4f;
+            /* Darker Coral */
+            text-decoration: underline;
+        }
+
+        /* Loading Spinner */
+        #loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 767px) {
+            .card-body {
+                padding: 15px;
+            }
+
+            .search-bar {
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h1>Latest News</h1>
+
+        <!-- Search bar -->
+        <div class="search-bar">
+            <form id="search-form" class="form-inline justify-content-center">
+                <input type="text" class="form-control mr-2" id="search-input" placeholder="Search for news..."
+                    aria-label="Search">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+        </div>
+
+        <div id="news-container" class="row">
+            <!-- News articles will be inserted here -->
+        </div>
+    </div>
+
+    <!-- Loading spinner -->
+    <div id="loading" class="text-center">
+        <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Script to fetch news articles -->
+    <script>
+        const apiKey = '81d4af075a4b40fa9a35cdab096aec9a'; // Your News API key
+        const apiUrl = `https://newsapi.org/v2/top-headlines?country=us&apiKey=${apiKey}`;
+
+        const newsContainer = document.getElementById('news-container');
+        const loadingElement = document.getElementById('loading');
+        const searchForm = document.getElementById('search-form');
+        const searchInput = document.getElementById('search-input');
+
+        async function fetchNews(query = '') {
+            try {
+                loadingElement.style.display = 'block'; // Show loading spinner
+                const url = query ?
+                    `https://newsapi.org/v2/everything?q=${query}&apiKey=${apiKey}` :
+                    ''; // Empty string means no news is fetched on initial load.
+
+                if (url === '') {
+                    loadingElement.style.display = 'none';
+                    return; // Do nothing if no query is entered yet.
+                }
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                // Hide loading spinner
+                loadingElement.style.display = 'none';
+
+                if (data.status === 'ok') {
+                    displayNews(data.articles);
+                } else {
+                    newsContainer.innerHTML = ''; // Keep empty if no news found
+                }
+            } catch (error) {
+                loadingElement.style.display = 'none';
+                newsContainer.innerHTML = ''; // Keep empty in case of error
+            }
+        }
+
+        function displayNews(articles) {
+            // Clear any existing news articles
+            newsContainer.innerHTML = '';
+
+            // Loop through the news articles and add them to the container
+            articles.forEach(article => {
+                // Do nothing if the article doesn't have a valid image or link
+                if (!article.urlToImage || !article.url) return;
+
+                // Format the date
+                const publishDate = new Date(article.publishedAt);
+                const formattedDate = publishDate.toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                });
+
+                // If valid, append the article details with title, description, and publish date
+                const newsItem = document.createElement('div');
+                newsItem.classList.add('col-md-4', 'mb-4');
+
+                // Display the article content (image, title, description, publish date, and Read more button)
+                newsItem.innerHTML = `
+                    <div class="card">
+                        <img src="${article.urlToImage}" class="card-img-top" alt="news image">
+                        <div class="card-body">
+                            <h5 class="card-title">${article.title}</h5>
+                            <p class="card-text">${article.description || 'No description available.'}</p>
+                            <p class="publish-date">Published on: <span>${formattedDate}</span></p>
+                        </div>
+                        <div class="card-footer">
+                            <a href="${article.url}" target="_blank">Read more</a>
+                        </div>
+                    </div>
+                `;
+
+                newsContainer.appendChild(newsItem);
+            });
+        }
+
+        // Handle form submission for search
+        searchForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const query = searchInput.value.trim();
+            if (query) {
+                fetchNews(query); // Fetch news based on search query
+            }
+        });
+    </script>
+
+    <!-- Scripts for Bootstrap and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>
