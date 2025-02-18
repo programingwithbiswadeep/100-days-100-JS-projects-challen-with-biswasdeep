@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Box Shadow Generator</title>
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: #ecf0f1;
+            color: #34495e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+            max-width: 600px;
+            width: 90%;
+            border: 1px solid #ddd;
+        }
+
+        .text-center h2 {
+            color: #34495e;
+            font-size: 1.6rem;
+            margin-bottom: 30px;
+        }
+
+        .result {
+            padding: 30px 0;
+            text-align: center;
+        }
+
+        #element {
+            height: 80px;
+            width: 80px;
+            background-color: #1abc9c;
+            border-radius: 12px;
+            margin: auto;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .sliders input[type="range"] {
+            width: 100%;
+            border-radius: 8px;
+            background-color: #bdc3c7;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #34495e;
+        }
+
+        .code-wrapper button {
+            background-color: #1abc9c;
+            border-radius: 8px;
+            border: none;
+            color: #ffffff;
+            padding: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100px;
+            margin-right: 10px;
+        }
+
+        .code-wrapper button:hover {
+            background-color: #16a085;
+        }
+
+        .reset-button {
+            background-color: #e74c3c;
+        }
+
+        .reset-button:hover {
+            background-color: #c0392b;
+        }
+
+        .input-wrapper input[type="checkbox"] {
+            margin-left: 10px;
+        }
+
+        textarea {
+            resize: none;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #34495e;
+            background-color: #f4f7fa;
+            width: 100%;
+            margin-right: 10px;
+        }
+
+        .row .col-md-6 {
+            padding-right: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="text-center">
+            <h2>Box Shadow Generator</h2>
+            <div class="result">
+                <div id="element"></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="h-shadow" class="form-label">Horizontal Shadow:</label>
+                    <input type="range" id="h-shadow" class="form-range" max="100" min="-100" value="0" />
+                </div>
+                <div class="mb-3">
+                    <label for="v-shadow" class="form-label">Vertical Shadow:</label>
+                    <input type="range" id="v-shadow" class="form-range" max="100" min="-100" value="0" />
+                </div>
+                <div class="mb-3">
+                    <label for="blur-radius" class="form-label">Blur Radius:</label>
+                    <input type="range" id="blur-radius" class="form-range" max="100" min="0" value="0" />
+                </div>
+                <div class="mb-3">
+                    <label for="spread-radius" class="form-label">Spread Radius:</label>
+                    <input type="range" id="spread-radius" class="form-range" max="50" min="-50" value="0" />
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="shadow-color" class="form-label">Shadow Color:</label>
+                    <input type="color" id="shadow-color" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label for="shadow-color-opacity" class="form-label">Shadow Color Opacity:</label>
+                    <input type="range" id="shadow-color-opacity" class="form-range" max="1" min="0" step="0.1"
+                        value="1" />
+                </div>
+                <div class="mb-3 input-wrapper">
+                    <label for="shadow-inset" class="form-label me-2">Inset Shadow:</label>
+                    <input type="checkbox" id="shadow-inset" />
+                </div>
+            </div>
+        </div>
+        <div class="code-wrapper d-flex align-items-center mt-4">
+            <textarea id="code" rows="2" class="form-control me-2" readonly></textarea>
+            <button onclick="copyCode()">Copy</button>
+            <button class="reset-button" onclick="resetValues()">Reset</button>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS, Popper.js (needed for Bootstrap) -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+
+    <!-- Script -->
+    <script>
+        let elem = document.getElementById("element");
+        let code = document.getElementById("code");
+
+        // Selecting the input elements directly
+        let hShadowInput = document.getElementById("h-shadow");
+        let vShadowInput = document.getElementById("v-shadow");
+        let blurRadiusInput = document.getElementById("blur-radius");
+        let spreadRadiusInput = document.getElementById("spread-radius");
+        let shadowColorInput = document.getElementById("shadow-color");
+        let shadowColorOpacityInput = document.getElementById("shadow-color-opacity");
+        let shadowInsetInput = document.getElementById("shadow-inset");
+
+        // Adding input event listeners to each slider
+        hShadowInput.addEventListener("input", generateShadow);
+        vShadowInput.addEventListener("input", generateShadow);
+        blurRadiusInput.addEventListener("input", generateShadow);
+        spreadRadiusInput.addEventListener("input", generateShadow);
+        shadowColorInput.addEventListener("input", generateShadow);
+        shadowColorOpacityInput.addEventListener("input", generateShadow);
+        shadowInsetInput.addEventListener("change", generateShadow);
+
+        function generateShadow() {
+            let hShadow = hShadowInput.value;
+            let vShadow = vShadowInput.value;
+            let blurRadius = blurRadiusInput.value;
+            let spreadRadius = spreadRadiusInput.value;
+            let shadowColor = shadowColorInput.value;
+            let shadowColorOpacity = shadowColorOpacityInput.value;
+            let shadowInset = shadowInsetInput.checked;
+
+            let boxShadow = shadowInset
+                ? `inset ${hShadow}px ${vShadow}px ${blurRadius}px ${spreadRadius}px ${hexToRgba(shadowColor, shadowColorOpacity)}`
+                : `${hShadow}px ${vShadow}px ${blurRadius}px ${spreadRadius}px ${hexToRgba(shadowColor, shadowColorOpacity)}`;
+
+            elem.style.boxShadow = boxShadow;
+            code.textContent = `box-shadow: ${boxShadow};`;
+        }
+
+        function hexToRgba(shadowColor, shadowColorOpacity) {
+            let r = parseInt(shadowColor.substr(1, 2), 16);
+            let g = parseInt(shadowColor.substr(3, 2), 16);
+            let b = parseInt(shadowColor.substr(5, 2), 16);
+            return `rgba(${r},${g},${b},${shadowColorOpacity})`;
+        }
+
+        function copyCode() {
+            // Using the newer clipboard API
+            navigator.clipboard.writeText(code.textContent).then(() => {
+                alert("Code Copied To Clipboard");
+            });
+        }
+
+        function resetValues() {
+            // Reset the values to their defaults
+            hShadowInput.value = 0;
+            vShadowInput.value = 0;
+            blurRadiusInput.value = 0;
+            spreadRadiusInput.value = 0;
+            shadowColorInput.value = "#1abc9c";
+            shadowColorOpacityInput.value = 1;
+            shadowInsetInput.checked = false;
+
+            // Reset the box-shadow of the element
+            generateShadow();
+        }
+
+        // Initialize the shadow when the page loads
+        window.onload = generateShadow;
+    </script>
+</body>
+
+</html>
