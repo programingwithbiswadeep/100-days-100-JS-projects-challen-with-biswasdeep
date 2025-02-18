@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600&display=swap" rel="stylesheet">
+    <title>Gradient Generator</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+            border: none;
+            outline: none;
+        }
+
+        body {
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #fff;
+            width: 400px;
+            padding: 50px 30px;
+            position: absolute;
+            transform: translate(-50%, -50%);
+            top: 50%;
+            left: 50%;
+            border-radius: 10px;
+            box-shadow: 0 20px 25px rgba(0, 0, 0, 0.25);
+        }
+
+        .container *:not(i) {
+            font-family: 'Rubik', sans-serif;
+        }
+
+        .colors {
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        input[type="color"] {
+            appearance: none;
+            -webkit-appearance: none;
+            background-color: transparent;
+            width: 100px;
+            height: 45px;
+            cursor: pointer;
+        }
+
+        input[type="color"]::-webkit-color-swatch {
+            border-radius: 20px;
+            border: none;
+        }
+
+        .buttons {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            margin: 30px 0;
+        }
+
+        .buttons button {
+            height: 35px;
+            width: 35px;
+            background-color: transparent;
+            border: 2px solid #d5d5dc;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .rotate-icon i {
+            transform: rotate(45deg);
+        }
+
+        .buttons .active {
+            border: none;
+            background-color: #4a6ee0;
+            color: #fff;
+        }
+
+        #submit {
+            display: block;
+            background-color: #4a6ee0;
+            color: #fff;
+            font-size: 16px;
+            padding: 12px 70px;
+            border-radius: 25px;
+            margin: 0 auto 30px auto;
+            cursor: pointer;
+        }
+
+        #reset {
+            display: block;
+            background-color: #4a6ee0;
+            color: #fff;
+            font-size: 16px;
+            padding: 12px 70px;
+            border-radius: 25px;
+            margin: 17px auto 30px auto;
+            cursor: pointer;
+        }
+
+        .output {
+            background-color: #f0f2fc;
+        }
+
+        #code {
+            width: 100%;
+            resize: none;
+            color: #30304a;
+            padding: 10px 20px;
+            background-color: transparent;
+        }
+
+        #copy {
+            font-size: 14px;
+            background-color: #4a6ee0;
+            color: #fff;
+            position: relative;
+            left: 85%;
+            bottom: 10px;
+            border-radius: 3px;
+            padding: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="colors">
+            <input type="color" id="color-a" value="#7986cb">
+            <input type="color" id="color-b" value="#1a237e">
+        </div>
+        <div class="buttons">
+            <button id="direction1" disabled onclick="setDirection('to top', this)">
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            <button id="direction2" class="active" disabled onclick="setDirection('to bottom', this)">
+                <i class="fas fa-arrow-down"></i>
+            </button>
+            <button id="direction3" disabled onclick="setDirection('to right', this)">
+                <i class="fas fa-arrow-right"></i>
+            </button>
+            <button id="direction4" disabled onclick="setDirection('to left', this)">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <button id="direction5" class="rotate-icon" disabled onclick="setDirection('to top right', this)">
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            <button id="direction6" class="rotate-icon" disabled onclick="setDirection('to bottom left', this)">
+                <i class="fas fa-arrow-down"></i>
+            </button>
+            <button id="direction7" class="rotate-icon" disabled onclick="setDirection('to bottom right', this)">
+                <i class="fas fa-arrow-right"></i>
+            </button>
+            <button id="direction8" class="rotate-icon" disabled onclick="setDirection('to top left', this)">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+        </div>
+        <button id="submit" onclick="generateCode()">Generate</button>
+        <div class="output">
+            <textarea id="code" rows="2" readonly></textarea>
+            <button id="copy" onclick="copyText()">Copy</button>
+        </div>
+        <button id="reset" onclick="reset()">Reset</button>
+    </div>
+
+    <script>
+        let colorOne = document.getElementById("color-a");
+        let colorTwo = document.getElementById("color-b");
+        let currentDirection = 'to bottom';
+        let outputCode = document.getElementById("code");
+
+        // Disable all direction buttons initially
+        let directionButtons = document.querySelectorAll(".buttons button");
+        directionButtons.forEach(button => button.disabled = true);
+
+        function setDirection(value, _this) {
+            let direcrtions = document.querySelectorAll(".buttons button");
+            for (let i of direcrtions) {
+                i.classList.remove("active");
+            }
+            _this.classList.add("active");
+            currentDirection = value;
+            generateCode(); // Call generateCode here so it updates immediately when direction changes
+        }
+
+        function generateCode() {
+            let color1 = colorOne.value;
+            let color2 = colorTwo.value;
+
+            outputCode.value = `background-color: linear-gradient(${currentDirection}, ${color1}, ${color2})`;
+            document.getElementsByTagName("BODY")[0].style.backgroundImage = `linear-gradient(${currentDirection}, ${color1}, ${color2})`;
+
+            // Enable direction buttons after generate is clicked
+            directionButtons.forEach(button => button.disabled = false);
+        }
+
+        function copyText() {
+            outputCode.select();
+            document.execCommand('copy');
+            alert("Gradient Copied!");
+        }
+
+        function reset() {
+            colorOne.value = "#00000";
+            colorTwo.value = "#00000";
+            outputCode.value = "background-color:";
+            document.getElementsByTagName("BODY")[0].style.backgroundImage = ""; // Remove background color
+
+            // Disable direction buttons again after reset
+            directionButtons.forEach(button => button.disabled = true);
+        }
+
+        // Initially, call generateCode() to show the default gradient
+        generateCode();
+    </script>
+</body>
+
+</html>
