@@ -1,1 +1,204 @@
-*This is a personal project. For the source code, please contact me.*
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Keyboard</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: url('https://source.unsplash.com/random/1600x900') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .keyboard-container {
+            width: 100%;
+            max-width: 820px;
+            text-align: center;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            /* semi-transparent background */
+            border-radius: 20px;
+            box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            /* Glassmorphism effect */
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            /* subtle border */
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            font-size: 20px;
+            margin-bottom: 30px;
+            border: none;
+            background-color: rgba(0, 0, 0, 0.5);
+            /* semi-transparent background */
+            color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        button.key {
+            padding: 20px;
+            font-size: 22px;
+            cursor: pointer;
+            background-color: rgba(255, 255, 255, 0.1);
+            /* transparent background */
+            color: #171616;
+            border: none;
+            border-radius: 10px;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        button.key:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        button.key:active {
+            background-color: rgba(255, 255, 255, 0.4);
+            box-shadow: none;
+            transform: scale(1);
+        }
+
+        button.key:focus {
+            outline: none;
+        }
+
+        .special-btn {
+            background-color: rgba(255, 59, 48, 0.8);
+            /* Red color */
+        }
+
+        .special-btn:hover {
+            background-color: rgba(255, 59, 48, 1);
+        }
+
+        .keyboard-row {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        /* Responsiveness */
+        @media (max-width: 800px) {
+            .keyboard {
+                grid-template-columns: repeat(8, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .keyboard {
+                grid-template-columns: repeat(7, 1fr);
+            }
+        }
+
+        @media (max-width: 450px) {
+            .keyboard {
+                grid-template-columns: repeat(6, 1fr);
+            }
+
+            input {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="keyboard-container">
+        <input type="text" id="text-output" disabled placeholder="Type here...">
+        <div class="keyboard">
+            <button class="key" onclick="pressKey('Q')">Q</button>
+            <button class="key" onclick="pressKey('W')">W</button>
+            <button class="key" onclick="pressKey('E')">E</button>
+            <button class="key" onclick="pressKey('R')">R</button>
+            <button class="key" onclick="pressKey('T')">T</button>
+            <button class="key" onclick="pressKey('Y')">Y</button>
+            <button class="key" onclick="pressKey('U')">U</button>
+            <button class="key" onclick="pressKey('I')">I</button>
+            <button class="key" onclick="pressKey('O')">O</button>
+            <button class="key" onclick="pressKey('P')">P</button>
+        </div>
+
+        <div class="keyboard-row">
+            <button class="key" onclick="pressKey('A')">A</button>
+            <button class="key" onclick="pressKey('S')">S</button>
+            <button class="key" onclick="pressKey('D')">D</button>
+            <button class="key" onclick="pressKey('F')">F</button>
+            <button class="key" onclick="pressKey('G')">G</button>
+            <button class="key" onclick="pressKey('H')">H</button>
+            <button class="key" onclick="pressKey('J')">J</button>
+            <button class="key" onclick="pressKey('K')">K</button>
+            <button class="key" onclick="pressKey('L')">L</button>
+        </div>
+
+        <div class="keyboard-row">
+            <button class="key" onclick="pressKey('Z')">Z</button>
+            <button class="key" onclick="pressKey('X')">X</button>
+            <button class="key" onclick="pressKey('C')">C</button>
+            <button class="key" onclick="pressKey('V')">V</button>
+            <button class="key" onclick="pressKey('B')">B</button>
+            <button class="key" onclick="pressKey('N')">N</button>
+            <button class="key" onclick="pressKey('M')">M</button>
+        </div>
+
+        <div class="keyboard-row">
+            <button class="key special-btn" onclick="pressKey(' ')">Space</button>
+            <button class="key special-btn" onclick="backspace()">Backspace</button>
+            <button class="key special-btn" onclick="clearText()">Clear</button>
+        </div>
+    </div>
+
+    <script>
+        // Handle key press
+        function pressKey(key) {
+            const textOutput = document.getElementById('text-output');
+            textOutput.value += key;
+        }
+
+        // Handle backspace
+        function backspace() {
+            const textOutput = document.getElementById('text-output');
+            textOutput.value = textOutput.value.slice(0, -1);
+        }
+
+        // Handle clear input
+        function clearText() {
+            const textOutput = document.getElementById('text-output');
+            textOutput.value = '';
+        }
+    </script>
+
+</body>
+
+</html>
