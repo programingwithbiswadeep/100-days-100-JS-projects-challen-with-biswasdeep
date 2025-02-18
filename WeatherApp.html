@@ -1,1 +1,238 @@
-*This is a personal project. For the source code, please contact me.*
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weather App with Alerts</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+    <style>
+        body {
+            font-family: "Roboto", sans-serif;
+            background: linear-gradient(135deg, #ff9a8b, #f2f2f2);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333333;
+        }
+
+        .weather-container {
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            color: #333333;
+        }
+
+        .weather-header {
+            font-size: 32px;
+            font-weight: 700;
+            color: #008080;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        .weather-info h2 {
+            font-size: 50px;
+            color: #ff5722;
+            margin: 0.5em;
+        }
+
+        .weather-info p {
+            color: #616161;
+        }
+
+        .weather-detail h4 {
+            color: #009688;
+        }
+
+        .weather-alerts {
+            background-color: #ffe0b2;
+            padding: 15px;
+            border-radius: 10px;
+            color: #d32f2f;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .weather-card {
+            margin-top: 20px;
+            background: #f1f8e9;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background-color: #008080;
+            border-color: #008080;
+        }
+
+        .btn-primary:hover {
+            background-color: #004d40;
+            border-color: #004d40;
+        }
+
+        .form-control {
+            background-color: #f2f2f2;
+            border: 1px solid #ddd;
+        }
+
+        .mt-4 {
+            margin-top: 0px !important;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        @media (min-width: 1400px) {
+
+            .container,
+            .container-lg,
+            .container-md,
+            .container-sm,
+            .container-xl,
+            .container-xxl {
+                max-width: 500px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+
+    <body>
+        <div class="container">
+            <div class="weather-container">
+                <div class="weather-header">Weather App</div>
+                <div class="mb-3">
+                    <input type="text" id="location" class="form-control" placeholder="Enter location" />
+                </div>
+                <div class="button-container">
+                    <button class="btn btn-primary w-100" onclick="getWeather()">Search</button>
+                    <button class="btn btn-secondary w-50 bg-danger" onclick="resetForm()">Reset</button>
+                </div>
+
+                <div class="weather-info mt-4">
+                    <h2 id="temperature">--°</h2>
+                    <div class="d-flex justify-content-around">
+                        <p id="condition">Condition: --</p>
+                        <p id="high-low">High/Low: --° / --°</p>
+                    </div>
+                </div>
+
+                <div class="row g-3 mt-4">
+                    <div class="col-6">
+                        <div class="weather-card">
+                            <h4>Humidity</h4>
+                            <p id="humidity">--%</p>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="weather-card">
+                            <h4>Wind</h4>
+                            <p id="wind">-- kph</p>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="weather-card">
+                            <h4>Pressure</h4>
+                            <p id="pressure">-- mb</p>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="weather-card">
+                            <h4>Visibility</h4>
+                            <p id="visibility">-- km</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="weather-alerts mt-4" id="weather-alerts" style="display: none">
+                    <h4>Weather Alerts</h4>
+                    <p id="alert-message">--</p>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            async function getWeather() {
+                const locationInput = document.getElementById("location").value.trim();
+
+                if (!locationInput) {
+                    alert("Please enter a location.");
+                    return;
+                }
+
+                const apiKey = "5abf6b8165mshff41c857ad49628p14130bjsn27547c3b91e9"; // Your RapidAPI Key
+                const url = `https://yahoo-weather5.p.rapidapi.com/weather?location=${locationInput}&format=json&u=f`;
+                const options = {
+                    method: "GET",
+                    headers: {
+                        "x-rapidapi-key": apiKey,
+                        "x-rapidapi-host": "yahoo-weather5.p.rapidapi.com",
+                    },
+                };
+
+                try {
+                    const response = await fetch(url, options);
+                    const weatherData = await response.json();
+
+                    if (response.ok && weatherData) {
+                        const weather = weatherData.current_observation;
+                        const forecast = weatherData.forecasts[0]; // Today's forecast
+
+                        // Update weather info
+                        document.getElementById("temperature").innerText = `${weather.condition.temperature}°F`;
+                        document.getElementById("condition").innerText = `Condition: ${weather.condition.text}`;
+                        document.getElementById("high-low").innerText = `High/Low: ${forecast.high}°F / ${forecast.low}°F`;
+
+                        document.getElementById("humidity").innerText = `${weather.atmosphere.humidity}%`;
+                        document.getElementById("wind").innerText = `${weather.wind.speed} kph`;
+                        document.getElementById("pressure").innerText = `${weather.atmosphere.pressure} mb`;
+                        document.getElementById("visibility").innerText = `${weather.atmosphere.visibility} miles`;
+
+                        // Handling alerts
+                        if (weatherData.alerts && weatherData.alerts.length > 0) {
+                            const alertMessage = weatherData.alerts
+                                .map((alert) => alert.description)
+                                .join("\n");
+                            document.getElementById("alert-message").innerText = alertMessage;
+                            document.getElementById("weather-alerts").style.display = "block";
+                        } else {
+                            document.getElementById("weather-alerts").style.display = "none";
+                        }
+                    } else {
+                        alert("No data available for this location.");
+                    }
+                } catch (error) {
+                    console.error("Error fetching weather data:", error);
+                    alert("Unable to fetch weather data. Please try again.");
+                }
+            }
+
+            function resetForm() {
+                document.getElementById("location").value = "";
+                document.getElementById("temperature").innerText = "--°";
+                document.getElementById("condition").innerText = "Condition: --";
+                document.getElementById("high-low").innerText = "High/Low: --° / --°";
+                document.getElementById("humidity").innerText = "--%";
+                document.getElementById("wind").innerText = "-- kph";
+                document.getElementById("pressure").innerText = "-- mb";
+                document.getElementById("visibility").innerText = "-- km";
+                document.getElementById("weather-alerts").style.display = "none";
+            }
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
+
+</html>
