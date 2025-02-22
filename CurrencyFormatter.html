@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currency Formatter</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        /* Global Styles */
+        body {
+            background: linear-gradient(to left top, #252a57, #5e4883);
+            background-size: 100% 32%;
+            background-repeat: no-repeat;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            font-family: 'Roboto Mono', monospace;
+        }
+
+        .wrapper {
+            max-width: 600px;
+            width: 100%;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1); /* Semi-transparent background */
+            backdrop-filter: blur(15px); /* Blur effect */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            padding: 40px;
+            border-radius: 15px;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        input {
+            height: 40px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            padding: 0 15px;
+            margin-bottom: 20px;
+            background-color: rgba(255, 255, 255, 0.3);
+            color: #fff;
+        }
+
+        button {
+            background-color: #6637ed;
+            border: none;
+            color: white;
+            height: 40px;
+            padding: 0 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #5b2ed2;
+        }
+
+        .result-box {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            margin-top: 30px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .result-box p {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .result-box span {
+            font-weight: bold;
+            color: #6637ed;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 576px) {
+            .container {
+                padding: 20px;
+            }
+
+            .result-box p {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="container">
+            <div class="mb-3">
+                <input type="number" id="amount" class="form-control" placeholder="Enter the amount here">
+            </div>
+            <div class="d-grid gap-2">
+                <button id="btn" class="btn btn-primary">Format</button>
+                <button id="reset-btn" class="btn btn-danger">Reset</button>
+            </div>
+            <div id="output" class="result-box">
+                <p><span>Indian Rupees:</span> <span id="rupees"></span></p>
+                <p><span>US Dollars:</span> <span id="dollars"></span></p>
+                <p><span>Japanese Yen:</span> <span id="yen"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS and Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+
+    <!-- Script for Currency Formatting -->
+    <script>
+        let btn = document.getElementById("btn");
+        let resetBtn = document.getElementById("reset-btn");
+
+        let rupees = document.getElementById("rupees");
+        let dollars = document.getElementById("dollars");
+        let yen = document.getElementById("yen");
+
+        let formatter1 = new Intl.NumberFormat("en-IN", {
+            style: "currency",
+            currency: "INR"
+        });
+        let formatter2 = new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD"
+        });
+        let formatter3 = new Intl.NumberFormat("ja-JP", {
+            style: "currency",
+            currency: "JPY"
+        });
+
+        // Format the currencies when button is clicked
+        btn.addEventListener("click", () => {
+            let amount = document.getElementById("amount").value;
+
+            if (amount) {
+                rupees.innerHTML = formatter1.format(amount);
+                dollars.innerHTML = formatter2.format(amount);
+                yen.innerHTML = formatter3.format(amount);
+            } else {
+                rupees.innerHTML = dollars.innerHTML = yen.innerHTML = "Please enter a valid amount";
+            }
+        });
+
+        // Reset the input and results when reset button is clicked
+        resetBtn.addEventListener("click", () => {
+            document.getElementById("amount").value = "";
+            rupees.innerHTML = dollars.innerHTML = yen.innerHTML = "";
+        });
+    </script>
+</body>
+
+</html>
