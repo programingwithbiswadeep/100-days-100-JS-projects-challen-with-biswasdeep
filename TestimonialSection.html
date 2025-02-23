@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testimonial Section</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #101010;
+            color: #f5f5f5;
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            padding: 0;
+            margin: 0;
+        }
+
+        h2 {
+            font-size: 2.5em;
+            color: #d43f3a;
+            margin-bottom: 40px;
+            font-weight: 600;
+        }
+
+        .testimonial-section {
+            padding: 80px 20px;
+        }
+
+        .carousel-container {
+            position: relative;
+            max-width: 900px;
+            margin: 0 auto;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .testimonial-card {
+            background: #1f1f1f;
+            color: #fff;
+            padding: 35px 40px;
+            border-radius: 15px;
+            max-width: 900px;
+            margin: auto;
+            position: relative;
+            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0px 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .testimonial-card::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 4px;
+            background: #d43f3a;
+            border-radius: 3px;
+        }
+
+        .testimonial-author {
+            margin-top: 20px;
+        }
+
+        .testimonial-author img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 4px solid #d43f3a;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .testimonial-author img:hover {
+            transform: scale(1.1);
+        }
+
+        .testimonial-author h5 {
+            margin-top: 15px;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        .testimonial-author p {
+            font-size: 1em;
+            color: #bbb;
+        }
+
+        .carousel-button {
+            position: absolute;
+            top: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            padding: 15px;
+            cursor: pointer;
+            font-size: 30px;
+            border-radius: 50%;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .carousel-button:hover {
+            background-color: rgba(255, 255, 255, 0.6);
+            box-shadow: 0px 5px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .carousel-button:focus {
+            outline: none;
+        }
+
+        .prev {
+            left: 20px;
+            font-size: 35px;
+            background-color: rgb(0, 0, 0);
+            color: #ffffff;
+            z-index: 2;
+        }
+
+        .next {
+            right: 20px;
+            font-size: 35px;
+            background-color: rgb(0, 0, 0);
+            color: #fff;
+        }
+
+        .prev:hover,
+        .next:hover {
+            background-color: rgba(255, 255, 255, 0.5);
+            color: #d43f3a;
+        }
+
+        /* Additional styles for Add Testimonial */
+        .add-testimonial {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 15px 30px;
+            background: #d43f3a;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+            z-index: 10;
+            /* Ensures it stays above other elements */
+        }
+
+        .add-testimonial:hover {
+            background: #a13230;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            /* Initially hidden */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #333;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 600px;
+            color: #fff;
+        }
+
+        .modal input,
+        .modal textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background: #444;
+            border: 1px solid #666;
+            color: #fff;
+        }
+
+        .modal button {
+            background: #d43f3a;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            color: #fff;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .modal button:hover {
+            background: #a13230;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 23%;
+            right: 28%;
+            font-size: 30px;
+            color: #fff;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <section class="testimonial-section">
+        <h2>What Our Clients Say</h2>
+        <div class="carousel-container">
+            <!-- Left Arrow Button -->
+            <button class="carousel-button prev" onclick="changeTestimonial(-1)">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+
+            <div class="testimonial-card" id="testimonial">
+                <p class="testimonial-text" id="testimonialText">"Far far away, behind the word mountains, far from the
+                    countries Vokalia and Consonantia..."</p>
+                <div class="testimonial-author">
+                    <img id="testimonialImg" src="https://randomuser.me/api/portraits/men/32.jpg" alt="User">
+                    <h5 id="testimonialName">Ryan Mullins</h5>
+                    <p id="testimonialRole">Product Designer @Shopify</p>
+                </div>
+            </div>
+
+            <!-- Right Arrow Button -->
+            <button class="carousel-button next" onclick="changeTestimonial(1)">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+        <button class="add-testimonial" onclick="openModal()">Add Testimonial</button>
+    </section>
+
+    <!-- Modal for Adding Testimonial -->
+    <div class="modal" id="testimonialModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h3>Add a Testimonial</h3>
+            <form id="testimonialForm">
+                <input type="text" id="testimonialNameInput" placeholder="Name" required>
+                <input type="text" id="testimonialRoleInput" placeholder="Role" required>
+                <textarea id="testimonialTextInput" placeholder="Testimonial" rows="4" required></textarea>
+
+                <!-- Image Upload -->
+                <input type="file" id="testimonialImgInput" accept="image/*" required>
+
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const testimonials = [
+            {
+                text: "Far far away, behind the word mountains, far from the countries Vokalia and Consonantia...",
+                img: "https://randomuser.me/api/portraits/men/32.jpg",
+                name: "Ryan Mullins",
+                role: "Product Designer @Shopify"
+            },
+            {
+                text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent tincidunt suscipit elit...",
+                img: "https://randomuser.me/api/portraits/women/44.jpg",
+                name: "Emma Watson",
+                role: "Marketing Lead @Google"
+            }
+        ];
+
+        let currentTestimonial = 0;
+
+        function changeTestimonial(direction) {
+            currentTestimonial = (currentTestimonial + direction + testimonials.length) % testimonials.length;
+            document.getElementById("testimonialText").textContent = testimonials[currentTestimonial].text;
+            document.getElementById("testimonialImg").src = testimonials[currentTestimonial].img;
+            document.getElementById("testimonialName").textContent = testimonials[currentTestimonial].name;
+            document.getElementById("testimonialRole").textContent = testimonials[currentTestimonial].role;
+        }
+
+        function openModal() {
+            document.getElementById('testimonialModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('testimonialModal').style.display = 'none';
+        }
+
+        document.getElementById('testimonialForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // Get values from the form
+            const name = document.getElementById('testimonialNameInput').value;
+            const role = document.getElementById('testimonialRoleInput').value;
+            const text = document.getElementById('testimonialTextInput').value;
+            const imgInput = document.getElementById('testimonialImgInput');
+            const file = imgInput.files[0];
+
+            // Check if a file was selected
+            if (file) {
+                const reader = new FileReader();
+                reader.onloadend = function () {
+                    const imgUrl = reader.result;
+
+                    // Add the new testimonial to the array
+                    testimonials.push({
+                        text: text,
+                        img: imgUrl,
+                        name: name,
+                        role: role
+                    });
+
+                    // Close the modal and reset form
+                    closeModal();
+                    document.getElementById('testimonialForm').reset();
+
+                    // Refresh the displayed testimonial
+                    changeTestimonial(0); // Display the first testimonial or you can change it as needed
+                };
+
+                // Read the file as a data URL
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+</body>
+
+</html>
