@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fruit Fall Game</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+    <style>
+        body {
+            background-color: #fffbf1;
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden;
+        }
+
+        #score-container {
+            position: absolute;
+            top: 1rem;
+            right: 2rem;
+            background-color: #ff6347;
+            color: #fff;
+            padding: 15px 25px;
+            border-radius: 15px;
+            font-size: 3rem;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .cover-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 10;
+        }
+
+        .hide {
+            display: none;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .fruit {
+            position: absolute;
+            bottom: 0;
+            animation: float 4s linear infinite;
+            /* Faster speed */
+            width: 120px;
+            /* Fruit size */
+            transition: transform 0.2s ease-in-out;
+        }
+
+        @keyframes float {
+            0% {
+                bottom: 0;
+                transform: rotate(0deg);
+            }
+
+            50% {
+                transform: rotate(10deg);
+            }
+
+            100% {
+                bottom: 100%;
+                transform: rotate(-10deg);
+            }
+        }
+
+        #start-button {
+            background: linear-gradient(145deg, #ff7e5f, #feb47b);
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 2rem;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        #start-button:hover {
+            background: linear-gradient(145deg, #feb47b, #ff7e5f);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+            transform: scale(1.05);
+        }
+
+        .game-over-text {
+            color: white;
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        #canvas {
+            display: block;
+            margin: 0 auto;
+        }
+
+        .bounce {
+            animation: bounce 0.5s ease-out;
+        }
+
+        @keyframes bounce {
+            0% {
+                transform: translateY(0);
+            }
+
+            30% {
+                transform: translateY(-15px);
+            }
+
+            50% {
+                transform: translateY(5px);
+            }
+
+            70% {
+                transform: translateY(-5px);
+            }
+
+            100% {
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="cover-screen">
+        <h2 class="game-over-text hide" id="over-text">Game Over</h2>
+        <p id="result" class="text-white hide"></p>
+        <button id="start-button" class="btn btn-lg">Start Game</button>
+    </div>
+
+    <div id="score-container" class="hide">0</div>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const FRUIT_COUNT = 10;
+        const scoreContainer = document.getElementById("score-container");
+        const canvas = document.getElementById("canvas");
+        canvas.width = window.innerWidth;  // Full screen width
+        canvas.height = window.innerHeight; // Full screen height
+        const ctx = canvas.getContext("2d");
+        const startButton = document.getElementById("start-button");
+        const coverScreen = document.querySelector(".cover-screen");
+        const result = document.getElementById("result");
+        const overText = document.getElementById("over-text");
+
+        const base = "./images/";
+        let fruits = [];
+        let points = 0;
+        const fruitsList = ["apple", "banana", "grape", "cherry", "watermelon", "pineapple"];
+
+        let events = {
+            mouse: {
+                down: "mousedown",
+            },
+            touch: {
+                down: "touchstart",
+            },
+        };
+
+        let deviceType = "";
+
+        let interval, randomCreationTime;
+        const isTouchDevice = () => {
+            try {
+                document.createEvent("TouchEvent");
+                deviceType = "touch";
+                return true;
+            } catch (e) {
+                deviceType = "mouse";
+                return false;
+            }
+        };
+
+        const generateRandomNumber = (min, max) =>
+            Math.floor(Math.random() * (max - min + 1) + min);
+
+        function Fruit(image, x, y, width) {
+            this.image = new Image();
+            this.image.src = image;
+            this.x = x;
+            this.y = y;
+            this.speed = generateRandomNumber(3, 6); // Increased speed for faster falling
+            this.width = width;
+            this.clicked = false;
+            this.complete = false;
+
+            this.update = () => {
+                this.y += this.speed;
+                if (!this.complete && this.y + this.width > canvas.height) {
+                    this.complete = true;
+                }
+            };
+
+            this.draw = () => {
+                ctx.drawImage(this.image, this.x, this.y, this.width, this.width);
+            };
+
+            this.compare = (mouseX, mouseY) => {
+                return (
+                    mouseX >= this.x &&
+                    mouseX <= this.x + this.width &&
+                    mouseY >= this.y &&
+                    mouseY <= this.y + this.width
+                );
+            };
+        }
+
+        function createRandomFruit() {
+            randomCreationTime = generateRandomNumber(2, 5); // Faster fruit creation
+            if (fruits.length < FRUIT_COUNT) {
+                let randomFruit =
+                    fruitsList[generateRandomNumber(0, fruitsList.length - 1)];
+                const randomImage = `${randomFruit}.png`;
+                const randomX = generateRandomNumber(0, canvas.width - 100);
+                const fruitWidth = generateRandomNumber(80, 120); // Larger fruit size
+                let fruit = new Fruit(randomImage, randomX, 0, fruitWidth);
+                fruits.push(fruit);
+            }
+            if (fruits.length === FRUIT_COUNT) {
+                let checker = fruits.every((fruit) => {
+                    return fruit.complete === true;
+                });
+                if (checker) {
+                    clearInterval(interval);
+                    coverScreen.classList.remove("hide");
+                    canvas.classList.add("hide");
+                    overText.classList.remove("hide");
+                    result.innerText = `Final Score: ${points}`;
+                    startButton.innerText = "Restart Game";
+                    scoreContainer.classList.add("hide");
+                }
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (const fruit of fruits) {
+                fruit.update();
+                fruit.draw();
+            }
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+        isTouchDevice();
+
+        canvas.addEventListener(events[deviceType].down, function (e) {
+            let clickX =
+                (isTouchDevice() ? e.touches[0].pageX : e.pageX) - canvas.offsetLeft;
+            let clickY =
+                (isTouchDevice() ? e.touches[0].pageY : e.pageY) - canvas.offsetTop;
+            fruits.forEach(function (fruit) {
+                let check = fruit.compare(clickX, clickY);
+                if (check && !fruit.clicked) {
+                    fruit.clicked = true;
+                    points += 1;
+                    scoreContainer.innerHTML = points;
+                    fruit.complete = true;
+                    fruit.y = canvas.height;
+                    fruit.image.classList.add("bounce"); // Added bounce effect on click
+                }
+            });
+        });
+
+        canvas.addEventListener("touchend", (e) => {
+            e.preventDefault();
+        });
+
+        startButton.addEventListener("click", () => {
+            fruits = [];
+            points = 0;
+            scoreContainer.innerHTML = points;
+            canvas.classList.remove("hide");
+            coverScreen.classList.add("hide");
+            createRandomFruit();
+            randomCreationTime = generateRandomNumber(2, 5); // Faster fruit creation time
+            interval = setInterval(createRandomFruit, randomCreationTime * 1000);
+            scoreContainer.classList.remove("hide");
+            overText.classList.add("hide");
+            result.classList.add("hide");
+            startButton.innerText = "Start Game";
+        });
+    </script>
+
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>
