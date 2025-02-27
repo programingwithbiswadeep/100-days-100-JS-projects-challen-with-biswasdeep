@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Share GIF to Tenor</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9aIt2nR4n13kq16jhzB+BlGpnW4wP3L4vsKIhn9z5KlF9qaJ83tcHt4Y8MGYfiI2" crossorigin="anonymous">
+    <style>
+        /* Body Background */
+        body {
+            background-color: #f0f2f5;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* Main container */
+        .container {
+            padding: 40px;
+            max-width: 960px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Header */
+        h1 {
+            color: #1e3d58;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 32px;
+        }
+
+        /* Search Input and Button */
+        .input-group {
+            margin-bottom: 30px;
+        }
+
+        .form-control {
+            border-radius: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 94%;
+            font-size: 16px;
+            padding: 12px;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            font-size: 16px;
+            padding: 12px 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            font-size: 16px;
+            padding: 12px 24px;
+            margin-top: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        /* GIF Display Container */
+        #gifResults {
+            display: flex; /* Display as a horizontal row */
+            overflow-x: auto; /* Allow horizontal scrolling if the content exceeds the container */
+            gap: 20px; /* Space between the items */
+            padding: 20px 0;
+            justify-content: flex-start;
+            align-items: center;
+            flex-wrap: nowrap; /* Prevent wrapping to next line */
+        }
+
+        /* Individual GIF Card */
+        .gif {
+            width: 280px; /* Increased width of each GIF box */
+            height: 280px; /* Reduced height for better consistency */
+            border-radius: 8px; /* Rounded corners */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Soft shadow */
+            background-color: #fff;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden; /* Prevents image overflow */
+        }
+
+        /* Hover effect for the GIF box */
+        .gif:hover {
+            transform: translateY(-5px); /* Slightly lift up the card on hover */
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2); /* Deeper shadow on hover */
+        }
+
+        /* Image inside the GIF box */
+        .card-img-top {
+            width: 100%;
+            height: 65%; /* Adjusted height of the image */
+            object-fit: cover; /* Ensure image covers the space without stretching */
+        }
+
+        /* Card body content */
+        .card-body {
+            padding: 10px;
+            text-align: center;
+            background-color: #fff;
+        }
+
+        /* Title style inside each card */
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e3d58;
+            margin-bottom: 10px;
+        }
+
+        /* Adjusting the share button */
+        .btn-success {
+            font-size: 14px;
+            padding: 8px 16px;
+            font-weight: 600;
+            color: white;
+            transition: background-color 0.3s ease;
+            width: 100%; /* Make the button fill the card width */
+            border: none; /* Remove border */
+            background-color: #28a745;
+        }
+
+        /* Hover effect for the share button */
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        /* Alert Styling */
+        .alert {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Share GIF to Tenor</h1>
+
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <div class="input-group input-group-lg">
+                    <input type="text" id="searchTerm" class="form-control" placeholder="Enter search term..." />
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" onclick="searchGIF()">Search and Share GIF</button>
+                        <!-- Add the Reset button here -->
+                        <button class="btn btn-secondary" onclick="resetInput()">Reset</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Display GIF results here -->
+        <div id="gifResults" class="gifResults"></div>
+        <div id="errorAlert" class="alert alert-danger d-none" role="alert"></div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy7fT9PpRpkh9PaKq3pPp6c0lbbQ82TpDfjIHL6p"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.0/dist/umd/popper.min.js"
+        integrity="sha384-pzjw8f+ua7Kw1TIq0p4pIppcZtQzjYY6g6gvoKZK7Mx47WVYQ5fS+ipreZ9UuZ6k"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+        integrity="sha384-ltQQRE7y8nXtWrwz5DHzV5HtX2OqzsbYz0p9lwxlPzzv5mH8h7l8mmo+YpZm6ayY"
+        crossorigin="anonymous"></script>
+
+    <script>
+        // Function to perform search using Tenor API
+        function searchGIF() {
+            var searchTerm = document.getElementById("searchTerm").value.trim();
+
+            if (!searchTerm) {
+                alert("Please enter a search term!");
+                return;
+            }
+
+            var apiKey = 'LIVDSRZULELA'; // Replace with your valid API Key
+            var url = `https://api.tenor.com/v1/search?q=${searchTerm}&key=${apiKey}&limit=8`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    // Clear previous results
+                    document.getElementById("gifResults").innerHTML = '';
+
+                    if (data.results && data.results.length > 0) {
+                        data.results.forEach(gif => {
+                            var gifElement = document.createElement("div");
+                            gifElement.classList.add("gif");
+
+                            var card = document.createElement("div");
+                            card.classList.add("card");
+
+                            var gifImage = document.createElement("img");
+                            gifImage.src = gif.media[0].gif.url;
+                            gifImage.alt = "GIF Image";
+                            gifImage.classList.add("card-img-top");
+                            card.appendChild(gifImage);
+
+                            var cardBody = document.createElement("div");
+                            cardBody.classList.add("card-body");
+
+                            var cardTitle = document.createElement("h5");
+                            cardTitle.classList.add("card-title");
+                            cardTitle.innerText = searchTerm;
+
+                            var shareButton = document.createElement("button");
+                            shareButton.innerText = "Share GIF";
+                            shareButton.classList.add("btn", "btn-success", "btn-block");
+                            shareButton.onclick = function () {
+                                sendShare(searchTerm, gif.id);
+                            };
+                            cardBody.appendChild(cardTitle);
+                            cardBody.appendChild(shareButton);
+
+                            card.appendChild(cardBody);
+                            gifElement.appendChild(card);
+                            document.getElementById("gifResults").appendChild(gifElement);
+                        });
+                    } else {
+                        document.getElementById("gifResults").innerText = "No GIFs found!";
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching GIFs:", error);
+                    document.getElementById("errorAlert").innerText = "Failed to load GIFs. Please try again.";
+                    document.getElementById("errorAlert").classList.remove("d-none");
+                });
+        }
+
+        // Function to send share request
+        function sendShare(searchTerm, gifId) {
+            var apiKey = 'LIVDSRZULELA'; // Replace with your valid API Key
+            var shareUrl = `https://g.tenor.com/v1/registershare?id=${gifId}&key=${apiKey}&q=${searchTerm}`;
+
+            fetch(shareUrl)
+                .then(response => response.json())
+                .then(data => {
+                    alert("GIF shared successfully!");
+                })
+                .catch(error => {
+                    console.error("Error sharing GIF:", error);
+                    alert("Failed to share GIF.");
+                });
+        }
+
+        // Reset function to clear the input and results
+        function resetInput() {
+            document.getElementById("searchTerm").value = '';
+            document.getElementById("gifResults").innerHTML = '';
+            document.getElementById("errorAlert").classList.add("d-none");
+        }
+    </script>
+
+</body>
+
+</html>
