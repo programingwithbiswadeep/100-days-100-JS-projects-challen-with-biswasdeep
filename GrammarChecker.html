@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grammar Checker</title>
+    <!-- Bootstrap CDN -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f5f5f5;
+            /* Light gray background */
+        }
+
+        .card {
+            border-radius: 15px;
+            background-color: #ffffff;
+            /* White card background */
+        }
+
+        .card-header {
+            background-color: #3f51b5;
+            /* Deep purple color */
+            color: white;
+            font-weight: bold;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .card-body {
+            padding: 30px;
+        }
+
+        .form-control {
+            border-radius: 10px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+            background-color: #f9f9f9;
+            /* Light gray background for input */
+        }
+
+        .btn-custom {
+            border-radius: 10px;
+            font-size: 16px;
+            height: 50px;
+            text-transform: uppercase;
+        }
+
+        .btn-custom:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background-color: #3f51b5;
+            /* Deep purple */
+            border-color: #3f51b5;
+        }
+
+        .btn-primary:hover {
+            background-color: #303f9f;
+            /* Darker purple */
+            border-color: #303f9f;
+        }
+
+        .btn-success {
+            background-color: #8bc34a;
+            /* Light green */
+            border-color: #8bc34a;
+        }
+
+        .btn-success:hover {
+            background-color: #689f38;
+            /* Darker green */
+            border-color: #689f38;
+        }
+
+        #result {
+            padding: 15px;
+            border-radius: 10px;
+            background-color: #ffffff;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container d-flex justify-content-center align-items-center min-vh-100">
+        <div class="card shadow-lg w-100" style="max-width: 1100px;">
+            <div class="card-header text-center">
+                <h1>Grammar Checker</h1>
+            </div>
+            <div class="card-body">
+                <textarea id="textInput" class="form-control mb-3" rows="4"
+                    placeholder="Type your text here..."></textarea>
+                <div class="d-flex justify-content-between">
+                    <button onclick="checkGrammar()" class="btn btn-custom btn-primary w-48">Check Grammar</button>
+                    <button onclick="applyCorrections()" id="correctButton" class="btn btn-custom btn-success w-48"
+                        style="display: none;">Apply Corrections</button>
+                </div>
+                <div id="result" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and Popper.js CDN -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        let correctedText = '';  // Store the corrected sentence here
+
+        function checkGrammar() {
+            const text = document.getElementById('textInput').value;
+            const resultDiv = document.getElementById('result');
+
+            // If the text area is empty, show a warning
+            if (text.trim() === '') {
+                resultDiv.innerHTML = '<div class="alert alert-warning">Please enter some text to check.</div>';
+                return;
+            }
+
+            // LanguageTool API URL (Grammar check request)
+            const apiUrl = `https://api.languagetool.org/v2/check?text=${encodeURIComponent(text)}&language=en-US`;
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.matches.length === 0) {
+                        resultDiv.innerHTML = '<div class="alert alert-success">No grammar mistakes found!</div>';
+                    } else {
+                        let errors = '';
+
+                        // Combine all issues into one block
+                        let combinedIssue = '';
+                        data.matches.forEach(match => {
+                            // Apply the correction to the text
+                            correctedText = text.replace(match.context.text.substring(match.offset, match.offset + match.length), match.replacements[0].value);
+
+                            // Combine the issues and corrections
+                            combinedIssue += ` 
+                                <strong>Issue:</strong> ${match.message}<br>
+                                <strong>Corrected Sentence:</strong> <em>${correctedText}</em><br><br>
+                            `;
+                        });
+
+                        // Display all errors combined
+                        resultDiv.innerHTML = ` 
+                            <div class="alert alert-danger">
+                                <strong>Grammar Issues Found:</strong><br><br>
+                                ${combinedIssue}
+                            </div>
+                        `;
+
+                        // Show the "Apply Corrections" button
+                        document.getElementById('correctButton').style.display = 'inline-block';
+                    }
+                })
+                .catch(error => {
+                    resultDiv.innerHTML = '<div class="alert alert-danger">Error checking grammar. Please try again later.</div>';
+                });
+        }
+
+        function applyCorrections() {
+            // Update the textarea with the corrected text
+            document.getElementById('textInput').value = correctedText;
+
+            // Hide the "Apply Corrections" button after applying the correction
+            document.getElementById('correctButton').style.display = 'none';
+        }
+    </script>
+</body>
+
+</html>
