@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guess the Anime</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Google Fonts (Roboto) -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      background: linear-gradient(to right, #3b8d99, #6b9e9f);
+      font-family: 'Roboto', sans-serif;
+      color: #ffffff;
+      min-height: 100vh;
+    }
+
+    .container-main {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #2f3542;
+      padding: 3rem;
+      border-radius: 1.5rem;
+      width: 100%;
+      max-width: 800px;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .letters {
+      width: 60px;
+      height: 60px;
+      border: 2px solid #48c6ef;
+      border-radius: 50%;
+      background-color: #34495e;
+      color: #ecf0f1;
+      font-size: 1.5rem;
+      cursor: pointer;
+      margin: 5px;
+      transition: all 0.3s ease;
+    }
+
+    .letters:hover {
+      background-color: #48c6ef;
+      color: #fff;
+      transform: translateY(-3px);
+    }
+
+    .letters.used {
+      background-color: #f1f1f1;
+      color: #999;
+      border-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    .inputSpace {
+      font-size: 2rem;
+      margin: 0 8px;
+      font-weight: bold;
+      letter-spacing: 3px;
+    }
+
+    #animeHint {
+      font-size: 1.8rem;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-weight: 700;
+      color: #f1f1f1;
+    }
+
+    #start {
+      font-size: 1.3rem;
+      padding: 1rem 2.5rem;
+      background-color: #48c6ef;
+      color: white;
+      border-radius: 1rem;
+      text-decoration: none;
+      text-align: center;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s;
+    }
+
+    #start:hover {
+      background-color: #0274b6;
+    }
+
+    .text-end {
+      font-weight: bold;
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      color: #ecf0f1;
+    }
+
+    .result {
+      font-size: 1.6rem;
+      font-weight: bold;
+      text-align: center;
+      margin-top: 20px;
+      color: #48c6ef;
+    }
+
+    .letter-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .inputSpace {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      text-align: center;
+      line-height: 40px;
+      background: #34495e;
+      margin: 0 8px;
+      color: white;
+      font-size: 1.5rem;
+      border-radius: 8px;
+    }
+
+    #animeHint {
+      font-size: 1.8rem;
+      color: #ecf0f1;
+      font-weight: bold;
+    }
+
+    .game-controls {
+      margin-top: 2rem;
+    }
+
+    .game-controls a {
+      padding: 1.2rem 3rem;
+    }
+
+    #reset {
+      font-size: 1.3rem;
+      padding: 1rem 2.5rem;
+      background-color: #f39c12;
+      color: white;
+      border-radius: 1rem;
+      text-decoration: none;
+      text-align: center;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s;
+    }
+
+    #reset:hover {
+      background-color: #e67e22;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container-main">
+    <div class="text-end" id="chanceCount">
+      <span>Tries Left:</span> 05
+    </div>
+
+    <div id="animeHint" class="mb-3"></div>
+
+    <div id="letter-container" class="letter-container mb-4 hide"></div>
+
+    <div id="userInputSection" class="text-center"></div>
+
+    <div class="game-controls text-center mt-4">
+      <a href="#" id="start" class="btn" role="button">Start Game</a>
+      <a href="#" id="reset" class="btn hide" role="button">Reset Game</a>
+    </div>
+
+    <div class="result" id="result"></div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    const animeObject = {
+      "🐉🧑‍🦳🔥": "Dragon Ball",
+      "🔪💀💀": "Attack on Titan",
+      "🐙🦸🧑‍🦳": "One Piece",
+      "👹👦🖤": "Demon Slayer",
+      "👦🧑‍🦳⚡": "My Hero Academia",
+      "🦊⚔️": "Naruto",
+      "🧑‍🔬💥👹": "Jujutsu Kaisen",
+      "👹👨‍🦳🐍": "Tokyo Revengers",
+      "💀🦸‍♂️👊": "Chainsaw Man",
+      "🎥🎭💀": "Your Name",
+      "👑💀🕷️": "Death Note",
+      "🦸‍♀️🦇🦇": "Black Clover",
+      "⚔️👹🧑‍🦳": "Solo Leveling",
+      "🕵️‍♂️👓🥋": "Sakamoto Days",
+    };
+
+    const container = document.querySelector(".container-main");
+    const startButton = document.getElementById("start");
+    const letterContainer = document.getElementById("letter-container");
+    const userInputSection = document.getElementById("userInputSection");
+    const resultText = document.getElementById("result");
+    const chanceCount = document.getElementById("chanceCount");
+    const resetButton = document.getElementById("reset");
+    const hints = Object.keys(animeObject);
+    let randomHint = "",
+      randomWord = "";
+    let winCount = 0,
+      lossCount = 5;
+
+    const generateRandomValue = (array) => Math.floor(Math.random() * array.length);
+
+    const blocker = () => {
+      let letterButtons = document.querySelectorAll(".letters");
+      letterButtons.forEach((button) => button.disabled = true);
+    };
+
+    const startGame = () => {
+      startButton.style.display = 'none'; // Hide the start button after game starts
+      resetButton.style.display = 'block'; // Show the reset button when game starts
+      container.classList.remove("hide");
+      generateWord();
+      letterContainer.classList.remove("hide");
+      chanceCount.innerHTML = `<span>Tries Left:</span> 05`;
+      resultText.innerHTML = "";
+      lossCount = 5;
+      winCount = 0;
+    };
+
+    const resetGame = () => {
+      letterContainer.innerHTML = ''; // Clear all letter buttons
+      userInputSection.innerHTML = ''; // Clear user input space
+      resetButton.style.display = 'none'; // Hide the reset button
+      startButton.style.display = 'block'; // Show the start button again
+      resultText.innerHTML = '';
+      chanceCount.innerHTML = `<span>Tries Left:</span> 05`; // Reset tries left
+      container.classList.add("hide"); // Hide the game content until start
+    };
+
+    startButton.addEventListener("click", () => {
+      startGame();
+    });
+
+    resetButton.addEventListener("click", () => {
+      resetGame();
+    });
+
+    const generateWord = () => {
+      randomHint = hints[generateRandomValue(hints)];
+      randomWord = animeObject[randomHint];
+      document.getElementById("animeHint").textContent = randomHint;
+
+      // Remove spaces from the randomWord
+      randomWord = randomWord.replace(/\s+/g, ''); // This removes all spaces
+
+      let displayItem = '';
+      randomWord.split("").forEach(value => {
+        displayItem += `<span class="inputSpace">_</span>`;
+      });
+      userInputSection.innerHTML = displayItem;
+
+      for (let i = 65; i < 91; i++) {
+        let button = document.createElement("button");
+        button.classList.add("letters", "btn", "mx-1");
+        button.innerText = String.fromCharCode(i);
+
+        button.addEventListener("click", () => {
+          let charArray = randomWord.toUpperCase().split("");
+          let inputSpace = document.getElementsByClassName("inputSpace");
+
+          // Check if the clicked letter is in the word
+          if (charArray.includes(button.innerText)) {
+            charArray.forEach((char, index) => {
+              if (char === button.innerText) {
+                inputSpace[index].innerText = char;
+                winCount += 1;
+                // Check if user has guessed all the letters correctly
+                if (winCount === charArray.length) {
+                  resultText.textContent = "You Won!";
+                  blocker();
+                }
+              }
+            });
+          } else {
+            lossCount -= 1;
+            chanceCount.innerHTML = `<span>Tries Left:</span> ${lossCount}`;
+            if (lossCount === 0) {
+              resultText.textContent = "Game Over!";
+              blocker();
+            }
+          }
+
+          // Disable the clicked button and mark it as used
+          button.classList.add("used");
+          button.disabled = true;
+        });
+        letterContainer.appendChild(button);
+      }
+    };
+
+    window.onload = () => {
+      // Initially hide the game content until start button is pressed
+      container.classList.add("hide");
+    };
+  </script>
+</body>
+
+</html>
