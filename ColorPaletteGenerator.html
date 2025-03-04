@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Color Palette Generator</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
+    <style>
+        body {
+            font-family: "Poppins", sans-serif;
+            background-color: #f9f9f9;
+            padding: 30px;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 60%;
+        }
+
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .color-box {
+            width: 90px;
+            height: 90px;
+            border-radius: 8px;
+            position: relative;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .color-box input[type="color"] {
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .color-box .tooltip {
+            position: absolute;
+            top: -25px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 12px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .color-box:hover .tooltip {
+            display: block;
+        }
+
+        .color-box .copy-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 4px 12px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border-radius: 5px;
+            display: none;
+            cursor: pointer;
+        }
+
+        .color-box:hover .copy-btn {
+            display: block;
+        }
+
+        .color-palette {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .color-box-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 15px;
+        }
+
+        .btn-lg {
+            padding: 12px 30px;
+        }
+
+        .btn-primary {
+            font-weight: 600;
+        }
+
+        .palette-heading {
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 30px;
+            color: #333;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2 class="palette-heading">Color Palette Generator</h2>
+
+        <div class="row mb-4">
+            <div class="col-md-4 mb-3">
+                <label for="base-color" class="form-label">Select a Base Color:</label>
+                <input type="color" value="#0091fe" id="base-color" class="form-control form-control-lg" />
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="color-count" class="form-label">Number of Colors:</label>
+                <input type="number" id="color-count" value="5" min="2" max="10" class="form-control form-control-lg" />
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="color-scheme" class="form-label">Select Color Scheme:</label>
+                <select id="color-scheme" class="form-select form-select-lg">
+                    <option value="monochromatic">Monochromatic</option>
+                    <option value="analogous">Analogous</option>
+                    <option value="complementary">Complementary</option>
+                    <option value="triadic">Triadic</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="text-center mb-5">
+            <button id="generate-btn" class="btn btn-primary btn-lg">Generate Palette</button>
+        </div>
+
+        <div id="color-palette" class="color-palette">
+            <!-- Color Boxes will be appended here -->
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+
+    <script>
+        let generatePalette = () => {
+            const baseColorInput = document.getElementById("base-color");
+            const colorPaletteContainer = document.getElementById("color-palette");
+            const baseColor = baseColorInput.value;
+            const colorCountInput = document.getElementById("color-count");
+            const colorCount = parseInt(colorCountInput.value) || 5;
+            const colorSchemeSelect = document.getElementById("color-scheme");
+            const colorScheme = colorSchemeSelect.value;
+
+            // Clear previous palette
+            colorPaletteContainer.innerHTML = "";
+
+            const palette = generateColorPalette(baseColor, colorCount, colorScheme);
+            palette.forEach((color) => {
+                const colorBox = document.createElement("div");
+                colorBox.className = "color-box";
+                colorBox.style.backgroundColor = color;
+
+                // Tooltip with color info
+                const tooltip = document.createElement("div");
+                tooltip.className = "tooltip";
+                tooltip.textContent = color;
+                colorBox.appendChild(tooltip);
+
+                // Color picker inside the box
+                const colorInput = document.createElement("input");
+                colorInput.type = "color";
+                colorInput.value = color;
+                colorInput.addEventListener("input", (e) => {
+                    colorBox.style.backgroundColor = e.target.value;
+                    tooltip.textContent = e.target.value;
+                });
+                colorBox.appendChild(colorInput);
+
+                // Copy button
+                const copyBtn = document.createElement("div");
+                copyBtn.className = "copy-btn";
+                copyBtn.textContent = "Copy";
+                copyBtn.addEventListener("click", () => copyCode(color));
+                colorBox.appendChild(copyBtn);
+
+                colorPaletteContainer.appendChild(colorBox);
+            });
+        };
+
+        function generateColorPalette(baseColor, numberOfColors, scheme) {
+            switch (scheme) {
+                case "monochromatic":
+                    return generateMonochromatic(baseColor, numberOfColors);
+                case "analogous":
+                    return generateAnalogous(baseColor, numberOfColors);
+                case "complementary":
+                    return generateComplementary(baseColor, numberOfColors);
+                case "triadic":
+                    return generateTriadic(baseColor, numberOfColors);
+                default:
+                    return generateMonochromatic(baseColor, numberOfColors);
+            }
+        }
+
+        function generateMonochromatic(baseColor, numberOfColors) {
+            const baseHue = extractHue(baseColor);
+            const colorPalette = [];
+            for (let i = 0; i < numberOfColors; i++) {
+                const color = `hsl(${baseHue}, 70%, ${50 + (i * 10) - 10}%)`;
+                colorPalette.push(color);
+            }
+            return colorPalette;
+        }
+
+        function generateAnalogous(baseColor, numberOfColors) {
+            const baseHue = extractHue(baseColor);
+            const colorPalette = [];
+            for (let i = 0; i < numberOfColors; i++) {
+                const hue = (baseHue + (30 * i)) % 360;
+                const color = `hsl(${hue}, 70%, 50%)`;
+                colorPalette.push(color);
+            }
+            return colorPalette;
+        }
+
+        function generateComplementary(baseColor, numberOfColors) {
+            const baseHue = extractHue(baseColor);
+            const colorPalette = [];
+            for (let i = 0; i < numberOfColors; i++) {
+                const hue = (baseHue + 180 + (i * 15)) % 360;
+                const color = `hsl(${hue}, 70%, 50%)`;
+                colorPalette.push(color);
+            }
+            return colorPalette;
+        }
+
+        function generateTriadic(baseColor, numberOfColors) {
+            const baseHue = extractHue(baseColor);
+            const colorPalette = [];
+            for (let i = 0; i < numberOfColors; i++) {
+                const hue = (baseHue + (120 * i)) % 360;
+                const color = `hsl(${hue}, 70%, 50%)`;
+                colorPalette.push(color);
+            }
+            return colorPalette;
+        }
+
+        function extractHue(color) {
+            const hex = color.slice(1);
+            const rgb = parseInt(hex, 16);
+
+            const r = (rgb >> 16) & 0xff;
+            const g = (rgb >> 8) & 0xff;
+            const b = (rgb >> 0) & 0xff;
+
+            const max = Math.max(r, g, b);
+            const min = Math.min(r, g, b);
+
+            let hue;
+            if (max === min) {
+                hue = 0;
+            } else {
+                const d = max - min;
+                switch (max) {
+                    case r:
+                        hue = ((g - b) / d + (g < b ? 6 : 0)) * 60;
+                        break;
+                    case g:
+                        hue = ((b - r) / d + 2) * 60;
+                        break;
+                    case b:
+                        hue = ((r - g) / d + 4) * 60;
+                        break;
+                }
+            }
+            return hue;
+        }
+
+        function copyCode(color) {
+            const hexColor = rgbToHex(color);
+            const input = document.createElement("input");
+            input.value = hexColor;
+            document.body.appendChild(input);
+            input.select();
+            document.execCommand("copy");
+            document.body.removeChild(input);
+            alert("Color Copied: " + hexColor);
+        }
+
+        function rgbToHex(rgb) {
+            const rgbArr = rgb.replace(/[^\d,]/g, '').split(',');
+            return "#" + rgbArr.map(val => {
+                const hex = parseInt(val).toString(16);
+                return hex.length === 1 ? '0' + hex : hex;
+            }).join('');
+        }
+
+        // Initialize on load
+        window.addEventListener("load", generatePalette);
+
+        document
+            .getElementById("generate-btn")
+            .addEventListener("click", generatePalette);
+    </script>
+</body>
+
+</html>
