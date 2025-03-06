@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weight Converter</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        /* Body and Background */
+        body {
+            background: linear-gradient(135deg, #ff6b6b, #f4a261);
+            font-family: 'Poppins', sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Container Styling */
+        .container {
+            background-color: #fff;
+            border-radius: 25px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeIn 0.7s ease-in-out;
+        }
+
+        /* Hover Effect on Container */
+        .container:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Header Styling */
+        h2 {
+            text-align: center;
+            font-size: 2.5em;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            color: #333;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* Input Wrapper Styling */
+        .input-wrapper {
+            margin-bottom: 1.5rem;
+        }
+
+        /* Label Styling */
+        .input-wrapper label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.5px;
+        }
+
+        /* Input Field Styling */
+        .input-wrapper input {
+            font-size: 1.2em;
+            padding: 1rem;
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+            margin-bottom: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            outline: none;
+        }
+
+        /* Focus Effect on Inputs */
+        .input-wrapper input:focus {
+            border-color: #ff6b6b;
+            background-color: #fff;
+            box-shadow: 0 0 8px rgba(255, 107, 107, 0.3);
+        }
+
+        /* Placeholder Styling */
+        .input-wrapper input::placeholder {
+            color: #aaa;
+        }
+
+        /* Animation for Container */
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media screen and (max-width: 768px) {
+            .container {
+                padding: 2rem;
+            }
+
+            h2 {
+                font-size: 2.2em;
+            }
+
+            .input-wrapper input {
+                font-size: 1.1em;
+            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Weight Converter</h2>
+        <div class="input-wrapper">
+            <label for="kg">Kilogram:</label>
+            <input type="number" id="kg" class="form-control" value="10" placeholder="Enter kilograms" />
+        </div>
+        <div class="input-wrapper">
+            <label for="lb">Pounds:</label>
+            <input type="number" id="lb" class="form-control" placeholder="Enter pounds" />
+        </div>
+        <div class="input-wrapper">
+            <label for="oz">Ounces:</label>
+            <input type="number" id="oz" class="form-control" placeholder="Enter ounces" />
+        </div>
+    </div>
+
+    <script>
+        let kgRef = document.getElementById("kg");
+        let lbRef = document.getElementById("lb");
+        let ozRef = document.getElementById("oz");
+
+        let convertFromKg = () => {
+            let kg = parseFloat(kgRef.value);
+            if (isNaN(kg)) return; // If the input is not a number, exit.
+            lbRef.value = (kg * 2.205).toFixed(2);
+            ozRef.value = (kg * 35.274).toFixed(2);
+        };
+
+        let convertFromLb = () => {
+            let lb = parseFloat(lbRef.value);
+            if (isNaN(lb)) return; // If the input is not a number, exit.
+            kgRef.value = (lb / 2.205).toFixed(2);
+            ozRef.value = (lb * 16).toFixed(2);
+        };
+
+        let convertFromOz = () => {
+            let oz = parseFloat(ozRef.value);
+            if (isNaN(oz)) return; // If the input is not a number, exit.
+            kgRef.value = (oz / 35.274).toFixed(2);
+            lbRef.value = (oz / 16).toFixed(2);
+        };
+
+        // Event listeners to trigger conversion on input change
+        kgRef.addEventListener("input", convertFromKg);
+        lbRef.addEventListener("input", convertFromLb);
+        ozRef.addEventListener("input", convertFromOz);
+
+        // Initial conversion on page load
+        window.addEventListener("load", convertFromKg);
+    </script>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>
