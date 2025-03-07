@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Country Guide App</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+      font-family: "Roboto", sans-serif;
+    }
+
+    body {
+      background-color: #f0f4f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background-color: #ffffff;
+      width: 90vw;
+      max-width: 40em;
+      padding: 2em 2em;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      color: #333;
+      margin-bottom: 0.5em;
+    }
+
+    .search-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1em;
+      margin-bottom: 1.5em;
+    }
+
+    .search-wrapper input {
+      padding: 0.8em;
+      font-size: 1em;
+      border: 2px solid #3498db;
+      border-radius: 30px;
+      width: 70%;
+      outline: none;
+    }
+
+    .search-wrapper button {
+      padding: 0.8em 2em;
+      font-size: 1em;
+      background-color: #3498db;
+      color: #fff;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .search-wrapper button:hover {
+      background-color: #2980b9;
+    }
+
+    #result {
+      margin-top: 2em;
+    }
+
+    .flag-img {
+      width: 50%;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .country-info {
+      font-size: 1.2em;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .country-info div {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 300px;
+      margin: 0.5em 0;
+    }
+
+    .country-info h4 {
+      font-weight: 500;
+      color: #3498db;
+    }
+
+    .country-info span {
+      color: #555;
+      font-weight: 400;
+    }
+
+    .error-message {
+      font-size: 1.2em;
+      color: #e74c3c;
+      margin-top: 1em;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 600px) {
+      .container {
+        padding: 1.5em;
+      }
+
+      h1 {
+        font-size: 2em;
+      }
+
+      .search-wrapper {
+        flex-direction: column;
+      }
+
+      .search-wrapper input {
+        width: 100%;
+      }
+
+      .country-info {
+        font-size: 1em;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Country Guide</h1>
+    <div class="search-wrapper">
+      <input type="text" id="country-inp" placeholder="Enter a country name..." />
+      <button id="search-btn">Search</button>
+    </div>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    let searchBtn = document.getElementById("search-btn");
+    let countryInp = document.getElementById("country-inp");
+    let result = document.getElementById("result");
+
+    searchBtn.addEventListener("click", () => {
+      let countryName = countryInp.value;
+      let finalURL = `https://restcountries.com/v3.1/name/${countryName}?fullText=true`;
+
+      fetch(finalURL)
+        .then((response) => response.json())
+        .then((data) => {
+          result.innerHTML = `
+            <img src="${data[0].flags.svg}" class="flag-img">
+            <div class="country-info">
+              <h2>${data[0].name.common}</h2>
+              <div>
+                <h4>Capital:</h4>
+                <span>${data[0].capital[0]}</span>
+              </div>
+              <div>
+                <h4>Continent:</h4>
+                <span>${data[0].continents[0]}</span>
+              </div>
+              <div>
+                <h4>Population:</h4>
+                <span>${data[0].population.toLocaleString()}</span>
+              </div>
+              <div>
+                <h4>Currency:</h4>
+                <span>${data[0].currencies[Object.keys(data[0].currencies)].name} - ${Object.keys(data[0].currencies)[0]}</span>
+              </div>
+              <div>
+                <h4>Languages:</h4>
+                <span>${Object.values(data[0].languages).join(', ')}</span>
+              </div>
+            </div>
+          `;
+        })
+        .catch(() => {
+          if (countryName.length == 0) {
+            result.innerHTML = `<p class="error-message">Please enter a country name.</p>`;
+          } else {
+            result.innerHTML = `<p class="error-message">Country not found. Please try again.</p>`;
+          }
+        });
+    });
+  </script>
+</body>
+
+</html>
