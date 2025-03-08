@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Scramble Game</title>
+    <!-- Bootstrap CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Base font size for rem calculation */
+        html {
+            font-size: 16px;
+            /* 1rem = 16px */
+        }
+
+        body {
+            background: linear-gradient(135deg, #00aaff, #ff6a00);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 1.25rem;
+            /* 20px */
+            box-shadow: 0px 1.25rem 2.5rem rgba(0, 0, 0, 0.1);
+            width: 35rem;
+            /* 400px */
+            padding: 2.5rem;
+            /* 40px */
+            text-align: center;
+        }
+
+        .container h2 {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 1.25rem;
+            /* 20px */
+            text-transform: uppercase;
+        }
+
+        .content .word {
+            font-size: 3rem;
+            /* 48px */
+            font-weight: 700;
+            color: #2c3e50;
+            letter-spacing: 1.125rem;
+            /* 18px */
+            text-transform: uppercase;
+            margin-bottom: 1.25rem;
+            /* 20px */
+        }
+
+        .details p {
+            font-size: 1.125rem;
+            /* 18px */
+            margin-bottom: 0.75rem;
+            /* 12px */
+            color: #7f8c8d;
+        }
+
+        .details p b {
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        .content input {
+            width: 100%;
+            height: 3.125rem;
+            /* 50px */
+            padding: 0 1.25rem;
+            /* 20px */
+            font-size: 1.125rem;
+            /* 18px */
+            color: #34495e;
+            background-color: #f9f9f9;
+            border: 0.125rem solid #ecf0f1;
+            /* 2px */
+            border-radius: 0.625rem;
+            /* 10px */
+            margin-bottom: 1.25rem;
+            /* 20px */
+            outline: none;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .content input:focus {
+            border-color: #00aaff;
+            background-color: #ffffff;
+            box-shadow: 0 0 0.625rem rgba(0, 170, 255, 0.3);
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .buttons button {
+            width: 48%;
+            padding: 0.875rem;
+            /* 14px */
+            font-size: 1.125rem;
+            /* 18px */
+            font-weight: 600;
+            border: none;
+            border-radius: 0.625rem;
+            /* 10px */
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .buttons .refresh-word {
+            background-color: #ff6a00;
+            color: #ffffff;
+        }
+
+        .buttons .refresh-word:hover {
+            background-color: #e65c00;
+            transform: scale(1.05);
+        }
+
+        .buttons .check-word {
+            background-color: #00aaff;
+            color: #ffffff;
+        }
+
+        .buttons .check-word:hover {
+            background-color: #0088cc;
+            transform: scale(1.05);
+        }
+
+        .time span {
+            font-size: 1.25rem;
+            /* 20px */
+            color: #e74c3c;
+            font-weight: 700;
+        }
+
+        /* Responsive design for smaller screens */
+        @media screen and (max-width: 768px) {
+            .container {
+                padding: 2rem;
+                /* 32px */
+                width: 90%;
+            }
+
+            .container h2 {
+                font-size: 1.875rem;
+                /* 30px */
+            }
+
+            .content .word {
+                font-size: 2.25rem;
+                /* 36px */
+                letter-spacing: 1rem;
+                /* 16px */
+            }
+
+            .buttons button {
+                font-size: 1rem;
+                /* 16px */
+                padding: 0.75rem;
+                /* 12px */
+            }
+
+            .content input {
+                font-size: 1rem;
+                /* 16px */
+            }
+        }
+
+        /* For smaller devices (mobile) */
+        @media screen and (max-width: 480px) {
+            .container {
+                padding: 1.5rem;
+                /* 24px */
+                width: 100%;
+            }
+
+            .container h2 {
+                font-size: 1.625rem;
+                /* 26px */
+            }
+
+            .content .word {
+                font-size: 1.875rem;
+                /* 30px */
+                letter-spacing: 0.875rem;
+                /* 14px */
+            }
+
+            .buttons button {
+                font-size: 0.875rem;
+                /* 14px */
+                padding: 0.625rem;
+                /* 10px */
+            }
+
+            .content input {
+                font-size: 0.875rem;
+                /* 14px */
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Word Scramble</h2>
+        <div class="content">
+            <p class="word"></p>
+            <div class="details">
+                <p class="hint">Hint: <span></span></p>
+                <p class="time">Time Left: <span><b>30</b>s</span></p>
+            </div>
+            <input type="text" spellcheck="false" placeholder="Enter a valid word">
+            <div class="buttons">
+                <button class="refresh-word btn">Refresh Word</button>
+                <button class="check-word btn">Check Word</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let words = [
+            { word: "addition", hint: "The process of adding numbers" },
+            { word: "meeting", hint: "Event in which people come together" },
+            { word: "number", hint: "Math symbol used for counting" },
+            { word: "exchange", hint: "The act of trading" },
+            { word: "canvas", hint: "Piece of fabric for oil painting" },
+            { word: "garden", hint: "Space for planting flowers and plants" },
+            { word: "position", hint: "Location of someone or something" },
+            { word: "feather", hint: "Hair-like outer covering of bird" },
+            { word: "comfort", hint: "A pleasant feeling of relaxation" },
+            { word: "tongue", hint: "The muscular organ of the mouth" },
+            { word: "expansion", hint: "The process of increasing or growing" },
+            { word: "country", hint: "A politically identified region" },
+            { word: "group", hint: "A number of objects or persons" },
+            { word: "taste", hint: "Ability of tongue to detect flavor" },
+            { word: "store", hint: "Large shop where goods are traded" },
+            { word: "field", hint: "Area of land for farming activities" },
+            { word: "friend", hint: "Person other than a family member" },
+            { word: "pocket", hint: "A bag for carrying small items" },
+            { word: "needle", hint: "A thin and sharp metal pin" },
+            { word: "expert", hint: "Person with extensive knowledge" },
+            { word: "statement", hint: "A declaration of something" },
+            { word: "second", hint: "One-sixtieth of a minute" },
+            { word: "library", hint: "Place containing a collection of books" }
+        ];
+
+        const wordText = document.querySelector(".word"),
+            hintText = document.querySelector(".hint span"),
+            timeText = document.querySelector(".time b"),
+            inputField = document.querySelector("input"),
+            refreshBtn = document.querySelector(".refresh-word"),
+            checkBtn = document.querySelector(".check-word");
+
+        let correctWord, timer;
+
+        const initTimer = (maxTime) => {
+            clearInterval(timer);
+            timer = setInterval(() => {
+                if (maxTime > 0) {
+                    maxTime--;
+                    return (timeText.innerText = maxTime);
+                }
+                alert(`Time off! ${correctWord.toUpperCase()} was the correct word`);
+                initGame();
+            }, 1000);
+        };
+
+        const initGame = () => {
+            initTimer(30);
+            let randomObj = words[Math.floor(Math.random() * words.length)];
+            let wordArray = randomObj.word.split("");
+            for (let i = wordArray.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                [wordArray[i], wordArray[j]] = [wordArray[j], wordArray[i]];
+            }
+            wordText.innerText = wordArray.join("");
+            hintText.innerText = randomObj.hint;
+            correctWord = randomObj.word.toLowerCase();
+            inputField.value = "";
+            inputField.setAttribute("maxlength", correctWord.length);
+        };
+        initGame();
+
+        const checkWord = () => {
+            let userWord = inputField.value.toLowerCase();
+            if (!userWord) return alert("Please enter the word to check!");
+            if (userWord !== correctWord)
+                return alert(`Oops! ${userWord} is not a correct word`);
+            alert(`Congrats! ${correctWord.toUpperCase()} is the correct word`);
+            initGame();
+        };
+
+        refreshBtn.addEventListener("click", initGame);
+        checkBtn.addEventListener("click", checkWord);
+    </script>
+
+    <!-- Bootstrap JS and Popper.js (for interactivity) -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+</body>
+
+</html>
