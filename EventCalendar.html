@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Calendar</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        body {
+            background-color: black;
+            color: white;
+        }
+
+        .calendar-container {
+            margin-top: 50px;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #333;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            grid-gap: 10px;
+            margin-top: 10px;
+        }
+
+        .day {
+            padding: 20px;
+            text-align: center;
+            background-color: #444;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .day:hover {
+            background-color: #666;
+        }
+
+        .event-modal .modal-header {
+            background-color: #333;
+        }
+
+        .event-modal .modal-body {
+            background-color: #444;
+        }
+
+        .modal-footer {
+            background-color: #333;
+        }
+
+        .day-name {
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container calendar-container">
+        <div class="calendar-header">
+            <button class="btn btn-primary" onclick="previousMonth()">Previous</button>
+            <h3 id="monthYear"></h3>
+            <button class="btn btn-primary" onclick="nextMonth()">Next</button>
+        </div>
+
+        <!-- Calendar Day Names -->
+        <div class="calendar-days">
+            <div class="day-name">Sun</div>
+            <div class="day-name">Mon</div>
+            <div class="day-name">Tue</div>
+            <div class="day-name">Wed</div>
+            <div class="day-name">Thu</div>
+            <div class="day-name">Fri</div>
+            <div class="day-name">Sat</div>
+        </div>
+
+        <!-- Calendar Days -->
+        <div class="calendar-days" id="calendarDays"></div>
+    </div>
+
+    <!-- Modal for Event -->
+    <div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content event-modal">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="eventModalLabel">Add Event</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" id="eventTitle" class="form-control" placeholder="Event Title">
+                    <textarea id="eventDescription" class="form-control mt-2" rows="3"
+                        placeholder="Event Description"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="saveEvent()">Save Event</button>
+                    <button type="button" class="btn btn-danger" id="deleteEventButton" style="display:none;"
+                        onclick="deleteEvent()">Delete Event</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- JavaScript -->
+    <script>
+        let currentDate = new Date();
+        let events = {};
+        let selectedDay = null;
+
+        // Display the current month and year
+        function renderCalendar() {
+            const monthYear = document.getElementById('monthYear');
+            const calendarDays = document.getElementById('calendarDays');
+            calendarDays.innerHTML = '';
+
+            const month = currentDate.getMonth();
+            const year = currentDate.getFullYear();
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const numDays = lastDay.getDate();
+            const startDay = firstDay.getDay();
+
+            monthYear.textContent = `${firstDay.toLocaleString('default', { month: 'long' })} ${year}`;
+
+            // Create empty grid cells for days before the first day of the month
+            for (let i = 0; i < startDay; i++) {
+                calendarDays.innerHTML += '<div class="day"></div>';
+            }
+
+            // Create day cells
+            for (let i = 1; i <= numDays; i++) {
+                const dayCell = document.createElement('div');
+                dayCell.classList.add('day');
+                dayCell.textContent = i;
+                dayCell.onclick = () => showEventModal(i);
+
+                // If an event exists for this day, mark it
+                if (events[`${month + 1}-${i}-${year}`]) {
+                    dayCell.style.backgroundColor = '#007bff';
+                }
+
+                calendarDays.appendChild(dayCell);
+            }
+        }
+
+        // Show the event modal for a specific day
+        function showEventModal(day) {
+            selectedDay = day;
+            const selectedDate = `${currentDate.getMonth() + 1}-${day}-${currentDate.getFullYear()}`;
+            const event = events[selectedDate] || { title: '', description: '' };
+
+            document.getElementById('eventTitle').value = event.title;
+            document.getElementById('eventDescription').value = event.description;
+
+            // Check if the event date is complete (in the past)
+            const eventDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+            const currentDateTime = new Date();
+
+            if (eventDate < currentDateTime) {
+                // Show delete button if event date has passed
+                document.getElementById('deleteEventButton').style.display = 'block';
+            } else {
+                document.getElementById('deleteEventButton').style.display = 'none';
+            }
+
+            // Open the modal using Bootstrap 5's Modal method
+            const modal = new bootstrap.Modal(document.getElementById('eventModal'));
+            modal.show();
+        }
+
+        // Save event to the selected day
+        function saveEvent() {
+            const eventTitle = document.getElementById('eventTitle').value;
+            const eventDescription = document.getElementById('eventDescription').value;
+            const selectedDate = `${currentDate.getMonth() + 1}-${selectedDay}-${currentDate.getFullYear()}`;
+
+            if (eventTitle || eventDescription) {
+                events[selectedDate] = { title: eventTitle, description: eventDescription };
+            } else {
+                delete events[selectedDate];
+            }
+
+            renderCalendar();
+
+            // Hide the modal after saving
+            const modal = bootstrap.Modal.getInstance(document.getElementById('eventModal'));
+            modal.hide();
+        }
+
+        // Delete the event for the selected day
+        function deleteEvent() {
+            const selectedDate = `${currentDate.getMonth() + 1}-${selectedDay}-${currentDate.getFullYear()}`;
+            delete events[selectedDate];
+
+            renderCalendar();
+
+            // Hide the modal after deleting
+            const modal = bootstrap.Modal.getInstance(document.getElementById('eventModal'));
+            modal.hide();
+        }
+
+        // Move to previous month
+        function previousMonth() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+        }
+
+        // Move to next month
+        function nextMonth() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+        }
+
+        // Initial render
+        renderCalendar();
+    </script>
+
+</body>
+
+</html>
